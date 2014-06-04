@@ -1,11 +1,14 @@
 /**
  * Created by Li He on 2014/5/23.
  */
-var debug = require('debug')('generated-express-app');
-var app = require('./core');
+var debug = require('debug')('iCollege')
+    ,college = require('./core');
 
-app.set('port', process.env.PORT || 3000);
+college.set('port', process.env.PORT || 3000);
 
-var server = app.listen(app.get('port'), function() {
-    debug('Express server listening on port ' + server.address().port);
+console.log('hello world!');
+
+var server = college.listen(college.get('port'), function() {
+    debug('server listening on port ' + server.address().port);
 });
+
