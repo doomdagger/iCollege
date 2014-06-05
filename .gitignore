@@ -1,5 +1,9 @@
 # node modules #
 /node_modules
+npm-debug.log
 
 # WebStorm Meta #
 /.idea
+*.iml
+
+config.js
