@@ -45,6 +45,7 @@
         "node-uuid": "~1.4.1",
         "nodemailer": "~0.5.13",
         "validator": "~3.4.0",
+        "semver": "2.2.1",
         "sqlite3": "2.2.3",
         "redis":"~0.10.3"
     },

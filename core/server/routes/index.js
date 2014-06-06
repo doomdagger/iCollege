@@ -1,9 +1,9 @@
-var express = require('express');
-var router = express.Router();
+var api         = require('./api'),
+    admin       = require('./admin'),
+    frontend    = require('./frontend');
 
-/* GET home page. */
-router.get('/', function(req, res) {
-  res.send('<h1>hello world</h1>');
-});
-
-module.exports = router;
+module.exports = {
+    api: api,
+    admin: admin,
+    frontend: frontend
+};
