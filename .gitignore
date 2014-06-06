@@ -7,3 +7,7 @@ npm-debug.log
 *.iml
 
 config.js
+
+# sencha #
+core/client/build/
+core/client/touch/
