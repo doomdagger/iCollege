@@ -15,11 +15,10 @@ password    ||密码
 name        ||真实姓名
 age         ||年龄
 sex         ||性别
-**educations**   ||education实体的集合
-**friends**      ||friendItem实体的集合
-**groups**       ||groupItem实体的集合
-
-
+[**educations**](http://git.candylee.cn/doomdagger/icollege/blob/master/DB.md#education "")   ||education实体的集合
+[**friends**](http://git.candylee.cn/doomdagger/icollege/blob/master/DB.md#friendItem "")      ||friendItem实体的集合
+[**groups**](http://git.candylee.cn/doomdagger/icollege/blob/master/DB.md#groupItem "")            ||groupItem实体的集合
+[**apps**](http://git.candylee.cn/doomdagger/icollege/blob/master/DB.md#appItem "")            ||appItem实体的集合
 ### message 即时通信消息
 
 field name  | field type | 备注
@@ -30,7 +29,7 @@ content     ||消息内容
 timestamp   ||消息发送时间戳
 from        ||只可以是用户或者系统
 to          ||可是是用户，消息群组
-**addon**       ||addon对象
+[**addon**](http://git.candylee.cn/doomdagger/icollege/blob/master/DB.md#addon "")                  ||addon对象
 
 ### group 消息群组
 field name  | field type | 备注
@@ -40,7 +39,7 @@ name        ||群组名称，系统建立组群组名不可更改
 members     ||user的_id字段集合
 type        ||群组类型，用户自建组或系统建立组
 description ||群组介绍，可修改
-**addons**      ||addon对象集合
+[**addons**](http://git.candylee.cn/doomdagger/icollege/blob/master/DB.md#addon "")                       ||addon对象集合
 
 ### app 应用
 field name  | field type | 备注
