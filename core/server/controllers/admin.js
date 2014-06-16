@@ -1,11 +1,10 @@
 var config        = require('../config'),
     _             = require('lodash'),
     path          = require('path'),
-    when          = require('when'),
+    Q             = require('q'),
     api           = require('../api'),
     errors        = require('../errors'),
     storage       = require('../storage'),
-    updateCheck   = require('../update-check'),
     adminNavbar,
     adminControllers,
     loginSecurity = [];

@@ -3,16 +3,16 @@
 
 var moment            = require('moment'),
     _                 = require('lodash'),
-    ghostConfig = '';
+    icollegeConfig = '';
 
 // ## setConfig
 // Simple utility function to allow
-// passing of the ghostConfig
+// passing of the icollegeConfig
 // object here to be used locally
 // to ensure clean depedency graph
 // (i.e. no circular dependencies).
 function setConfig(config) {
-    ghostConfig = config;
+    icollegeConfig = config;
 }
 
 // ## createUrl
@@ -37,10 +37,10 @@ function createUrl(urlPath, absolute, secure) {
 
     // create base of url, always ends without a slash
     if (absolute) {
-        baseUrl = (secure && ghostConfig.urlSSL) ? ghostConfig.urlSSL : ghostConfig.url;
+        baseUrl = (secure && icollegeConfig.urlSSL) ? icollegeConfig.urlSSL : icollegeConfig.url;
         output += baseUrl.replace(/\/$/, '');
     } else {
-        output += ghostConfig.paths.subdir;
+        output += icollegeConfig.paths.subdir;
     }
 
     // append the path, always starts and ends with a slash

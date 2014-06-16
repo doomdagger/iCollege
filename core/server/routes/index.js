@@ -1,9 +1,7 @@
 var api         = require('./api'),
-    admin       = require('./admin'),
-    frontend    = require('./frontend');
+    admin       = require('./admin');
 
 module.exports = {
     api: api,
-    admin: admin,
-    frontend: frontend
+    admin: admin
 };

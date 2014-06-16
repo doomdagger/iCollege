@@ -9,7 +9,7 @@ var _                   = require('lodash'),
     PermissionsProvider = Models.Permission,
     init,
     refresh,
-    canThis, //can this be done?
+    canThis,
     CanThisResult,
     exported;
 
