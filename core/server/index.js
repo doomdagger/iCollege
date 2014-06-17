@@ -119,8 +119,6 @@ function init(server) {
         server.use(errorhandler());
     }
 
-    server.use(csurf());
-
     server.use(favicon(config().paths.clientPath + '/resources/icons/favicon.ico'));
 
     server.use(serveStatic(config().paths.clientPath, {
@@ -128,8 +126,11 @@ function init(server) {
     }));
 
 
-    // ## Routing
-
+    // ## Routing Example
+    server.get('/hello', function(req, res){
+        //console.log(req.query.name);
+        res.send('Hello World');
+    });
 
     httpServer = server.listen(
         config().server.port,
