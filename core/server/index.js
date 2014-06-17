@@ -15,11 +15,68 @@ var express     = require('express'),
     uuid        = require('node-uuid'),
     Polyglot    = require('node-polyglot'),
     _           = require('lodash'),
+    colors      = require('colors'),
     Q           = require('q'),
+    semver      = require('semver'),
 
     config      = require('./config'),
-
+    packageInfo = require('../../package.json'),
     httpServer;
+
+
+function icollegeStartMessages() {
+    // Tell users if their node version is not supported, and exit
+    if (!semver.satisfies(process.versions.node, packageInfo.engines.node)) {
+        console.log(
+            "\nERROR: Unsupported version of Node".red,
+            "\niCollege needs Node version".red,
+            packageInfo.engines.node.yellow,
+            "you are using version".red,
+            process.versions.node.yellow,
+            "\nPlease go to http://nodejs.org to get a supported version".green
+        );
+
+        process.exit(0);
+    }
+
+    // Startup & Shutdown messages
+    if (process.env.NODE_ENV === 'production') {
+        console.log(
+            "iCollege is running...".green,
+            "\nYour site is now available on",
+            config().url,
+            "\nCtrl+C to shut down".grey
+        );
+
+        // ensure that Ghost exits correctly on Ctrl+C
+        process.on('SIGINT', function () {
+            console.log(
+                "\niCollege has shut down".red,
+                "\nYour site is now offline"
+            );
+            process.exit(0);
+        });
+    } else {
+        console.log(
+            ("iCollege is running in " + process.env.NODE_ENV + "...").green,
+            "\nListening on",
+                config().server.host.yellow + ':' + config().server.port.yellow,
+            "\nUrl configured as:",
+                config().url,
+            "\nCtrl+C to shut down".grey
+        );
+        // ensure that Ghost exits correctly on Ctrl+C
+        process.on('SIGINT', function () {
+            console.log(
+                "\niCollege has shutdown".red,
+                "\niCollege was running for",
+                Math.round(process.uptime()),
+                "seconds"
+            );
+            process.exit(0);
+        });
+    }
+}
 
 
 
@@ -37,7 +94,6 @@ function init(server) {
 
     // Set up Polygot instance on the require module
     Polyglot.instance = new Polyglot();
-
 
 
     // enabled gzip compression by default
@@ -80,7 +136,11 @@ function init(server) {
         config().server.host
     );
 
-    deferred.resolve(httpServer);
+    httpServer.on('listening', function () {
+        icollegeStartMessages();
+        deferred.resolve(httpServer);
+    });
+
 
     return deferred.promise;
 }

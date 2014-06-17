@@ -6,12 +6,13 @@
 
 var fs      = require('fs'),
     url     = require('url'),
+    path    = require('path'),
     Q       = require('q'),
     errors  = require('./server/errors'),
     config  = require('./server/config'),
 
-    appRoot = config().paths.appRoot,
-    configExample = config().paths.configExample,
+    appRoot = path.resolve(__dirname, '../'),//app still not bootstrapped, cannot fetch app root from config module
+    configExample = path.join(appRoot, 'config.example.js'),
     rejectMessage = 'Unable to load config',
     configFile;
 
@@ -34,14 +35,14 @@ function writeConfigFile() {
 
         // Copy config.example.js => config.js
         read = fs.createReadStream(configExample);
-        read.on('error', function (err) {
+        read.on('error', function (/*error*/) {
             /*jshint unused:false*/
             return errors.logError(new Error('Could not open config.example.js for read.'), appRoot, 'Please check your deployment for config.js or config.example.js.');
         });
         read.on('end', written.resolve);
 
         write = fs.createWriteStream(configFile);
-        write.on('error', function (err) {
+        write.on('error', function (/*error*/) {
             /*jshint unused:false*/
             return errors.logError(new Error('Could not open config.js for write.'), appRoot, 'Please check your deployment for config.js or config.example.js.');
         });
@@ -69,21 +70,21 @@ function validateConfigEnvironment() {
     if (!config) {
         errors.logError(new Error('Cannot find the configuration for the current NODE_ENV'), "NODE_ENV=" + envVal,
             'Ensure your config.js has a section for the current NODE_ENV value and is formatted properly.');
-        return deferred.reject(rejectMessage);
+        deferred.reject(rejectMessage);
     }
 
     // Check that our url is valid
     parsedUrl = url.parse(config.url || 'invalid', false, true);
     if (!parsedUrl.host) {
         errors.logError(new Error('Your site url in config.js is invalid.'), config.url, 'Please make sure this is a valid url before restarting');
-        return deferred.reject(rejectMessage);
+        deferred.reject(rejectMessage);
     }
 
 
     // Check that we have database values
     if (!config.database) {
         errors.logError(new Error('Your database configuration in config.js is invalid.'), JSON.stringify(config.database), 'Please make sure this is a valid Bookshelf database configuration');
-        return deferred.reject(rejectMessage);
+        deferred.reject(rejectMessage);
     }
 
     hasHostAndPort = config.server && !!config.server.host && !!config.server.port;
@@ -91,7 +92,7 @@ function validateConfigEnvironment() {
     // Check for valid server host and port values
     if (!config.server || !hasHostAndPort) {
         errors.logError(new Error('Your server values (socket, or host and port) in config.js are invalid.'), JSON.stringify(config.server), 'Please provide them before restarting.');
-        return deferred.reject(rejectMessage);
+        deferred.reject(rejectMessage);
     }
 
     deferred.resolve(config);
@@ -99,13 +100,18 @@ function validateConfigEnvironment() {
     return deferred.promise;
 }
 
+/**
+ * Bootstrap的入口方法，
+ * @param configFilePath
+ * @returns {*}
+ */
 function loadConfig(configFilePath) {
     var loaded = Q.defer(),
         pendingConfig;
 
     // Allow config file path to be taken from, in order of importance:
     // environment process, passed in value, default location
-    configFile = process.env.ICOLLEGE_CONFIG || configFilePath || config().paths.config;
+    configFile = configFilePath;
 
     /* Check for config file and copy from config.example.js
      if one doesn't exist. After that, start the server. */
@@ -114,6 +120,11 @@ function loadConfig(configFilePath) {
             pendingConfig = writeConfigFile();
         }
         Q.when(pendingConfig).then(validateConfigEnvironment).then(function (rawConfig) {
+            // add some path info to rawConfig
+            rawConfig.paths.appRoot = appRoot;
+            rawConfig.paths.configExample = configExample;
+            rawConfig.paths.config = configFile;
+
             return config.init(rawConfig).then(loaded.resolve);
         }).catch(loaded.reject);
     });

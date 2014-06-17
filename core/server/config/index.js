@@ -1,4 +1,5 @@
 /**
+ * 这个模块维护着一个全局的icollegeConfig对象
  * @module core/server/config
  * @type {exports}
  */
@@ -14,12 +15,12 @@ var path          = require('path'), // built-in path module
     _             = require('lodash'),  // lodash
     configUrl     = require('./url'),// url.js in the same folder
     icollegeConfig   = {},
-    appRoot       = path.resolve(__dirname, '../../../'), // the root of the project
-    corePath      = path.resolve(appRoot, 'core/'), // the core folder
-    clientPath    = path.resolve(corePath, 'client/'); // the client folder
+    appRoot, // the root of the project
+    corePath; // the core folder
 
 /**
- * 传入一个config对象，用以升级 icollegeConfig对象
+ * 传入一个config对象，用以更新全局的icollegeConfig对象，理论上，该方法不应当被重复
+ * 调用多次。该方法主要更新config的paths信息，而且还是更新url模块的icollegeConfig对象。
  * @param {Object} config - a config object most likely to be your config.js
  * @returns {{}}
  */
@@ -31,6 +32,10 @@ function updateConfig(config) {
     // Merge passed in config object onto
     // the cached icollegeConfig object
     _.merge(icollegeConfig, config);
+
+    // must have appRoot and configExample paths
+    appRoot       = icollegeConfig.paths.appRoot; // the root of the project
+    corePath      = path.resolve(appRoot, 'core/'); // the core folder
 
     // Protect against accessing a non-existant object.
     // This ensures there's always at least a paths object
@@ -57,9 +62,9 @@ function updateConfig(config) {
             'appRoot':          appRoot,
             'subdir':           subdir,
             'config':           icollegeConfig.paths.config || path.join(appRoot, 'config.js'),
-            'configExample':    path.join(appRoot, 'config.example.js'),
+            'configExample':    icollegeConfig.paths.configExample || path.join(appRoot, 'config.example.js'),
             'corePath':         corePath,
-            'clientPath':       clientPath,
+            'clientPath':       path.resolve(corePath, 'client/'), // the client folder
 
             'contentPath':      contentPath,
             'appPath':          path.resolve(contentPath, 'apps'),
@@ -68,7 +73,6 @@ function updateConfig(config) {
 
             'exportPath':       path.join(corePath, '/server/data/export/'),
             'lang':             path.join(corePath, '/shared/lang/'),
-            'debugPath':        subdir + '/icollege/debug/', // usage?
 
             'availableApps':    icollegeConfig.paths.availableApps || [],
             'builtScriptPath':  path.join(corePath, 'built/scripts/')
@@ -83,6 +87,11 @@ function updateConfig(config) {
     return icollegeConfig;
 }
 
+/**
+ * should return a promise
+ * @param {Object} rawConfig - 此对象应是config.js中的某一个子对象
+ * @returns {*}
+ */
 function initConfig(rawConfig) {
 
     var deferred = Q.defer();
@@ -99,19 +108,13 @@ function initConfig(rawConfig) {
     return deferred.promise;
 }
 
-// Returns NODE_ENV config object
+/**
+ * initConfig()方法只会在项目初始化时被调用，此方法应该作为唯一对外出口供其他模块
+ * 获取到全局的icollegeConfig对象.
+ * @returns {{}}
+ */
 function config() {
-    // @TODO: get rid of require statement.
-    // This is currently needed for tests to load config file
-    // successfully.  While running application we should never
-    // have to directly delegate to the config.js file.
-    if (_.isEmpty(icollegeConfig)) {
-        try {
-            icollegeConfig = require(path.resolve(__dirname, '../../../', 'config.js'))[process.env.NODE_ENV] || {};
-        } catch (ignore) {/*jslint strict: true */}
-        icollegeConfig = updateConfig(icollegeConfig);
-    }
-
+    // expose config object to others, never invoke it before the project get bootstrapped!
     return icollegeConfig;
 }
 

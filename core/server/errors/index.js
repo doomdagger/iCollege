@@ -42,6 +42,28 @@ errors = {
         });
     },
 
+    debug: function(msg, context, help) {
+        if ((process.env.NODE_ENV === 'development' ||
+            process.env.NODE_ENV === 'staging' ||
+            process.env.NODE_ENV === 'production')) {
+
+            var msgs = ['\nDebugging:'.yellow, msg.yellow, '\n'];
+
+            if (context) {
+                msgs.push(context.white, '\n');
+            }
+
+            if (help) {
+                msgs.push(help.green);
+            }
+
+            // add a new line
+            msgs.push('\n');
+
+            console.log.apply(console, msgs);
+        }
+    },
+
     logWarn: function (warn, context, help) {
         if ((process.env.NODE_ENV === 'development' ||
             process.env.NODE_ENV === 'staging' ||
