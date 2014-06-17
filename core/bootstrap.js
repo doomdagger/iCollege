@@ -20,7 +20,7 @@ function readConfigFile(envVal) {
 }
 
 function writeConfigFile() {
-    var written = when.defer();
+    var written = Q.defer();
 
     /* Check for config file and copy from config.example.js
      if one doesn't exist. After that, start the server. */
@@ -55,9 +55,9 @@ function writeConfigFile() {
 function validateConfigEnvironment() {
     var envVal = process.env.NODE_ENV || undefined,
         hasHostAndPort,
-        hasSocket,
         config,
-        parsedUrl;
+        parsedUrl,
+        deferred = Q.defer();
 
     try {
         config = readConfigFile(envVal);
@@ -69,46 +69,43 @@ function validateConfigEnvironment() {
     if (!config) {
         errors.logError(new Error('Cannot find the configuration for the current NODE_ENV'), "NODE_ENV=" + envVal,
             'Ensure your config.js has a section for the current NODE_ENV value and is formatted properly.');
-        return when.reject(rejectMessage);
+        return deferred.reject(rejectMessage);
     }
 
     // Check that our url is valid
     parsedUrl = url.parse(config.url || 'invalid', false, true);
     if (!parsedUrl.host) {
         errors.logError(new Error('Your site url in config.js is invalid.'), config.url, 'Please make sure this is a valid url before restarting');
-        return when.reject(rejectMessage);
+        return deferred.reject(rejectMessage);
     }
 
-    if (/\/ghost(\/|$)/.test(parsedUrl.pathname)) {
-        errors.logError(new Error('Your site url in config.js cannot contain a subdirectory called ghost.'), config.url, 'Please rename the subdirectory before restarting');
-        return when.reject(rejectMessage);
-    }
 
     // Check that we have database values
-    if (!config.database || !config.database.client) {
+    if (!config.database) {
         errors.logError(new Error('Your database configuration in config.js is invalid.'), JSON.stringify(config.database), 'Please make sure this is a valid Bookshelf database configuration');
-        return when.reject(rejectMessage);
+        return deferred.reject(rejectMessage);
     }
 
     hasHostAndPort = config.server && !!config.server.host && !!config.server.port;
-    hasSocket = config.server && !!config.server.socket;
 
     // Check for valid server host and port values
-    if (!config.server || !(hasHostAndPort || hasSocket)) {
+    if (!config.server || !hasHostAndPort) {
         errors.logError(new Error('Your server values (socket, or host and port) in config.js are invalid.'), JSON.stringify(config.server), 'Please provide them before restarting.');
-        return when.reject(rejectMessage);
+        return deferred.reject(rejectMessage);
     }
 
-    return when.resolve(config);
+    deferred.resolve(config);
+
+    return deferred.promise;
 }
 
 function loadConfig(configFilePath) {
-    var loaded = when.defer(),
+    var loaded = Q.defer(),
         pendingConfig;
 
     // Allow config file path to be taken from, in order of importance:
     // environment process, passed in value, default location
-    configFile = process.env.GHOST_CONFIG || configFilePath || config().paths.config;
+    configFile = process.env.ICOLLEGE_CONFIG || configFilePath || config().paths.config;
 
     /* Check for config file and copy from config.example.js
      if one doesn't exist. After that, start the server. */
@@ -116,9 +113,9 @@ function loadConfig(configFilePath) {
         if (!configExists) {
             pendingConfig = writeConfigFile();
         }
-        when(pendingConfig).then(validateConfigEnvironment).then(function (rawConfig) {
+        Q.when(pendingConfig).then(validateConfigEnvironment).then(function (rawConfig) {
             return config.init(rawConfig).then(loaded.resolve);
-        }).otherwise(loaded.reject);
+        }).catch(loaded.reject);
     });
 
     return loaded.promise;

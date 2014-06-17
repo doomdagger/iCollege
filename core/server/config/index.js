@@ -16,7 +16,7 @@ var path          = require('path'), // built-in path module
     icollegeConfig   = {},
     appRoot       = path.resolve(__dirname, '../../../'), // the root of the project
     corePath      = path.resolve(appRoot, 'core/'), // the core folder
-    clientPath    = path.resolve(appRoot, 'client/'); // the client folder
+    clientPath    = path.resolve(corePath, 'client/'); // the client folder
 
 /**
  * 传入一个config对象，用以升级 icollegeConfig对象
@@ -37,7 +37,7 @@ function updateConfig(config) {
     // because it's referenced in multiple places.
     icollegeConfig.paths = icollegeConfig.paths || {};
 
-    // Parse local path location, in config.example.js, url should be http://icollege.com
+    // Parse local path location, in config.example.js, url should be http://icollege.com, path should be '/'
     if (icollegeConfig.url) {
         localPath = url.parse(icollegeConfig.url).path;
         // Remove trailing slash
@@ -46,7 +46,7 @@ function updateConfig(config) {
         }
     }
 
-    subdir = localPath === '/' ? '' : localPath;
+    subdir = localPath === '/' ? '' : localPath; // subdir == ''
 
     // Allow contentPath to be over-written by passed in config object
     // Otherwise default to default content path location
@@ -84,6 +84,9 @@ function updateConfig(config) {
 }
 
 function initConfig(rawConfig) {
+
+    var deferred = Q.defer();
+
     // Cache the config.js object's environment
     // object so we can later refer to it.
     // Note: this is not the entirety of config.js,
@@ -91,7 +94,9 @@ function initConfig(rawConfig) {
     icollegeConfig = updateConfig(rawConfig);
 
     // @TODO: deep search the apps in content/apps folder for available apps, should be returned as a promise
-    return icollegeConfig;
+    deferred.resolve(icollegeConfig);
+
+    return deferred.promise;
 }
 
 // Returns NODE_ENV config object

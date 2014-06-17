@@ -27,6 +27,8 @@ var express     = require('express'),
 // Sets up the express server instance.
 // Finally it starts the http server.
 function init(server) {
+    var deferred = Q.defer();
+
     // If no express instance is passed in
     // then create our own
     if (!server) {
@@ -63,7 +65,7 @@ function init(server) {
 
     server.use(csurf());
 
-    server.use(favicon(config().paths.clientPath + 'resources/icons/favicon.ico'));
+    server.use(favicon(config().paths.clientPath + '/resources/icons/favicon.ico'));
 
     server.use(serveStatic(config().paths.clientPath, {
         index: ['index.html', 'index.htm']
@@ -78,7 +80,9 @@ function init(server) {
         config().server.host
     );
 
-    return httpServer;
+    deferred.resolve(httpServer);
+
+    return deferred.promise;
 }
 
 module.exports = init;

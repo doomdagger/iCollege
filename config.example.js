@@ -11,40 +11,38 @@ config = {
         // The url to use when providing links to the site, E.g. in RSS and email.
         url: 'http://icollege.com',
         // Mail config
-        mail: {
-            transport: 'SMTP',
-            options: {
-                service: 'gmail',
-                auth: {
-                    user: '',
-                    pass: ''
-                }
-            }
-        },
+//        mail: {
+//            transport: 'SMTP',
+//            options: {
+//                service: 'gmail',
+//                auth: {
+//                    user: 'jet.in.brain@gmail.com',
+//                    pass: 'Ldz660802'
+//                }
+//            }
+//        },
         // database configs
         database: {
             // our main database, storage for all important data
             mongodb: {
                 connection: {
-                    host: '',
-                    user: '',
-                    password: '',
-                    database: '',
-                    charset: ''
+                    host: '127.0.0.1',
+                    database: 'icollege'
                 }
             },
             // our big file serialization database, storage for all assets
             sqlite3: {
                 connection: {
-                    filename: path.join(__dirname, '/content/data/ghost-dev.db')
+                    filename: path.join(__dirname, '/content/data/icollege-dev.db')
                 },
                 debug: false
             },
             // storage for session and other caches
             redis: {
                 connection: {
-                    host: '',
-                    port: ''
+                    host: '127.0.0.1',
+                    port: '6379',
+                    db: 'icollege'
                 },
                 options: {
                     return_buffers: false,

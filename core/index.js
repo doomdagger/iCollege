@@ -2,26 +2,26 @@
 // Orchestrates the loading of Ghost
 // When run from command line.
 
-var when      = require('when'),
+var Q         = require('q'),
     bootstrap = require('./bootstrap');
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-function startGhost(options) {
+function startICollege(options) {
     // When we no longer need to require('./server')
     // in a callback this extra deferred object
     // won't be necessary, we'll just be able to return
     // the server object directly.
-    var deferred = when.defer();
+    var deferred = Q.defer();
 
     options = options || {};
 
     bootstrap(options.config).then(function () {
         try {
-            var ghost = require('./server');
-            return ghost(options.app)
+            var iCollege = require('./server');
+            return iCollege(options.app)
                 .then(deferred.resolve)
-                .otherwise(function (e) {
+                .catch(function (e) {
                     // We don't return the rejected promise to stop
                     // the propogation of the rejection and just
                     // allow the user to manage what to do.
@@ -35,4 +35,4 @@ function startGhost(options) {
     return deferred.promise;
 }
 
-module.exports = startGhost;
+module.exports = startICollege;

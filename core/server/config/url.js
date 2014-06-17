@@ -38,7 +38,7 @@ function createUrl(urlPath, absolute, secure) {
     // create base of url, always ends without a slash
     if (absolute) {
         baseUrl = (secure && icollegeConfig.urlSSL) ? icollegeConfig.urlSSL : icollegeConfig.url;
-        output += baseUrl.replace(/\/$/, '');
+        output += baseUrl.replace(/\/$/, ''); // remove trailing
     } else {
         output += icollegeConfig.paths.subdir;
     }
