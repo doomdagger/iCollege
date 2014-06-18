@@ -21,6 +21,7 @@ var express     = require('express'),
     config      = require('./config'),
     packageInfo = require('../../package.json'),
     routes      = require('./routes'),
+    models      = require('./models'),
 
     httpServer;
 
@@ -92,7 +93,6 @@ function icollegeStartMessages() {
 // Sets up the express server instance.
 // Finally it starts the http server.
 function init(server) {
-    var deferred = when.defer();
 
     // If no express instance is passed in
     // then create our own
@@ -137,18 +137,23 @@ function init(server) {
     // ## Routing Example
     routes.user(server);
 
-    httpServer = server.listen(
-        config().server.port,
-        config().server.host
-    );
 
-    httpServer.on('listening', function () {
-        icollegeStartMessages();
-        deferred.resolve(httpServer);
+    return models.init().then(function(){
+        var deferred = when.defer();
+
+        httpServer = server.listen(
+            config().server.port,
+            config().server.host
+        );
+
+        httpServer.on('listening', function () {
+            icollegeStartMessages();
+            deferred.resolve(httpServer);
+        });
+
+        return deferred.promise;
     });
 
-
-    return deferred.promise;
 }
 
 module.exports = init;

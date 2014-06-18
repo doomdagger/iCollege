@@ -27,7 +27,21 @@ config = {
             mongodb: {
                 connection: {
                     host: '127.0.0.1',
+                    port: '27017',
                     database: 'icollege'
+                },
+                options: {
+                    db: {
+                        ative_parser: true
+                    },
+                    server: {
+                        poolSize: 5
+                    },
+                    replset: {
+                        rs_name: 'myReplicaSetName'
+                    },
+                    user: 'myUserName',
+                    pass: 'myPassword'
                 }
             },
             // our big file serialization database, storage for all assets
