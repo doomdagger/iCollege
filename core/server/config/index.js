@@ -10,7 +10,7 @@
 // All other files that need to reference config.js should use this file.
 
 var path          = require('path'), // built-in path module
-    Q             = require('q'),   // q - promise implementation
+    when             = require('when'),   // when - promise implementation
     url           = require('url'), // built-in url module
     _             = require('lodash'),  // lodash
     configUrl     = require('./url'),// url.js in the same folder
@@ -94,7 +94,7 @@ function updateConfig(config) {
  */
 function initConfig(rawConfig) {
 
-    var deferred = Q.defer();
+    var deferred = when.defer();
 
     // Cache the config.js object's environment
     // object so we can later refer to it.
@@ -114,6 +114,24 @@ function initConfig(rawConfig) {
  * @returns {{}}
  */
 function config() {
+
+    // @TODO: get rid of require statement.
+    // This is currently needed for tests to load config file
+    // successfully.  While running application we should never
+    // have to directly delegate to the config.js file. Just remove
+    // this block, everything will work fine.
+//    if (_.isEmpty(icollegeConfig)) {
+//
+//        try {
+//            icollegeConfig = require(path.resolve(__dirname, '../../../', 'config.js'))['development'];
+//        } catch (ignore) {/*jslint strict: true */}
+//
+//        icollegeConfig.paths.appRoot = path.resolve(__dirname, '../../../');//app still not bootstrapped, cannot fetch app root from config module
+//        icollegeConfig.paths.configExample = path.join(icollegeConfig.paths.appRoot, 'config.example.js');
+//
+//        icollegeConfig = updateConfig(icollegeConfig);
+//    }
+
     // expose config object to others, never invoke it before the project get bootstrapped!
     return icollegeConfig;
 }

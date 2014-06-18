@@ -1,7 +1,4 @@
 
-var Url = require("../server/config/url"),
-    url = require("url");
+var base = require('../server/storage/base');
 
-var path = "http://www.candylee.cn";
-
-
+console.log(base.getTargetDir('hello'));

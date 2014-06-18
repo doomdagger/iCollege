@@ -11,6 +11,7 @@ var _                          = require('lodash'),
     UnauthorizedError          = require('./unauthorizederror'),
     ValidationError            = require('./validationerror'),
     EmailError                 = require('./emailerror'),
+    when                       = require('when'),
     errors;
 
 // This is not useful but required for jshint
@@ -37,9 +38,7 @@ errors = {
     // Used to pass through promise errors when we want to handle them at a later time
     // this can be handled by calling deferred.resolve(rejectError(err))
     rejectError: function (err) {
-        return Q.fcall(function(){
-            this.throwError(err);
-        });
+        return when.reject(err);
     },
 
     debug: function(msg, context, help) {

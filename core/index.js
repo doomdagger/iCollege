@@ -2,7 +2,7 @@
 // Orchestrates the loading of Ghost
 // When run from command line.
 
-var Q         = require('q'),
+var when         = require('when'),
     bootstrap = require('./bootstrap');
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
@@ -12,7 +12,7 @@ function startICollege(options) {
     // in a callback this extra deferred object
     // won't be necessary, we'll just be able to return
     // the server object directly.
-    var deferred = Q.defer();
+    var deferred = when.defer();
 
     options = options || {};
 

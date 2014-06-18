@@ -7,7 +7,7 @@
 var fs      = require('fs'),
     url     = require('url'),
     path    = require('path'),
-    Q       = require('q'),
+    when       = require('when'),
     errors  = require('./server/errors'),
     config  = require('./server/config'),
 
@@ -21,7 +21,7 @@ function readConfigFile(envVal) {
 }
 
 function writeConfigFile() {
-    var written = Q.defer();
+    var written = when.defer();
 
     /* Check for config file and copy from config.example.js
      if one doesn't exist. After that, start the server. */
@@ -58,7 +58,7 @@ function validateConfigEnvironment() {
         hasHostAndPort,
         config,
         parsedUrl,
-        deferred = Q.defer();
+        deferred = when.defer();
 
     try {
         config = readConfigFile(envVal);
@@ -106,7 +106,7 @@ function validateConfigEnvironment() {
  * @returns {*}
  */
 function loadConfig(configFilePath) {
-    var loaded = Q.defer(),
+    var loaded = when.defer(),
         pendingConfig;
 
     // Allow config file path to be taken from, in order of importance:
@@ -119,7 +119,7 @@ function loadConfig(configFilePath) {
         if (!configExists) {
             pendingConfig = writeConfigFile();
         }
-        Q.when(pendingConfig).then(validateConfigEnvironment).then(function (rawConfig) {
+        when(pendingConfig).then(validateConfigEnvironment).then(function (rawConfig) {
             // add some path info to rawConfig
             rawConfig.paths.appRoot = appRoot;
             rawConfig.paths.configExample = configExample;

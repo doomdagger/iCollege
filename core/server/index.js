@@ -3,7 +3,6 @@ var express     = require('express'),
     bodyParser  = require('body-parser'),
     compression = require('compression'),
     cookieParser= require('cookie-parser'),
-    csurf       = require('csurf'),
     errorhandler= require('errorhandler'),
     session     = require('express-session'),
     RedisStore  = require('connect-redis')(session),
@@ -16,13 +15,22 @@ var express     = require('express'),
     Polyglot    = require('node-polyglot'),
     _           = require('lodash'),
     colors      = require('colors'),
-    Q           = require('q'),
+    when        = require('when'),
     semver      = require('semver'),
 
     config      = require('./config'),
     packageInfo = require('../../package.json'),
+    routes      = require('./routes'),
+
     httpServer;
 
+
+// If we're in development mode, require "when/console/monitor"
+// for help in seeing swallowed promise errors, and log any
+// stderr messages from bluebird promises.
+if (process.env.NODE_ENV === 'development') {
+    require('when/monitor/console');
+}
 
 function icollegeStartMessages() {
     // Tell users if their node version is not supported, and exit
@@ -84,7 +92,7 @@ function icollegeStartMessages() {
 // Sets up the express server instance.
 // Finally it starts the http server.
 function init(server) {
-    var deferred = Q.defer();
+    var deferred = when.defer();
 
     // If no express instance is passed in
     // then create our own
@@ -127,10 +135,7 @@ function init(server) {
 
 
     // ## Routing Example
-    server.get('/hello', function(req, res){
-        //console.log(req.query.name);
-        res.send('Hello World');
-    });
+    routes.user(server);
 
     httpServer = server.listen(
         config().server.port,
