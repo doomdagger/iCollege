@@ -10,14 +10,13 @@ var express     = require('express'),
     RedisStore  = require('connect-redis')(session),
     logger      = require('morgan'),
     favicon     = require('serve-favicon'),
-    //serveStatic = require('serve-static'),
     config      = require('../config'),
     errors      = require('../errors'),
     fs          = require('fs'),
     middleware  = require('./middleware'),
     path        = require('path'),
     routes      = require('../routes'),
-    //slashes     = require('connect-slashes'),
+    slashes     = require('connect-slashes'),
     storage     = require('../storage'),
     url         = require('url'),
     when        = require('when'),
@@ -25,46 +24,11 @@ var express     = require('express'),
 
     expressServer,
     ONE_HOUR_S  = 60 * 60,
-    //ONE_YEAR_S  = 365 * 24 * ONE_HOUR_S,
+    ONE_YEAR_S  = 365 * 24 * ONE_HOUR_S,
     ONE_HOUR_MS = ONE_HOUR_S * 1000,
     ONE_YEAR_MS = 365 * 24 * ONE_HOUR_MS;
 
-// ##Custom Middleware
 
-// ### Robots Middleware
-// Handle requests to robots.txt and cache file
-function robots() {
-    var content, // file cache
-        filePath = path.join(config().paths.corePath, '/shared/robots.txt');
-
-    return function robots(req, res, next) {
-        if ('/robots.txt' === req.url) {
-            if (content) {
-                res.writeHead(200, content.headers);
-                res.end(content.body);
-            } else {
-                fs.readFile(filePath, function (err, buf) {
-                    if (err) {
-                        return next(err);
-                    }
-
-                    content = {
-                        headers: {
-                            'Content-Type': 'text/plain',
-                            'Content-Length': buf.length,
-                            'Cache-Control': 'public, max-age=' + ONE_YEAR_MS / 1000
-                        },
-                        body: buf
-                    };
-                    res.writeHead(200, content.headers);
-                    res.end(content.body);
-                });
-            }
-        } else {
-            next();
-        }
-    };
-}
 
 module.exports = function (server) {
     var logging = config().logging, // unresolved logging
@@ -80,7 +44,8 @@ module.exports = function (server) {
     // (X-Forwarded-Proto header will be checked, if present)
     expressServer.enable('trust proxy');
 
-    // Logging configuration
+    // development specific configuration
+
     if (logging !== false) {
         if (expressServer.get('env') !== 'development') {
             expressServer.use(logger(logging || {}));
@@ -101,10 +66,10 @@ module.exports = function (server) {
 
 
     // Serve robots.txt if not found in theme
-    expressServer.use(robots());
+    expressServer.use(middleware.robots());
 
-    // Add in all trailing slashes do not want to have the trailing slashes
-    //expressServer.use(slashes(true, {headers: {'Cache-Control': 'public, max-age=' + ONE_YEAR_S}}));
+    // Add in all trailing slashes, add this middleware after the static middleware
+    expressServer.use(slashes(true, {headers: {'Cache-Control': 'public, max-age=' + ONE_YEAR_S}}));
 
     // Body parsing
     expressServer.use(bodyParser.json());
@@ -121,11 +86,14 @@ module.exports = function (server) {
     expressServer.use(cookieParser('i love u'));
     expressServer.use(session({
         store: new RedisStore(config().database.redis.connection), // redis store
-        secret: 'i love u',
         proxy: true,
+        secret: 'i love u',
         cookie: cookie
     }));
 
+    // ### Caching
+    expressServer.use(middleware.cacheControl('public'));
+    expressServer.use(subdir + '/api/', middleware.cacheControl('private'));
 
     // ### Routing
     // Set up API routes

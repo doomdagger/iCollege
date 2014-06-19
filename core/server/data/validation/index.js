@@ -1,7 +1,6 @@
 // Extend validator module
 // also add more validators to the project
-// developers are recommended to use this validation module,
-// rather than the third-party validator module
+// dedicate to some specific functional validations
 
 var _         = require('lodash'),
     validator = require('validator'),
@@ -81,5 +80,4 @@ validate = function (value, key, validations) {
     return validationErrors;
 };
 
-module.exports = validator;
 module.exports.validateSettings = validateSettings;

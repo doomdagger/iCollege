@@ -72,8 +72,42 @@ var middleware = {
                 next();
             }
         };
-    }
+    },
 
+    // ### Robots Middleware
+    // Handle requests to robots.txt and cache file
+    'robots': function () {
+        var content, // file cache
+            filePath = path.join(config().paths.corePath, '/shared/robots.txt');
+
+        return function robots(req, res, next) {
+            if ('/robots.txt' === req.url) {
+                if (content) {
+                    res.writeHead(200, content.headers);
+                    res.end(content.body);
+                } else {
+                    fs.readFile(filePath, function (err, buf) {
+                        if (err) {
+                            return next(err);
+                        }
+
+                        content = {
+                            headers: {
+                                'Content-Type': 'text/plain',
+                                'Content-Length': buf.length,
+                                'Cache-Control': 'public, max-age=' + ONE_YEAR_MS / 1000
+                            },
+                            body: buf
+                        };
+                        res.writeHead(200, content.headers);
+                        res.end(content.body);
+                    });
+                }
+            } else {
+                next();
+            }
+        };
+    }
 
 };
 

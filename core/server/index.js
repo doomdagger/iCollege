@@ -2,8 +2,6 @@
 var express     = require('express'),
     compression = require('compression'),
     methodOverride = require('method-override'),
-    fs          = require('fs'),
-    uuid        = require('node-uuid'),
     Polyglot    = require('node-polyglot'),
     _           = require('lodash'),
     colors      = require('colors'),
