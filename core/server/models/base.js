@@ -6,45 +6,50 @@ var mongoose   = require('mongoose'),
 
     config     = require('../config'),
     errors     = require('../errors'),
+    schema  = require('../data/schema'),
 
-    icollegeSchema = {};
+    icollegeSchema;
 
-// plugins for icollege schema
-icollegeSchema.plugins = {
-    'lastModifiedPlugin': function (schema, options) {
-        schema.add({ lastMod: Date });
+/**
+ * My Schema Class
+ * @param {Object} options
+ * @param {Object} statics
+ * @constructor
+ */
+function ICollegeSchema(options, statics){
+    // # options for parent schema, descendants will override these options
+    // pay attention to some specific part
+    this.options = options;
+    // static methods to inherit
+    this.statics = statics;
 
-        schema.pre('save', function (next) {
-            this.lastMod = new Date;
-            next();
-        });
+}
 
-        if (options && options.index) {
-            schema.path('lastMod').index(options.index)
-        }
-    }
+ICollegeSchema.prototype.extend = function(collectionName, statics, methods){
+
+    var defaultSchema = new mongoose.Schema(
+        // field and type and validations
+        schema.collections[collectionName],
+        // schema options
+        _.extend({ collection: collectionName }, this.options)
+    );
+
+    // extend statics for default schema
+    _.extend(defaultSchema.statics, this.statics, statics);
+    // extend methods for default schema
+    _.extend(defaultSchema.methods, methods);
+
+    // plugin configurations goes here
+    defaultSchema.add({ lastMod: Date });
+
+    defaultSchema.pre('save', function (next) {
+        this.lastMod = new Date;
+        next();
+    });
+
+    return defaultSchema;
 };
 
-
-// static method for icollege schema
-icollegeSchema.statics = {
-
-};
-
-// options for schema
-icollegeSchema.options = {
-    id: true,
-    _id: true,
-    autoIndex: true,
-    toJSON: {
-        getters: false,
-        virtuals: false
-    },
-    toObject: {
-        getters: false,
-        virtuals: false
-    }
-};
 
 
 /**
@@ -73,6 +78,26 @@ function init() {
 
     return connected.promise;
 }
+
+
+// global base Schema Object
+icollegeSchema = new ICollegeSchema({
+
+    id  : true,
+    _id : true,
+    autoIndex: true,
+    toJSON: {
+        getters: false,
+        virtuals: false
+    },
+    toObject: {
+        getters: false,
+        virtuals: false
+    }
+},{
+    // static methods definition goes here
+
+});
 
 
 module.exports = icollegeSchema;

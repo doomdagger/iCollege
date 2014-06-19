@@ -4,13 +4,20 @@ var config        = require('../config'),
     when          = require('when'),
     errors        = require('../errors'),
     storage       = require('../storage'),
+    models        = require('../models'),
 
     userControllers;
 
 userControllers = {
     'index': function(req, res) {
 
-        res.send('hello you\nThe index page here.');
+        models.User.findByName('lihe', function(err, users){
+            if(err)
+                res.send(err);
+            else
+                res.send(users);
+        });
+
 
     }
 };
