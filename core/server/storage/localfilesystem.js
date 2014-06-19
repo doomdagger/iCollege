@@ -2,6 +2,7 @@
 // The (default) module for storing images, using the local file system
 
 var _       = require('lodash'),
+    express = require('express'),
     fs      = require('fs-extra'),
     nodefn  = require('when/node'),
     path    = require('path'),
@@ -51,6 +52,15 @@ localFileStore = _.extend(baseStore, {
         });
 
         return done.promise;
+    },
+
+    // middleware for serving the files
+    'serve': function () {
+        var ONE_HOUR_MS = 60 * 60 * 1000,
+            ONE_YEAR_MS = 365 * 24 * ONE_HOUR_MS;
+
+        // For some reason send divides the max age number by 1000
+        return express['static'](config().paths.imagesPath, {maxAge: ONE_YEAR_MS});
     }
 });
 

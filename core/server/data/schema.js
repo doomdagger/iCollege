@@ -1,8 +1,18 @@
+
 var db = {
     users: {
         name: {type: String, default: "Li He", required: true},
         password: {type: String, default: "12345", required: true},
-        email: {type: String, required: false}
+        // # display functions below
+        status: {type: String, enum: ['online', 'offline', 'invalid'], lowercase: true},
+        email: {type: String, match: /.*?@.*?/, trim: true},
+        createAt: {type:Date, expires: 60*60*24}, // 24 hours
+        age: {type:Number, min:0, max:150},
+        tags: [{type: String}], // array
+        address: {
+            city: String,
+            street: String
+        }
     }
 };
 

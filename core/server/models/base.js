@@ -25,7 +25,15 @@ function ICollegeSchema(options, statics){
 
 }
 
-ICollegeSchema.prototype.extend = function(collectionName, statics, methods){
+/**
+ * extend the base ICollegeSchema object to gain some inherited methods
+ * @param {String} collectionName
+ * @param {Object} statics - static methods definition
+ * @param {Object} methods - instance methods definition
+ * @param {Array} plugins - plugin array you want to apply to the schema
+ * @returns {exports.Schema} schema object
+ */
+ICollegeSchema.prototype.extend = function(collectionName, statics, methods, plugins){
 
     var defaultSchema = new mongoose.Schema(
         // field and type and validations
@@ -38,13 +46,9 @@ ICollegeSchema.prototype.extend = function(collectionName, statics, methods){
     _.extend(defaultSchema.statics, this.statics, statics);
     // extend methods for default schema
     _.extend(defaultSchema.methods, methods);
-
-    // plugin configurations goes here
-    defaultSchema.add({ lastMod: Date });
-
-    defaultSchema.pre('save', function (next) {
-        this.lastMod = new Date;
-        next();
+    // apply plugin for the default schema
+    _.forEach(plugins, function(plugin){
+        defaultSchema.plugin(plugin);
     });
 
     return defaultSchema;
@@ -102,3 +106,4 @@ icollegeSchema = new ICollegeSchema({
 
 module.exports = icollegeSchema;
 module.exports.init = init;
+module.exports.plugins = require('./plugins');

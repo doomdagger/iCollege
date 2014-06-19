@@ -1,15 +1,7 @@
 // Module dependencies
 var express     = require('express'),
-    bodyParser  = require('body-parser'),
     compression = require('compression'),
-    cookieParser= require('cookie-parser'),
-    errorhandler= require('errorhandler'),
-    session     = require('express-session'),
-    RedisStore  = require('connect-redis')(session),
     methodOverride = require('method-override'),
-    morgan      = require('morgan'),
-    favicon     = require('serve-favicon'),
-    serveStatic = require('serve-static'),
     fs          = require('fs'),
     uuid        = require('node-uuid'),
     Polyglot    = require('node-polyglot'),
@@ -20,8 +12,8 @@ var express     = require('express'),
 
     config      = require('./config'),
     packageInfo = require('../../package.json'),
-    routes      = require('./routes'),
     models      = require('./models'),
+    middleware  = require('./middleware'),
 
     httpServer;
 
@@ -104,42 +96,24 @@ function init(server) {
     Polyglot.instance = new Polyglot();
 
 
-    // enabled gzip compression by default
-    server.use(compression());
-    // override with http method having ?_method=DELETE or something else
-    server.use(methodOverride('_method'));
-    // Logging middleware for node.js http apps.
-    server.use(morgan('dev'));
-    // populate req.cookies
-    server.use(cookieParser('i love u'));
-    // populate req.session
-    server.use(session({
-        store: new RedisStore(config().database.redis.connection), // redis store
-        secret: 'i love u'
-    }));
-    // ## populate req.body
-    // parse application/x-www-form-urlencoded
-    server.use(bodyParser.urlencoded());
-    // parse application/json
-    server.use(bodyParser.json());
-    // to handle errors and respond with content negotiation
-    if (process.env.NODE_ENV === 'development') {
-        server.use(errorhandler());
-    }
-
-    server.use(favicon(config().paths.clientPath + '/resources/icons/favicon.ico'));
-
-    server.use(serveStatic(config().paths.clientPath, {
-        index: ['index.html', 'index.htm']
-    }));
-
-
-    // ## Routing Example
-    routes.user(server);
-
-
     return models.init().then(function(){
         var deferred = when.defer();
+
+
+        // return the correct mime type for woff filess
+        express['static'].mime.define({'application/font-woff': ['woff']});
+
+        // enabled gzip compression by default
+        if (config().server.compress !== false) {
+            server.use(compression());
+        }
+
+        // override with http method having ?_method=DELETE or something else
+        server.use(methodOverride('_method'));
+
+
+        // ## Middleware and Routing
+        middleware(server);
 
         httpServer = server.listen(
             config().server.port,
@@ -153,6 +127,7 @@ function init(server) {
 
         return deferred.promise;
     });
+
 
 }
 

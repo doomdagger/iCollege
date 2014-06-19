@@ -12,21 +12,29 @@ var _       = require('lodash'),
 Users = icollegeSchema.extend("users", {
     // # statics
     'findByName': function (name, cb) {
-        // this refers to Schema Object
+        // this refers to Model instance
         this.find({ name: new RegExp(name, 'i') }, cb);
     }
+
 },{
     // # methods
     'findSameNames': function (cb) {
-        // this refers to Model Object
+        // this refers to Doc Instance,
         return this.model('User').find({ name: this.name }, cb);
     }
-});
+
+},[
+    // add plugins for Users schema
+    icollegeSchema.plugins.lastModifiedPlugin
+
+]);
+
 
 
 
 // Model definition
 User = mongoose.model('User', Users);
+
 
 module.exports = {
     User: User,
