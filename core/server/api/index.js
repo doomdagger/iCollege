@@ -14,23 +14,15 @@ var _             = require('lodash'),
     formatHttpErrors,
     cacheInvalidationHeader,
     locationHeader,
-    contentDispositionHeader,
-    init;
+    contentDispositionHeader;
 
-/**
- * ### Init
- * Initialise the API - populate the settings cache
- * @return {Promise(Settings)} Resolves to Settings Collection
- */
-init = function () {
-    return settings.updateSettingsCache();
-};
+
 
 /**
  * ### Cache Invalidation Header
  * Calculate the header string for the X-Cache-Invalidate: header.
- * The resulting string instructs any cache in front of the blog that request has occurred which invalidates any cached
- * versions of the listed URIs.
+ * The resulting string instructs any cache in front of the blog that request has occurred
+ * which invalidates any cached versions of the listed URIs.
  *
  * `/*` is used to mean the entire cache is invalid
  *
@@ -40,10 +32,11 @@ init = function () {
  * @return {String} Resolves to header string
  */
 cacheInvalidationHeader = function (req, result) {
+    // make the url into array, like ['','icollege','api','v0.1','users','id']
     var parsedUrl = req._parsedUrl.pathname.replace(/\/$/, '').split('/'),
         method = req.method,
-        endpoint = parsedUrl[4],
-        id = parsedUrl[5],
+        endpoint = parsedUrl[4],// endpoint, like users, groups, posts, etc. just like modules
+        id = parsedUrl[5], //id or any other important unique flag
         cacheInvalidate,
         jsonResult = result.toJSON ? result.toJSON() : result,
         post,
@@ -53,11 +46,12 @@ cacheInvalidationHeader = function (req, result) {
 
     //console.log(require('util').inspect(parsedUrl));
 
-
     if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
         if (endpoint === 'settings' || endpoint === 'users' || endpoint === 'db') {
+            // 如果是这些endpoint，作废全部的cache
             cacheInvalidate = '/*';
         } else if (endpoint === 'posts') {
+            // 如果是posts
             post = jsonResult.posts[0];
             hasStatusChanged = post.statusChanged;
             wasDeleted = method === 'DELETE';
@@ -89,9 +83,9 @@ cacheInvalidationHeader = function (req, result) {
  * resource.
  *
  * @private
- * @param {Express.request} req Original HTTP Request
+ * @param {express.request} req Original HTTP Request
  * @param {Object} result API method result
- * @return {Promise(String)} Resolves to header string
+ * @return {String} Resolves to header string
  */
 locationHeader = function (req, result) {
     var apiRoot = config.urlFor('api'),
@@ -214,12 +208,12 @@ http = function (apiMethod) {
                             res.status(201);
                         }
 
-//                        // Add Content-Disposition Header
-//                        if (apiMethod === db.exportContent) {
-//                            res.set({
-//                                'Content-Disposition': contentDispositionHeader()
-//                            });
-//                        }
+                        // Add Content-Disposition Header
+                        //if (apiMethod === db.exportContent) {
+                        //    res.set({
+                        //        'Content-Disposition': contentDispositionHeader()
+                        //    });
+                        //}
 
                         // #### Success
                         // Send a properly formatting HTTP response containing the data with correct headers
@@ -240,7 +234,6 @@ http = function (apiMethod) {
  */
 module.exports = {
     // Extras
-    init: init,
     http: http,
     // API Endpoints
     users: users

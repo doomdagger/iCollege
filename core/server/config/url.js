@@ -81,24 +81,33 @@ function urlPathForPost(post, permalinks) {
     return output;
 }
 
-// ## urlFor
-// Synchronous url creation for a given context
-// Can generate a url for a named path, given path, or known object (post)
-// Determines what sort of context it has been given, and delegates to the correct generation method,
-// Finally passing to createUrl, to ensure any subdirectory is honoured, and the url is absolute if needed
-// Usage:
-// urlFor('home', true) -> http://my-ghost-blog.com/
-// E.g. /blog/ subdir
-// urlFor({relativeUrl: '/my-static-page/') -> /blog/my-static-page/
-// E.g. if post object represents welcome post, and slugs are set to standard
-// urlFor('post', {...}) -> /welcome-to-ghost/
-// E.g. if post object represents welcome post, and slugs are set to date
-// urlFor('post', {...}) -> /2014/01/01/welcome-to-ghost/
-// Parameters:
-// - context - a string, or json object describing the context for which you need a url
-// - data (optional) - a json object containing data needed to generate a url
-// - absolute (optional, default:false) - boolean whether or not the url should be absolute
-// This is probably not the right place for this, but it's the best place for now
+
+
+/**
+ * ## urlFor
+ * Synchronous url creation for a given context
+ * Can generate a url for a named path, given path, or known object (post)
+ * Determines what sort of context it has been given, and delegates to the correct generation method,
+ * Finally passing to createUrl, to ensure any subdirectory is honoured, and the url is absolute if needed
+ * Usage:
+ * urlFor('home', true) -> http://my-ghost-blog.com/
+ * E.g. /blog/ subdir
+ * urlFor({relativeUrl: '/my-static-page/') -> /blog/my-static-page/
+ * E.g. if post object represents welcome post, and slugs are set to standard
+ * urlFor('post', {...}) -> /welcome-to-ghost/
+ * E.g. if post object represents welcome post, and slugs are set to date
+ * urlFor('post', {...}) -> /2014/01/01/welcome-to-ghost/
+ *
+ * {
+ *      secure: true,
+ *      relativeUrl: String
+ * }
+ *
+ * @param {String|Object} context - a string, or json object describing the context for which you need a url
+ * @param {?Object} data - a json object containing data needed to generate a url
+ * @param {?Object} absolute - boolean whether or not the url should be absolute
+ * @returns {*}
+ */
 function urlFor(context, data, absolute) {
     var urlPath = '/',
         secure,
@@ -108,7 +117,7 @@ function urlFor(context, data, absolute) {
     knownPaths = {
         'home': '/',
         'rss': '/rss/',
-        'api': '/ghost/api/v0.1'
+        'api': '/icollege/api/v0.1'
     };
 
     // Make data properly optional

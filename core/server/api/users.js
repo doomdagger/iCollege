@@ -3,7 +3,6 @@
 var when            = require('when'),
     _               = require('lodash'),
     dataProvider    = require('../models'),
-    errors          = require('../errors'),
 
     users;
 
