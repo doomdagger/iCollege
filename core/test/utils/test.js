@@ -1,5 +1,5 @@
 
-var base = require('../server/storage/base'),
+var base = require('../../server/storage/base'),
     _   = require('lodash'),
     //mongoose = require('mongoose'),
     redis   = require('redis'),

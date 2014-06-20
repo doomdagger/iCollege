@@ -1,6 +1,4 @@
-/**
- * Created by Li He on 2014/5/23.
- */
+
 var fs     = require('fs'),
     config = require('../../server/config'),
     /**
@@ -9,10 +7,10 @@ var fs     = require('fs'),
      */
     I18n;
 
-I18n = function (ghost) {
+I18n = function (icollege) {
 
     // TODO: validate
-    var lang = ghost.settings('defaultLang'),
+    var lang = icollege.settings('defaultLang'),
         path = config().paths.lang,
         langFilePath = path + lang + '.json';
 
@@ -45,7 +43,7 @@ I18n = function (ghost) {
                     throw e; // TODO: do something better with the error here
                 }
 
-                ghost.polyglot().extend(data);
+                icollege.polyglot().extend(data);
 
                 next();
             });
