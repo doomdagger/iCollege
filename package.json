@@ -57,6 +57,7 @@
     "semver": "2.2.1",
     "sqlite3": "2.2.3",
     "redis": "~0.10.3",
+    "busboy": "~0.2.7",
     "connect-slashes": "^1.2.0"
   },
   "devDependencies": {

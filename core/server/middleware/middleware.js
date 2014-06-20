@@ -6,7 +6,7 @@ var _           = require('lodash'),
     express     = require('express'),
     config      = require('../config'),
     path        = require('path'),
-
+    busboy      = require('./icollege-busboy'),
     expressServer;
     //ONE_HOUR_MS = 60 * 60 * 1000,
     //ONE_YEAR_MS = 365 * 24 * ONE_HOUR_MS;
@@ -107,8 +107,9 @@ var middleware = {
                 next();
             }
         };
-    }
+    },
 
+    busboy: busboy
 };
 
 module.exports = middleware;

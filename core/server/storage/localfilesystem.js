@@ -29,7 +29,7 @@ localFileStore = _.extend(baseStore, {
         }).then(function () {
             return nodefn.call(fs.copy, image.path, targetFilename);
         }).then(function () {
-            return nodefn.call(fs.unlink, image.path).otherwise(errors.logError);
+            return nodefn.call(fs.unlink, image.path).catch(errors.logError);
         }).then(function () {
             // The src for the image must be in URI format, not a file system path, which in Windows uses \
             // For local file system storage can use relative path so add a slash
