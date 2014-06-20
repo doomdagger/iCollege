@@ -1,5 +1,7 @@
-var user         = require('./user');
+var user         = require('./user'),
+    api          = require('./api');
 
 module.exports = {
-    user: user
+    user: user,
+    api: api
 };

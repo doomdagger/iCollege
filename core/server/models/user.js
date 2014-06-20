@@ -14,6 +14,23 @@ Users = icollegeSchema.extend("users", {
     'findByName': function (name, cb) {
         // this refers to Model instance
         this.find({ name: new RegExp(name, 'i') }, cb);
+    },
+
+    'findByNamePromise': function(name) {
+
+        var found = when.defer();
+
+        this.find({ name: new RegExp(name, 'i') }, function(err, users){
+            if(err){
+                found.reject(err);
+                return;
+            }
+
+            found.resolve(users);
+        });
+
+        return found.promise;
+
     }
 
 },{

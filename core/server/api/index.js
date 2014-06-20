@@ -35,9 +35,9 @@ init = function () {
  * `/*` is used to mean the entire cache is invalid
  *
  * @private
- * @param {Express.request} req Original HTTP Request
+ * @param {express.request} req Original HTTP Request
  * @param {Object} result API method result
- * @return {Promise(String)} Resolves to header string
+ * @return {String} Resolves to header string
  */
 cacheInvalidationHeader = function (req, result) {
     var parsedUrl = req._parsedUrl.pathname.replace(/\/$/, '').split('/'),
@@ -50,6 +50,9 @@ cacheInvalidationHeader = function (req, result) {
         hasStatusChanged,
         wasDeleted,
         wasPublishedUpdated;
+
+    //console.log(require('util').inspect(parsedUrl));
+
 
     if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
         if (endpoint === 'settings' || endpoint === 'users' || endpoint === 'db') {
@@ -128,7 +131,7 @@ locationHeader = function (req, result) {
 contentDispositionHeader = function () {
     // replace ':' with '_' for OS that don't support it
     var now = (new Date()).toJSON().replace(/:/g, '_');
-    return 'Attachment; filename="ghost-' + now + '.json"';
+    return 'Attachment; filename="icollege-' + now + '.json"';
 };
 
 
@@ -210,12 +213,12 @@ http = function (apiMethod) {
                             res.status(201);
                         }
 
-                        // Add Content-Disposition Header
-                        if (apiMethod === db.exportContent) {
-                            res.set({
-                                'Content-Disposition': contentDispositionHeader()
-                            });
-                        }
+//                        // Add Content-Disposition Header
+//                        if (apiMethod === db.exportContent) {
+//                            res.set({
+//                                'Content-Disposition': contentDispositionHeader()
+//                            });
+//                        }
 
                         // #### Success
                         // Send a properly formatting HTTP response containing the data with correct headers
@@ -239,7 +242,6 @@ module.exports = {
     init: init,
     http: http,
     // API Endpoints
-    settings: settings,
     users: users
 };
 

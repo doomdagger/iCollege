@@ -91,14 +91,18 @@ module.exports = function (server) {
         cookie: cookie
     }));
 
+
     // ### Caching
     expressServer.use(middleware.cacheControl('public'));
     expressServer.use(subdir + '/api/', middleware.cacheControl('private'));
+    expressServer.use(subdir + '/icollege/', middleware.cacheControl('private'));
 
     // ### Routing
     // Set up API routes
-    expressServer.use(subdir, routes.user(middleware));
+    expressServer.use(subdir, routes.api(middleware));
 
+    // Set up User routes
+    expressServer.use(subdir, routes.user(middleware));
 };
 
 // Export middleware functions directly
