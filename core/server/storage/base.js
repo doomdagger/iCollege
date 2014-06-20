@@ -1,7 +1,6 @@
 var moment  = require('moment'),
     path    = require('path'),
-    when    = require('when'),
-    baseStore;
+    when    = require('when');
 
 
 function BaseStore (){ }
@@ -57,7 +56,4 @@ BaseStore.prototype.getUniqueFileName = function (store, image, targetDir) {
 };
 
 
-baseStore = new BaseStore;
-
-module.exports = baseStore;
-//module.exports.BaseStore = BaseStore;
+module.exports.BaseStore = BaseStore;

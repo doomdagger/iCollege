@@ -30,7 +30,7 @@ function startICollege(options) {
         } catch (e) {
             deferred.reject(e);
         }
-    });
+    }).catch(deferred.reject);
 
     return deferred.promise;
 }

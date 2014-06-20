@@ -1,34 +1,33 @@
 
 var base = require('../server/storage/base'),
     _   = require('lodash'),
-    mongoose = require('mongoose'),
-    util    = require('util'),
-    validator = require('validator');
+    //mongoose = require('mongoose'),
+    redis   = require('redis'),
+    util    = require('util');
+    //validator = require('validator');
 
 
-//var a = {
-//    hello: {
-//        b : function(){
-//            console.log(util.inspect(this));
-//        }
-//    }
+var client = redis.createClient();
+
+client.set("string key", "string val", redis.print);
+client.hset("hash key", "hashtest 1", "some value", redis.print);
+client.hset(["hash key", "hashtest 2", "some other value"], redis.print);
+
+//function People(){
+//    this.name = '';
+//    this.age = 0;
+//}
+//
+//People.prototype.good = function(){
+//    console.log('hello');
 //};
 //
-//a.hello.b();
-
-function People(){
-    this.name = '';
-    this.age = 0;
-}
-
-People.hello = function(){
-    console.log(util.inspect(this));
-};
-
-People.prototype.good = function(){
-    console.log(util.inspect(this));
-};
-
-People.hello();
-
-new People().good();
+//function Employee(){
+//
+//}
+//
+//Employee.prototype.__proto__ = People.prototype;
+//
+//var emp = new Employee();
+//
+//emp.good();

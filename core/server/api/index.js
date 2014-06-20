@@ -177,6 +177,7 @@ formatHttpErrors = function (error) {
  * @return {Function} middleware format function to be called by the route when a matching request is made
  */
 http = function (apiMethod) {
+
     return function (req, res) {
         // We define 2 properties for using as arguments in API calls:
         var object = req.body,

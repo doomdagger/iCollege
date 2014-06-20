@@ -7,6 +7,7 @@ var express     = require('express'),
     cookieParser= require('cookie-parser'),
     errorhandler= require('errorhandler'),
     session     = require('express-session'),
+    redis       = require('redis'),
     RedisStore  = require('connect-redis')(session),
     logger      = require('morgan'),
     favicon     = require('serve-favicon'),
@@ -34,6 +35,7 @@ module.exports = function (server) {
     var logging = config().logging, // unresolved logging
         subdir = config().paths.subdir,
         corePath = config().paths.corePath,
+        redisInfo = config().database.redis.connection,
         cookie;
 
     // Cache express server instance
@@ -85,7 +87,9 @@ module.exports = function (server) {
 
     expressServer.use(cookieParser('i love u'));
     expressServer.use(session({
-        store: new RedisStore(config().database.redis.connection), // redis store
+        store: new RedisStore(_.merge({
+                client: redis.createClient()
+            }), redisInfo), // redis store
         proxy: true,
         secret: 'i love u',
         cookie: cookie

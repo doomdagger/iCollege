@@ -9,6 +9,7 @@ var config        = require('../config'),
     userControllers;
 
 userControllers = {
+
     'index': function(req, res) {
 
         dataProvider.User.findByName('lihe', function(err, users){

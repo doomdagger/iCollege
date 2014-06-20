@@ -4,7 +4,6 @@ var express     = require('express'),
     methodOverride = require('method-override'),
     Polyglot    = require('node-polyglot'),
     _           = require('lodash'),
-    colors      = require('colors'),
     when        = require('when'),
     semver      = require('semver'),
 
@@ -48,7 +47,7 @@ function icollegeStartMessages() {
         );
 
         // ensure that Ghost exits correctly on Ctrl+C
-        process.on('SIGINT', function () {
+        process.removeAllListeners('SIGINT').on('SIGINT', function () {
             console.log(
                 "\niCollege has shut down".red,
                 "\nYour site is now offline"
@@ -65,7 +64,7 @@ function icollegeStartMessages() {
             "\nCtrl+C to shut down".grey
         );
         // ensure that Ghost exits correctly on Ctrl+C
-        process.on('SIGINT', function () {
+        process.removeAllListeners('SIGINT').on('SIGINT', function () {
             console.log(
                 "\niCollege has shutdown".red,
                 "\niCollege was running for",
