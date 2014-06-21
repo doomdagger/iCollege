@@ -1,4 +1,5 @@
-
+// blanket code coverage tools
+// used by mocha
 var blanket = require("blanket")({
         "pattern": ["/core/server/", "/core/client/", "/core/shared/"],
         "data-cover-only": ["/core/server/", "/core/client/", "/core/shared/"]

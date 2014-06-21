@@ -120,17 +120,17 @@ function config() {
     // successfully.  While running application we should never
     // have to directly delegate to the config.js file. Just remove
     // this block, everything will work fine.
-//    if (_.isEmpty(icollegeConfig)) {
-//
-//        try {
-//            icollegeConfig = require(path.resolve(__dirname, '../../../', 'config.js'))['development'];
-//        } catch (ignore) {/*jslint strict: true */}
-//
-//        icollegeConfig.paths.appRoot = path.resolve(__dirname, '../../../');//app still not bootstrapped, cannot fetch app root from config module
-//        icollegeConfig.paths.configExample = path.join(icollegeConfig.paths.appRoot, 'config.example.js');
-//
-//        icollegeConfig = updateConfig(icollegeConfig);
-//    }
+    if (_.isEmpty(icollegeConfig)) {
+
+        try {
+            icollegeConfig = require(path.resolve(__dirname, '../../../', 'config.js'))['development'];
+        } catch (ignore) {/*jslint strict: true */}
+
+        icollegeConfig.paths.appRoot = path.resolve(__dirname, '../../../');//app still not bootstrapped, cannot fetch app root from config module
+        icollegeConfig.paths.configExample = path.join(icollegeConfig.paths.appRoot, 'config.example.js');
+
+        icollegeConfig = updateConfig(icollegeConfig);
+    }
 
     // expose config object to others, never invoke it before the project get bootstrapped!
     return icollegeConfig;

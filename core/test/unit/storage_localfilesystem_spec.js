@@ -5,7 +5,9 @@ var fs = require('fs-extra'),
     config = require('../../server/config'),
     sinon = require('sinon'),
     when = require('when'),
-    localfilesystem = require('../../server/storage/localfilesystem');
+    LocalFileStore = require('../../server/storage/localfilesystem').Store,
+    localfilesystem = new LocalFileStore;
+
 
 describe('Local File System Storage', function () {
 

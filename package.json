@@ -92,4 +92,5 @@
         "supertest": "~0.8.2",
         "jsdoc": "git+https://github.com/jsdoc3/jsdoc.git"
     }
+
 }
