@@ -1,22 +1,18 @@
-var config        = require('../config'),
-    _             = require('lodash'),
-    path          = require('path'),
-    when          = require('when'),
-    errors        = require('../errors'),
-    storage       = require('../storage'),
+var path          = require('path'),
     dataProvider  = require('../models'),
 
     userControllers;
 
 userControllers = {
 
-    'index': function(req, res) {
+    'index': function (req, res) {
 
-        dataProvider.User.findByName('lihe', function(err, users){
-            if(err)
+        dataProvider.User.findByName('lihe', function (err, users) {
+            if (err) {
                 res.send(err);
-            else
+            } else {
                 res.send(users);
+            }
         });
 
 

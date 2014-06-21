@@ -1,7 +1,6 @@
 // # Users API
 // RESTful API for the User resource
 var when            = require('when'),
-    _               = require('lodash'),
     dataProvider    = require('../models'),
 
     users;
@@ -27,9 +26,9 @@ users = {
 
         //console.log('in users api:\n'+require('util').inspect(options)+'\n');
 
-        return dataProvider.User.findByNamePromise(name).then(function(result){
+        return dataProvider.User.findByNamePromise(name).then(function (result) {
             return { users: result };
-        }).catch(function(err){
+        }).catch(function (err) {
             return when.reject(err);
         });
     }

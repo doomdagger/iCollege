@@ -107,7 +107,7 @@ function validateConfigEnvironment() {
     hasHostAndPort = config.server && !!config.server.host && !!config.server.port;
 
     // Check for valid server host and port values
-    if (!config.server || !hasHostAndPort ) {
+    if (!config.server || !hasHostAndPort) {
         errors.logError(new Error('Your server values (host and port) in config.js are invalid.'), JSON.stringify(config.server), 'Please provide them before restarting.');
 
         return when.reject(new Error('invalid server configuration'));

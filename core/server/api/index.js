@@ -9,7 +9,7 @@ var _             = require('lodash'),
     config        = require('../config'),
 // Include Endpoints
     users         = require('./users'),
-
+    settings      = {},
     http,
     formatHttpErrors,
     cacheInvalidationHeader,
