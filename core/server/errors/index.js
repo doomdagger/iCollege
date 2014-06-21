@@ -1,8 +1,6 @@
 /*jslint regexp: true */
 var _                          = require('lodash'),
     colors                     = require('colors'),
-    config                     = require('../config'),
-    path                       = require('path'),
     NotFoundError              = require('./notfounderror'),
     BadRequestError            = require('./badrequesterror'),
     InternalServerError        = require('./internalservererror'),

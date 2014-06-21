@@ -1,12 +1,8 @@
 // # sqlite3 Image Storage module
 // The (not default) module for storing images, using the sqlite3 database
 
-var _       = require('lodash'),
-    express = require('express'),
+var express = require('express'),
     //nodefn  = require('when/node'),
-    path    = require('path'),
-    when    = require('when'),
-    errors  = require('../errors'),
     config  = require('../config'),
     BaseStore   = require('./base').BaseStore;
 
@@ -21,11 +17,11 @@ SQLite3Store.prototype.__proto__ = BaseStore.prototype;
  * @returns {promise} - returns a promise which ultimately returns the full url to the uploaded image
  */
 SQLite3Store.prototype.save = function (image) {
-
+    console.log("pending..." + image);
 };
 
 SQLite3Store.prototype.exists = function (filename) {
-
+    console.log("pending..." + filename);
 };
 
 /**

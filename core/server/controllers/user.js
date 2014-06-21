@@ -1,5 +1,4 @@
-var path          = require('path'),
-    dataProvider  = require('../models'),
+var dataProvider  = require('../models'),
 
     userControllers;
 

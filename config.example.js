@@ -78,6 +78,43 @@ config = {
 
         logging: 'dev'
 
+    },
+
+    // ### Testing
+    // Used when developing Ghost to run tests and check the health of Ghost
+    // Uses a different port number
+    testing: {
+        url: 'http://127.0.0.1:1222',
+        database: {
+            // our main database, storage for all important data
+            mongodb: {
+                connection: {
+                    host: '127.0.0.1',
+                    port: '27017',
+                    database: 'icollege'
+                }
+            },
+            // our big file serialization database, storage for all assets
+            sqlite3: {
+                connection: {
+                    filename: path.join(__dirname, '/content/data/icollege-dev.db')
+                },
+                debug: false
+            },
+            // storage for session and other caches
+            redis: {
+                connection: {
+                    host: '127.0.0.1',
+                    port: '6379',
+                    db: 'icollege'
+                }
+            }
+        },
+        server: {
+            host: '127.0.0.1',
+            port: '1222'
+        },
+        logging: false
     }
 };
 

@@ -1,8 +1,7 @@
 // # Local File System Image Storage module
 // The (default) module for storing images, using the local file system
 
-var _       = require('lodash'),
-    express = require('express'),
+var express = require('express'),
     fs      = require('fs-extra'),
     nodefn  = require('when/node'),
     path    = require('path'),
@@ -12,10 +11,11 @@ var _       = require('lodash'),
     BaseStore   = require('./base').BaseStore;
 
 
-function LocalFileStore(){}
+function LocalFileStore() {}
 
 // 通过原型链实现继承
 LocalFileStore.prototype.__proto__ = BaseStore.prototype;
+
 
 /**
  * Saves the image to storage (the file system)

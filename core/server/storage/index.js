@@ -13,7 +13,7 @@ function get_storage() {
 
     try {
         // TODO: determine if storage has all the necessary methods
-        storage = new (require('./' + storageChoice).Store);
+        storage = new (require('./' + storageChoice).Store)();
     } catch (e) {
         errors.logError(e);
     }

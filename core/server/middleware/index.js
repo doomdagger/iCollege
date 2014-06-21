@@ -4,23 +4,19 @@
 
 var express     = require('express'),
     bodyParser  = require('body-parser'),
-    cookieParser= require('cookie-parser'),
-    errorhandler= require('errorhandler'),
+    cookieParser = require('cookie-parser'),
+    errorhandler = require('errorhandler'),
     session     = require('express-session'),
     redis       = require('redis'),
     RedisStore  = require('connect-redis')(session),
     logger      = require('morgan'),
     favicon     = require('serve-favicon'),
     config      = require('../config'),
-    errors      = require('../errors'),
-    fs          = require('fs'),
     middleware  = require('./middleware'),
     path        = require('path'),
     routes      = require('../routes'),
     slashes     = require('connect-slashes'),
     storage     = require('../storage'),
-    url         = require('url'),
-    when        = require('when'),
     _           = require('lodash'),
 
     expressServer,
@@ -90,10 +86,10 @@ module.exports = function (server) {
         store: new RedisStore(_.merge({
                 client: redis.createClient()
             }), redisInfo), // redis store
-        proxy: true,
-        secret: 'i love u',
-        cookie: cookie
-    }));
+            proxy: true,
+            secret: 'i love u',
+            cookie: cookie
+        }));
 
 
     // ### Caching

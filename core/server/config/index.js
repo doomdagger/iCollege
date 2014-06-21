@@ -94,8 +94,6 @@ function updateConfig(config) {
  */
 function initConfig(rawConfig) {
 
-    var deferred = when.defer();
-
     // Cache the config.js object's environment
     // object so we can later refer to it.
     // Note: this is not the entirety of config.js,
@@ -103,9 +101,8 @@ function initConfig(rawConfig) {
     icollegeConfig = updateConfig(rawConfig);
 
     // @TODO: deep search the apps in content/apps folder for available apps, should be returned as a promise
-    deferred.resolve(icollegeConfig);
 
-    return deferred.promise;
+    return when.resolve(icollegeConfig);
 }
 
 /**
@@ -121,11 +118,11 @@ function config() {
     // have to directly delegate to the config.js file. Just remove
     // this block, everything will work fine.
     if (_.isEmpty(icollegeConfig)) {
-
         try {
-            icollegeConfig = require(path.resolve(__dirname, '../../../', 'config.js'))['development'];
+            icollegeConfig = require(path.resolve(__dirname, '../../../', 'config.js'))[process.env.NODE_ENV] || {};
         } catch (ignore) {/*jslint strict: true */}
 
+        icollegeConfig.paths = icollegeConfig.paths || {};
         icollegeConfig.paths.appRoot = path.resolve(__dirname, '../../../');//app still not bootstrapped, cannot fetch app root from config module
         icollegeConfig.paths.configExample = path.join(icollegeConfig.paths.appRoot, 'config.example.js');
 

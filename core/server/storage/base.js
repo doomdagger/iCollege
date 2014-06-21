@@ -3,7 +3,7 @@ var moment  = require('moment'),
     when    = require('when');
 
 
-function BaseStore (){ }
+function BaseStore() { }
 
 /**
  * @param {String} baseDir - base directory

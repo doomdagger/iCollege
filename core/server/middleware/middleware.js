@@ -3,14 +3,14 @@
 // middleware_spec.js
 
 var _           = require('lodash'),
-    express     = require('express'),
     config      = require('../config'),
     path        = require('path'),
+    fs          = require('fs'),
     busboy      = require('./icollege-busboy'),
 
-    expressServer;
-    //ONE_HOUR_MS = 60 * 60 * 1000,
-    //ONE_YEAR_MS = 365 * 24 * ONE_HOUR_MS;
+    expressServer,
+    ONE_HOUR_MS = 60 * 60 * 1000,
+    ONE_YEAR_MS = 365 * 24 * ONE_HOUR_MS;
 
 
 function cacheServer(server) {

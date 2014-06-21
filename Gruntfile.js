@@ -276,10 +276,10 @@ var path           = require('path'),
         // `config.example.js` which is copied and renamed to `config.js` by the bootstrap process
         grunt.registerTask('loadConfig', function () {
             var done = this.async();
-            bootstrap({
+            bootstrap(
                 // give me your config.js path
-                config: path.resolve(__dirname, 'config.js')
-            }).then(function () {
+                path.resolve(__dirname, 'config.js')
+            ).then(function () {
                 done();
             }).catch(function (err) {
                 grunt.fail.fatal(err.stack);

@@ -16,7 +16,7 @@ var mongoose   = require('mongoose'),
  * @param {Object} statics
  * @constructor
  */
-function ICollegeSchema(options, statics){
+function ICollegeSchema(options, statics) {
     // # options for parent schema, descendants will override these options
     // pay attention to some specific part
     this.options = options;
@@ -33,7 +33,7 @@ function ICollegeSchema(options, statics){
  * @param {Array} plugins - plugin array you want to apply to the schema
  * @returns {exports.Schema} schema object
  */
-ICollegeSchema.prototype.extend = function(collectionName, statics, methods, plugins){
+ICollegeSchema.prototype.extend = function (collectionName, statics, methods, plugins) {
 
     var defaultSchema = new mongoose.Schema(
         // field and type and validations
@@ -47,7 +47,7 @@ ICollegeSchema.prototype.extend = function(collectionName, statics, methods, plu
     // extend methods for default schema
     _.extend(defaultSchema.methods, methods);
     // apply plugin for the default schema
-    _.forEach(plugins, function(plugin){
+    _.forEach(plugins, function (plugin) {
         defaultSchema.plugin(plugin);
     });
 
@@ -62,18 +62,20 @@ ICollegeSchema.prototype.extend = function(collectionName, statics, methods, plu
  */
 function init() {
     var connectionInfo = config().database.mongodb.connection,
-        connected = when.defer();
+        connected = when.defer(),
+        options = config().database.mongodb.options || {};
+
 
     mongoose.connect(connectionInfo.host,
         connectionInfo.database,
         connectionInfo.port,
-        config().database.mongodb.options);
+        options);
 
-    mongoose.connection.once('open', function(){
+    mongoose.connection.once('open', function () {
         connected.resolve();
     });
 
-    mongoose.connection.on('error', function(){
+    mongoose.connection.on('error', function () {
         errors.logAndThrowError(new Error('cannot connect to mongodb...'), __dirname, 'Please check your mongodb configuration and config.js');
 
         connected.reject();
@@ -98,7 +100,7 @@ icollegeSchema = new ICollegeSchema({
         getters: false,
         virtuals: false
     }
-},{
+}, {
     // static methods definition goes here
 
 });

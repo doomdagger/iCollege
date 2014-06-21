@@ -3,7 +3,6 @@ var express     = require('express'),
     compression = require('compression'),
     methodOverride = require('method-override'),
     Polyglot    = require('node-polyglot'),
-    _           = require('lodash'),
     when        = require('when'),
     semver      = require('semver'),
 
@@ -93,7 +92,7 @@ function init(server) {
     Polyglot.instance = new Polyglot();
 
 
-    return models.init().then(function(){
+    return models.init().then(function () {
         var deferred = when.defer();
 
 

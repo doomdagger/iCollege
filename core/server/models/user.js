@@ -1,8 +1,6 @@
-var _       = require('lodash'),
-    when    = require('when'),
+var when    = require('when'),
     mongoose = require('mongoose'),
     icollegeSchema = require('./base'),
-    errors  = require('../errors'),
 
     User,
     Users;
@@ -16,12 +14,12 @@ Users = icollegeSchema.extend("users", {
         this.find({ name: new RegExp(name, 'i') }, cb);
     },
 
-    'findByNamePromise': function(name) {
+    'findByNamePromise': function (name) {
 
         var found = when.defer();
 
-        this.find({ name: new RegExp(name, 'i') }, function(err, users){
-            if(err){
+        this.find({ name: new RegExp(name, 'i') }, function (err, users) {
+            if (err) {
                 found.reject(err);
                 return;
             }
@@ -33,14 +31,14 @@ Users = icollegeSchema.extend("users", {
 
     }
 
-},{
+}, {
     // # methods
     'findSameNames': function (cb) {
         // this refers to Doc Instance,
         return this.model('User').find({ name: this.name }, cb);
     }
 
-},[
+}, [
     // add plugins for Users schema
     icollegeSchema.plugins.lastModifiedPlugin
 

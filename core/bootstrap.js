@@ -136,6 +136,11 @@ function loadConfig(configFilePath) {
             pendingConfig = writeConfigFile();
         }
         when(pendingConfig).then(validateConfigEnvironment).then(function (rawConfig) {
+            // Protect against accessing a non-existant object.
+            // This ensures there's always at least a paths object
+            // because it's referenced in multiple places.
+            rawConfig.paths = rawConfig.paths || {};
+
             // add some path info to rawConfig
             rawConfig.paths.appRoot = appRoot;
             rawConfig.paths.configExample = configExample;

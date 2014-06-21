@@ -13,21 +13,12 @@
     "noempty": true,
     "nonew": true,
     "plusplus": true,
-    "regexp": true,
     "undef": true,
     "unused": true,
     "trailing": true,
-    "indent": 4,
-    "esnext": true,
     "onevar": true,
-    "white": true,
-    "quotmark": "single",
+    "white": false,
     "globals": {
-        "Ember": true,
-        "Em": true,
-        "DS": true,
-        "$": true,
-        "validator": true,
-        "ic": true
+        "Ext": true
     }
 }
