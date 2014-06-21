@@ -7,10 +7,29 @@
 // **Debug tip:** If you have any problems with any Grunt tasks, try running them with the `--verbose` command
 var path           = require('path'),
     colors         = require('colors'),
+
+    fs             = require('fs'),
+    _              = require('lodash'),
+    buildDirectory = path.resolve(process.cwd(), '.build'),
+    distDirectory  = path.resolve(process.cwd(), '.dist'),
+
     bootstrap      = require('./core/bootstrap'),
 
+    // ## Build File Patterns
+    // A list of files and patterns to include when creating a release zip.
+    // This is read from the `.npmignore` file and all patterns are inverted as the `.npmignore`
+    // file defines what to ignore, whereas we want to define what to include.
+    buildGlob = (function () {
+        /*jslint stupid:true */
+        return fs.readFileSync('.npmignore', {encoding: 'utf8'}).split('\n').map(function (pattern) {
+            if (pattern[0] === '!') {
+                return pattern.substr(1);
+            }
+            return '!' + pattern;
+        });
+    }()),
 
-// ## Grunt configuration
+    // ## Grunt configuration
     
     configureGrunt = function (grunt) {
 
@@ -24,7 +43,13 @@ var path           = require('path'),
 
         // still not verify!
         var cfg = {
-            
+            // #### Common paths used by tasks
+            paths: {
+                build: buildDirectory,
+                releaseBuild: path.join(buildDirectory, 'release'),
+                dist: distDirectory,
+                releaseDist: path.join(distDirectory, 'release')
+            },
             // Standard build type, for when we have nightlies again.
             buildType: 'Build',
             // Load package.json so that we can create correctly versioned releases.
@@ -166,12 +191,25 @@ var path           = require('path'),
             // Command line tools where it's easier to run a command directly than configure a grunt plugin
             shell: {
                 // #### Run Sencha Touch Build
-//                touch: {
-//                    command: path.resolve(__dirname.replace(' ', '\\ ') + '/node_modules/.bin/bower install'),
-//                    options: {
-//                        stdout: true
-//                    }
-//                },
+                // See the `grunt init`. See the section on [Building Assets](#building%20assets) for more
+                touch: {
+                    command: [
+                        'cd ./core/client/',
+                        'sencha app build'
+                    ].join('&&'),
+                    options: {
+                        stdout: true
+                    }
+                },
+                // #### Run bower install
+                // Used as part of `grunt init`. See the section on [Building Assets](#building%20assets) for more
+                // information.
+                bower: {
+                    command: path.resolve(__dirname.replace(' ', '\\ ') + '/node_modules/.bin/bower install'),
+                    options: {
+                        stdout: true
+                    }
+                },
                 // #### Generate coverage report
                 // See the `grunt test-coverage` task in the section on [Testing](#testing) for more information.
                 coverage: {
@@ -209,13 +247,87 @@ var path           = require('path'),
             // ### grunt-contrib-clean
             // Clean up files as part of other tasks
             clean: {
+                built: {
+                    src: ['core/built/**']
+                },
+                release: {
+                    src: ['<%= paths.releaseBuild %>/**']
+                },
                 test: {
                     src: ['content/data/iCollege-test.db']
                 },
                 tmp: {
                     src: ['.tmp/**']
                 }
+            },
+
+            // ### grunt-contrib-copy
+            // Copy files into their correct locations as part of building assets, or creating release zips
+            copy: {
+                dev: {
+                    files: [{
+                        cwd: 'bower_components/jquery/dist/',
+                        src: 'jquery.js',
+                        dest: 'core/built/public/',
+                        expand: true
+                    }]
+                },
+                prod: {
+                    files: [{
+                        cwd: 'bower_components/jquery/dist/',
+                        src: 'jquery.js',
+                        dest: 'core/built/public/',
+                        expand: true
+                    }]
+                },
+                release: {
+                    files: [{
+                        cwd: 'bower_components/jquery/dist/',
+                        src: 'jquery.js',
+                        dest: 'core/built/public/',
+                        expand: true
+                    }, {
+                        expand: true,
+                        src: buildGlob,
+                        dest: '<%= paths.releaseBuild %>/'
+                    }]
+                }
+            },
+
+            // ### grunt-contrib-compress
+            // Zip up files for builds / releases
+            compress: {
+                release: {
+                    options: {
+                        archive: '<%= paths.releaseDist %>/iCollege-<%= pkg.version %>.zip'
+                    },
+                    expand: true,
+                    cwd: '<%= paths.releaseBuild %>/',
+                    src: ['**']
+                }
+            },
+
+            // ### grunt-contrib-concat
+            // concatenate multiple JS files into a single file ready for use
+            concat: {
+                dev: {
+                    files: {}
+                },
+                prod: {
+                    files: {}
+                }
+            },
+
+            // ### grunt-update-submodules
+            // Grunt task to update git submodules
+            "update_submodules": {
+                default: {
+                    options: {
+                        params: false // blanks command-line parameters
+                    }
+                }
             }
+
 
         };
 

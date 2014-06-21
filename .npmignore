@@ -6,8 +6,6 @@ docs/**
 _site/**
 content/images/**
 !content/images/README.md
-content/themes/**
-!content/themes/casper/**
 content/apps/**
 !content/apps/README.md
 node_modules/**
@@ -24,5 +22,5 @@ config.js
 CONTRIBUTING.md
 SECURITY.md
 .travis.yml
-*.html
+coverage.html
 bower_components/**
