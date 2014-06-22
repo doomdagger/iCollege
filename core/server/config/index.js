@@ -75,6 +75,7 @@ function updateConfig(config) {
             'lang':             path.join(corePath, '/shared/lang/'),
 
             'availableApps':    icollegeConfig.paths.availableApps || [],
+            'builtPath':        path.join(corePath, 'built/'),
             'builtScriptPath':  path.join(corePath, 'built/scripts/')
         }
     });
