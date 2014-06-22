@@ -28,7 +28,7 @@ Please do **NOT** use the master branch of iCollege in production.
 1. `npm install -g grunt-cli`
 1. `npm install -g casperjs`
 1. `npm install`
-1. `grunt init` (and `grunt prod` if you want to run iCollege in production mode)
+1. `grunt init` 
 1. `npm start`
 
 ### Who are we ?

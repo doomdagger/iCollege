@@ -1,7 +1,8 @@
 !**
+.tmp
 .build
 .dist
-.tmp
+bower_components/**
 docs/**
 _site/**
 content/images/**
@@ -19,10 +20,5 @@ core/server/data/export/exported*
 .groc*
 *.iml
 config.js
-CONTRIBUTING.md
-SECURITY.md
-.travis.yml
 coverage.html
-bower_components/**
 core/client/**
-!core/built/**

@@ -20,8 +20,9 @@ var path           = require('path'),
     // This is read from the `.npmignore` file and all patterns are inverted as the `.npmignore`
     // file defines what to ignore, whereas we want to define what to include.
     buildGlob = (function () {
+        var splitter = process.platform.match(/^win/) ? '\r\n' : '\n';
         /*jslint stupid:true */
-        return fs.readFileSync('.npmignore', {encoding: 'utf8'}).split('\r\n').map(function (pattern) {
+        return fs.readFileSync('.npmignore', {encoding: 'utf8'}).split(splitter).map(function (pattern) {
             if (pattern[0] === '!') {
                 return pattern.substr(1);
             }
@@ -42,7 +43,7 @@ var path           = require('path'),
         // Find all of the task which start with `grunt-` and load them, rather than explicitly declaring them all
         require('matchdep').filterDev(['grunt-*', '!grunt-cli']).forEach(grunt.loadNpmTasks);
 
-        // still not verify!
+
         var cfg = {
             // #### Common paths used by tasks
             paths: {
@@ -59,9 +60,15 @@ var path           = require('path'),
             // ### grunt-contrib-watch
             // See the [grunt dev](#live%20reload) task for how this is used.
             watch: {
-                touch: {
-                    files: ['core/client/*.js', 'core/client/app/*.js'],
-                    tasks: ['shell:touch', 'copy:dev']
+                livereload: {
+                    files: [
+                        'core/client/*.js',
+                        'core/client/app/**/*.js',
+                        'core/built/scripts/*.js'
+                    ],
+                    options: {
+                        livereload: true
+                    }
                 },
                 express: {
                     files:  ['core/server.js', 'core/server/**/*.js'],
@@ -239,18 +246,11 @@ var path           = require('path'),
 
             // ### grunt-docker
             // Generate documentation from code
-            docker: {
-                docs: {
-                    dest: 'docs',
-                    src: ['.'],
+            jsdoc : {
+                dist : {
+                    src: ['./core/server.js'],
                     options: {
-                        onlyUpdated: true,
-                        colourScheme: 'default',
-                        exclude: 'node_modules,.git,.tmp,content,*test,*doc*,' +
-                            'config.js,coverage.html,touch,build,.sencha,resources',
-                        js: [],
-                        css: [],
-                        extras: ['fileSearch']
+                        destination: 'docs'
                     }
                 }
             },
@@ -269,51 +269,17 @@ var path           = require('path'),
                 },
                 tmp: {
                     src: ['.tmp/**']
-                },
-                touch: {
-                    src: ['core/client/touch/**']
                 }
             },
 
             // ### grunt-contrib-copy
             // Copy files into their correct locations as part of building assets, or creating release zips
             copy: {
-                dev: {
-                    files: [{
-                        cwd: 'bower_components/jquery/dist/',
-                        src: 'jquery.js',
-                        dest: 'core/built/public/',
-                        expand: true
-                    }, {
-                        cwd: 'core/client/build/production/ICollege/',
-                        src: ['**'],
-                        dest: 'core/built/',
-                        expand: true
-                    }]
-                },
-                prod: {
-                    files: [{
-                        cwd: 'bower_components/jquery/dist/',
-                        src: 'jquery.js',
-                        dest: 'core/built/public/',
-                        expand: true
-                    }, {
-                        cwd: 'core/client/build/production/ICollege/',
-                        src: ['**'],
-                        dest: 'core/built/',
-                        expand: true
-                    }]
-                },
                 release: {
                     files: [{
-                        cwd: 'bower_components/jquery/dist/',
-                        src: 'jquery.js',
-                        dest: 'core/built/public/',
-                        expand: true
-                    }, {
                         cwd: 'core/client/build/production/ICollege/',
                         src: ['**'],
-                        dest: 'core/built/',
+                        dest: '<%= paths.releaseBuild %>/core/client/',
                         expand: true
                     }, {
                         expand: true,
@@ -343,18 +309,11 @@ var path           = require('path'),
                     files: {
                         'core/built/scripts/vendor.js': [
                             'bower_components/jquery/dist/jquery.js',
-
                             'bower_components/lodash/dist/lodash.underscore.js',
                             'bower_components/moment/moment.js',
-                            'bower_components/codemirror/lib/codemirror.js',
-                            'bower_components/codemirror/addon/mode/overlay.js',
-                            'bower_components/codemirror/mode/markdown/markdown.js',
-                            'bower_components/codemirror/mode/gfm/gfm.js',
                             'bower_components/validator-js/validator.js',
-
                             'bower_components/Countable/Countable.js',
-                            'bower_components/fastclick/lib/fastclick.js',
-                            'bower_components/nprogress/nprogress.js'
+                            'bower_components/fastclick/lib/fastclick.js'
                         ]
                     }
                 }
@@ -365,8 +324,7 @@ var path           = require('path'),
             uglify: {
                 prod: {
                     files: {
-                        'core/built/scripts/vendor.min.js': 'core/built/scripts/vendor.js',
-                        'core/built/public/jquery.min.js': 'core/built/public/jquery.js'
+                        'core/built/scripts/vendor.min.js': 'core/built/scripts/vendor.js'
                     }
                 }
             },
@@ -429,7 +387,7 @@ var path           = require('path'),
                     cwd: path.resolve('core/test/functional'),
                     stdio: 'inherit'
                 }
-            }, function (error, result, code) {
+            }, function (error, result/*, code*/) {
                 /*jshint unused:false*/
                 if (error) {
                     grunt.fail.fatal(result.stdout);
@@ -463,7 +421,7 @@ var path           = require('path'),
 
         // ### Documentation
         // Run `grunt docs` to generate annotated source code using the documentation described in the code comments.
-        grunt.registerTask('docs', 'Generate Docs', ['docker']);
+        grunt.registerTask('docs', 'Generate Docs', ['jsdoc']);
 
 
         // ## Testing
@@ -502,13 +460,13 @@ var path           = require('path'),
 
         // ### Validate
         // **Main testing task**
-        //
+        // @TODO make test functional ready to work
         // `grunt validate` will lint and test your local iCollege codebase.
         //
         // `grunt validate` is one of the most important and useful grunt tasks that we have available to use. It
         // manages the setup and running of jshint as well as the 4 test suites. See the individual sub tasks below
         // for details of each of the test suites.
-        // @TODO add test-functional
+        //
         // `grunt validate` is called by `npm test`.
         grunt.registerTask('validate', 'Run tests and lint code',
             ['jshint', 'test-routes', 'test-unit', 'test-integration'/*, 'test-functional'*/]);
@@ -578,6 +536,7 @@ var path           = require('path'),
             ['clean:test', 'setTestEnv', 'loadConfig', 'mochacli:routes']);
 
         // ### Functional tests *(sub task)*
+        // @TODO test-functional is here
         // `grunt test-functional` will run just the functional tests
         //
         // You can use the `--target` argument to run any individual test file, or the admin or frontend tests:
@@ -643,7 +602,7 @@ var path           = require('path'),
         // `bower` does have some quirks, such as not running as root. If you have problems please try running
         // `grunt init --verbose` to see if there are any errors.
         grunt.registerTask('init', 'Prepare the project for development',
-            ['shell:bower', 'update_submodules', 'clean:touch', 'shell:prepare_touch', 'default']);
+            ['shell:bower', 'update_submodules', 'shell:prepare_touch', 'default']);
 
         // ### Default asset build
         // `grunt` - default grunt task
@@ -651,7 +610,7 @@ var path           = require('path'),
         // Compiles handlebars templates, concatenates javascript files for the admin UI into a handful of files instead
         // of many files, and makes sure the bower dependencies are in the right place.
         grunt.registerTask('default', 'Build JS & templates for development',
-            ['concat', 'shell:touch', 'copy:dev']);
+            ['concat']);
 
 
         // ### Live reload
@@ -666,7 +625,7 @@ var path           = require('path'),
         //
         // Note that the current implementation of watch only works with casper, not other themes.
         grunt.registerTask('dev', 'Dev Mode; watch files and restart server on changes',
-            ['concat', 'shell:touch', 'copy:dev', 'express:dev', 'watch']);
+            ['default', 'express:dev', 'watch']);
 
         // ### Release
         // Run `grunt release` to create a Ghost release zip file.
@@ -679,7 +638,7 @@ var path           = require('path'),
                 ' - Copy files to release-folder/#/#{version} directory\n' +
                 ' - Clean out unnecessary files (travis, .git*, etc)\n' +
                 ' - Zip files in release-folder to dist-folder/#{version} directory',
-            ['shell:bower', 'update_submodules', 'concat', 'uglify', 'clean:release', 'copy:release', 'compress:release']);
+            ['shell:bower', 'update_submodules', 'concat', 'uglify', 'shell:touch', 'clean:release', 'copy:release', 'compress:release']);
 
     };
 

@@ -1,16 +1,11 @@
 {
     "name": "iCollege",
     "dependencies": {
-        "codemirror": "4.0.1",
         "Countable": "2.0.2",
         "fastclick": "1.0.0",
-        "ic-ajax": "1.0.1",
         "jquery": "1.11.0",
-        "jquery-hammerjs": "1.0.1",
         "lodash": "2.4.1",
         "moment": "2.4.0",
-        "nprogress": "0.1.2",
-        "validator-js": "3.4.0",
-        "loader.js": "stefanpenner/loader.js#1.0.0"
+        "validator-js": "3.4.0"
     }
 }
