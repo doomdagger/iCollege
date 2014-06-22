@@ -248,7 +248,7 @@ var path           = require('path'),
             // Generate documentation from code
             jsdoc : {
                 dist : {
-                    src: ['./core/server.js'],
+                    src: ['.'],
                     options: {
                         destination: 'docs'
                     }
@@ -354,12 +354,12 @@ var path           = require('path'),
         // This really ought to be refactored into a separate grunt task module
         grunt.registerTask('spawnCasperJS', function (target) {
 
-            target = _.contains(['client', 'clientold', 'frontend'], target) ? target + '/' : undefined;
+            target = _.contains(['client'], target) ? target + '/' : undefined;
 
             var done = this.async(),
                 options = ['host', 'noPort', 'port', 'email', 'password'],
                 args = ['test']
-                    .concat(grunt.option('target') || target || ['client/', 'frontend/'])
+                    .concat(grunt.option('target') || target || ['client/'])
                     .concat(['--includes=base.js', '--log-level=debug', '--port=2369']);
 
             // Forward parameters from grunt to casperjs

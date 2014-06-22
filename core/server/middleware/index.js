@@ -60,7 +60,7 @@ module.exports = function (server) {
     // Static assets
     expressServer.use(subdir + '/shared', express['static'](path.join(corePath, '/shared'), {maxAge: ONE_HOUR_MS}));
     expressServer.use(subdir + '/content/images', storage.get_storage().serve());
-    expressServer.use(subdir + '/app', express['static'](config().paths.builtPath, {maxAge: ONE_YEAR_MS}));
+    expressServer.use(subdir + '/app', express['static'](path.join(corePath, '/client'), {maxAge: ONE_YEAR_MS}));
 
 
     // Serve robots.txt if not found in theme

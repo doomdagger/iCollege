@@ -19,7 +19,7 @@ Ext.define('ICollege.view.Main', {
                 items: {
                     docked: 'top',
                     xtype: 'titlebar',
-                    title: 'Welcome to Sencha Touch 2'
+                    title: 'Welcome to iCollege'
                 },
 
                 html: [
