@@ -15,7 +15,7 @@ If you clone the GitLab repository, you will need to build a number of assets us
 
 Please do **NOT** use the master branch of iCollege in production. 
 
-### Prerequisite
+#### Prerequisite
 
 1. **JRE 7** or greater be installed. 
 1. **Ruby** 2.0 be installed. [How to install it?](http://rubyinstaller.org/downloads/)
@@ -28,8 +28,12 @@ Please do **NOT** use the master branch of iCollege in production.
 1. `npm install -g grunt-cli`
 1. `npm install -g casperjs`
 1. `npm install`
-1. `grunt init` 
+1. `grunt init` (download frontend assets, sencha touch framework and put them in the right place)
 1. `npm start`
+
+#### Hint for Developers:
+
+**Use `grunt dev` while you develop iCollege**, express will restart for modifications of server side code
 
 ### Who are we ?
 
