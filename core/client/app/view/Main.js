@@ -10,7 +10,7 @@ Ext.define('ICollege.view.Main', {
 
         items: [
             {
-                title: 'Woohoo!',
+                title: 'iCollege',
                 iconCls: 'home',
 
                 styleHtmlContent: true,
@@ -23,11 +23,12 @@ Ext.define('ICollege.view.Main', {
                 },
 
                 html: [
-                    "I changed the default <b>HTML Contents</b> to something different!"
+                    "This is the default <b>HTML Contents</b> to something different!",
+                    "<p>I hope to make a difference</p>"
                 ].join("")
             },
             {
-                title: 'Get Started',
+                title: 'Video',
                 iconCls: 'action',
 
                 items: [
