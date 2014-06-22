@@ -21,12 +21,13 @@ var path           = require('path'),
     // file defines what to ignore, whereas we want to define what to include.
     buildGlob = (function () {
         /*jslint stupid:true */
-        return fs.readFileSync('.npmignore', {encoding: 'utf8'}).split('\n').map(function (pattern) {
+        return fs.readFileSync('.npmignore', {encoding: 'utf8'}).split('\r\n').map(function (pattern) {
             if (pattern[0] === '!') {
                 return pattern.substr(1);
             }
             return '!' + pattern;
         });
+
     }()),
 
     // ## Grunt configuration
@@ -270,6 +271,11 @@ var path           = require('path'),
                         src: 'jquery.js',
                         dest: 'core/built/public/',
                         expand: true
+                    }, {
+                        cwd: 'core/client/build/production/ICollege/',
+                        src: ['**'],
+                        dest: 'core/built/',
+                        expand: true
                     }]
                 },
                 prod: {
@@ -278,6 +284,11 @@ var path           = require('path'),
                         src: 'jquery.js',
                         dest: 'core/built/public/',
                         expand: true
+                    }, {
+                        cwd: 'core/client/build/production/ICollege/',
+                        src: ['**'],
+                        dest: 'core/built/',
+                        expand: true
                     }]
                 },
                 release: {
@@ -285,6 +296,11 @@ var path           = require('path'),
                         cwd: 'bower_components/jquery/dist/',
                         src: 'jquery.js',
                         dest: 'core/built/public/',
+                        expand: true
+                    }, {
+                        cwd: 'core/client/build/production/ICollege/',
+                        src: ['**'],
+                        dest: 'core/built/',
                         expand: true
                     }, {
                         expand: true,
@@ -307,6 +323,7 @@ var path           = require('path'),
                 }
             },
 
+            // @TODO fill the list of files to be concat
             // ### grunt-contrib-concat
             // concatenate multiple JS files into a single file ready for use
             concat: {
@@ -336,6 +353,55 @@ var path           = require('path'),
         // 加载任务配置
         grunt.initConfig(cfg);
 
+        // ## Utilities
+        // @TODO casperJS
+        // ### Spawn Casper.js
+        // Custom test runner for our Casper.js functional tests
+        // This really ought to be refactored into a separate grunt task module
+        grunt.registerTask('spawnCasperJS', function (target) {
+
+            target = _.contains(['client', 'clientold', 'frontend'], target) ? target + '/' : undefined;
+
+            var done = this.async(),
+                options = ['host', 'noPort', 'port', 'email', 'password'],
+                args = ['test']
+                    .concat(grunt.option('target') || target || ['client/', 'frontend/'])
+                    .concat(['--includes=base.js', '--log-level=debug', '--port=2369']);
+
+            // Forward parameters from grunt to casperjs
+            _.each(options, function processOption(option) {
+                if (grunt.option(option)) {
+                    args.push('--' + option + '=' + grunt.option(option));
+                }
+            });
+
+            if (grunt.option('fail-fast')) {
+                args.push('--fail-fast');
+            }
+
+            // Show concise logs in Travis as ours are getting too long
+            if (grunt.option('concise') || process.env.TRAVIS) {
+                args.push('--concise');
+            } else {
+                args.push('--verbose');
+            }
+
+            grunt.util.spawn({
+                cmd: 'casperjs',
+                args: args,
+                opts: {
+                    cwd: path.resolve('core/test/functional'),
+                    stdio: 'inherit'
+                }
+            }, function (error, result, code) {
+                /*jshint unused:false*/
+                if (error) {
+                    grunt.fail.fatal(result.stdout);
+                }
+                grunt.log.writeln(result.stdout);
+                done();
+            });
+        });
 
         // # Custom Tasks
 
@@ -406,7 +472,7 @@ var path           = require('path'),
         // `grunt validate` is one of the most important and useful grunt tasks that we have available to use. It
         // manages the setup and running of jshint as well as the 4 test suites. See the individual sub tasks below
         // for details of each of the test suites.
-        //
+        // @TODO add test-functional
         // `grunt validate` is called by `npm test`.
         grunt.registerTask('validate', 'Run tests and lint code',
             ['jshint', 'test-routes', 'test-unit', 'test-integration'/*, 'test-functional'*/]);
@@ -510,6 +576,34 @@ var path           = require('path'),
             ['clean:test', 'setTestEnv', 'loadConfig', 'shell:coverage']);
 
 
+        // ## Building assets
+        //
+        // Ghost's GitHub repository contains the un-built source code for Ghost. If you're looking for the already
+        // built release zips, you can get these from the [release page](https://github.com/TryGhost/Ghost/releases) on
+        // GitHub or from https://ghost.org/download. These zip files are created using the [grunt release](#release)
+        // task.
+        //
+        // If you want to work on Ghost core, or you want to use the source files from GitHub, then you have to build
+        // the Ghost assets in order to make them work.
+        //
+        // There are a number of grunt tasks available to help with this. Firstly after fetching an updated version of
+        // the Ghost codebase, after running `npm install`, you will need to run [grunt init](#init%20assets).
+        //
+        // For production blogs you will need to run [grunt prod](#production%20assets).
+        //
+        // For updating assets during development, the tasks [grunt](#default%20asset%20build) and
+        // [grunt dev](#live%20reload) are available.
+        //
+
+        // ### Default asset build
+        // `grunt` - default grunt task
+        //
+        // Compiles handlebars templates, concatenates javascript files for the admin UI into a handful of files instead
+        // of many files, and makes sure the bower dependencies are in the right place.
+        grunt.registerTask('default', 'Build JS & templates for development',
+            ['shell:touch', 'copy:dev']);
+
+
         // ### Live reload
         // `grunt dev` - build assets on the fly whilst developing
         //
@@ -524,6 +618,18 @@ var path           = require('path'),
         grunt.registerTask('dev', 'Dev Mode; watch files and restart server on changes',
             ['express:dev', 'watch']);
 
+        // ### Release
+        // Run `grunt release` to create a Ghost release zip file.
+        // Uses the files specified by `.npmignore` to know what should and should not be included.
+        // Runs the asset generation tasks for both development and production so that the release can be used in
+        // either environment, and packages all the files up into a zip.
+        grunt.registerTask('release',
+                'Release task - creates a final built zip\n' +
+                ' - Do our standard build steps (handlebars, etc)\n' +
+                ' - Copy files to release-folder/#/#{version} directory\n' +
+                ' - Clean out unnecessary files (travis, .git*, etc)\n' +
+                ' - Zip files in release-folder to dist-folder/#{version} directory',
+            ['clean:release', 'copy:release', 'compress:release']);
 
     };
 

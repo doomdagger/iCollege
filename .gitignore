@@ -10,6 +10,7 @@ config.js
 
 # sencha #
 core/client/build/
+core/built/
 
 # built meta #
 /.build
