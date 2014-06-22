@@ -16,6 +16,7 @@ core/client/touch/
 # built meta #
 /.build
 /.dist
+bower_components/
 
 # coverage report #
 coverage.html

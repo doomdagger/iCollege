@@ -59,6 +59,10 @@ var path           = require('path'),
             // ### grunt-contrib-watch
             // See the [grunt dev](#live%20reload) task for how this is used.
             watch: {
+                touch: {
+                    files: ['core/client/*.js', 'core/client/app/*.js'],
+                    tasks: ['shell:touch', 'copy:dev']
+                },
                 express: {
                     files:  ['core/server.js', 'core/server/**/*.js'],
                     tasks:  ['express:dev'],
@@ -192,7 +196,7 @@ var path           = require('path'),
             // Command line tools where it's easier to run a command directly than configure a grunt plugin
             shell: {
                 prepare_touch: {
-                    command: "git clone http://git.candylee.cn/touch.git ./core/client/touch",
+                    command: "git clone http://git.candylee.cn/doomdagger/touch.git ./core/client/touch",
                     options: {
                         stdout: true
                     }
@@ -352,6 +356,17 @@ var path           = require('path'),
                             'bower_components/fastclick/lib/fastclick.js',
                             'bower_components/nprogress/nprogress.js'
                         ]
+                    }
+                }
+            },
+
+            // ### grunt-contrib-uglify
+            // Minify concatenated javascript files ready for production
+            uglify: {
+                prod: {
+                    files: {
+                        'core/built/scripts/vendor.min.js': 'core/built/scripts/vendor.js',
+                        'core/built/public/jquery.min.js': 'core/built/public/jquery.js'
                     }
                 }
             },
@@ -628,7 +643,7 @@ var path           = require('path'),
         // `bower` does have some quirks, such as not running as root. If you have problems please try running
         // `grunt init --verbose` to see if there are any errors.
         grunt.registerTask('init', 'Prepare the project for development',
-            ['shell:bower', 'update_submodules', 'shell:prepare_touch', 'default']);
+            ['shell:bower', 'update_submodules', 'clean:touch', 'shell:prepare_touch', 'default']);
 
         // ### Default asset build
         // `grunt` - default grunt task
@@ -651,7 +666,7 @@ var path           = require('path'),
         //
         // Note that the current implementation of watch only works with casper, not other themes.
         grunt.registerTask('dev', 'Dev Mode; watch files and restart server on changes',
-            ['express:dev', 'watch']);
+            ['concat', 'shell:touch', 'copy:dev', 'express:dev', 'watch']);
 
         // ### Release
         // Run `grunt release` to create a Ghost release zip file.
@@ -664,7 +679,7 @@ var path           = require('path'),
                 ' - Copy files to release-folder/#/#{version} directory\n' +
                 ' - Clean out unnecessary files (travis, .git*, etc)\n' +
                 ' - Zip files in release-folder to dist-folder/#{version} directory',
-            ['clean:release', 'copy:release', 'compress:release']);
+            ['shell:bower', 'update_submodules', 'concat', 'uglify', 'clean:release', 'copy:release', 'compress:release']);
 
     };
 
