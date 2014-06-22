@@ -191,6 +191,12 @@ var path           = require('path'),
             // ### grunt-shell
             // Command line tools where it's easier to run a command directly than configure a grunt plugin
             shell: {
+                prepare_touch: {
+                    command: "git clone http://git.candylee.cn/touch.git ./core/client/touch",
+                    options: {
+                        stdout: true
+                    }
+                },
                 // #### Run Sencha Touch Build
                 // See the `grunt init`. See the section on [Building Assets](#building%20assets) for more
                 touch: {
@@ -259,6 +265,9 @@ var path           = require('path'),
                 },
                 tmp: {
                     src: ['.tmp/**']
+                },
+                touch: {
+                    src: ['core/client/touch/**']
                 }
             },
 
@@ -323,15 +332,27 @@ var path           = require('path'),
                 }
             },
 
-            // @TODO fill the list of files to be concat
             // ### grunt-contrib-concat
             // concatenate multiple JS files into a single file ready for use
             concat: {
                 dev: {
-                    files: {}
-                },
-                prod: {
-                    files: {}
+                    files: {
+                        'core/built/scripts/vendor.js': [
+                            'bower_components/jquery/dist/jquery.js',
+
+                            'bower_components/lodash/dist/lodash.underscore.js',
+                            'bower_components/moment/moment.js',
+                            'bower_components/codemirror/lib/codemirror.js',
+                            'bower_components/codemirror/addon/mode/overlay.js',
+                            'bower_components/codemirror/mode/markdown/markdown.js',
+                            'bower_components/codemirror/mode/gfm/gfm.js',
+                            'bower_components/validator-js/validator.js',
+
+                            'bower_components/Countable/Countable.js',
+                            'bower_components/fastclick/lib/fastclick.js',
+                            'bower_components/nprogress/nprogress.js'
+                        ]
+                    }
                 }
             },
 
@@ -595,13 +616,27 @@ var path           = require('path'),
         // [grunt dev](#live%20reload) are available.
         //
 
+        // ### Init assets
+        // `grunt init` - will run an initial asset build for you
+        //
+        // Grunt init runs `bower install` as well as the standard asset build tasks which occur when you run just
+        // `grunt`. This fetches the latest client side dependencies, and moves them into their proper homes.
+        //
+        // This task is very important, and should always be run and when fetching down an updated code base just after
+        // running `npm install`.
+        //
+        // `bower` does have some quirks, such as not running as root. If you have problems please try running
+        // `grunt init --verbose` to see if there are any errors.
+        grunt.registerTask('init', 'Prepare the project for development',
+            ['shell:bower', 'update_submodules', 'shell:prepare_touch', 'default']);
+
         // ### Default asset build
         // `grunt` - default grunt task
         //
         // Compiles handlebars templates, concatenates javascript files for the admin UI into a handful of files instead
         // of many files, and makes sure the bower dependencies are in the right place.
         grunt.registerTask('default', 'Build JS & templates for development',
-            ['shell:touch', 'copy:dev']);
+            ['concat', 'shell:touch', 'copy:dev']);
 
 
         // ### Live reload

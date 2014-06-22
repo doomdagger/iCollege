@@ -11,6 +11,7 @@ config.js
 # sencha #
 core/client/build/
 core/built/
+core/client/touch/
 
 # built meta #
 /.build
