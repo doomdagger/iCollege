@@ -6,6 +6,7 @@ var express = require('express'),
     nodefn  = require('when/node'),
     path    = require('path'),
     when    = require('when'),
+    _       = require('loDash'),
     errors  = require('../errors'),
     config  = require('../config'),
     BaseStore   = require('./base').BaseStore;
@@ -14,7 +15,7 @@ var express = require('express'),
 function LocalFileStore() {}
 
 // 通过原型链实现继承
-LocalFileStore.prototype.__proto__ = BaseStore.prototype;
+_.extend(LocalFileStore.prototype, BaseStore.prototype);
 
 
 /**

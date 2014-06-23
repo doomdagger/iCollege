@@ -4,12 +4,13 @@
 var express = require('express'),
     //nodefn  = require('when/node'),
     config  = require('../config'),
+    _       = require('loDash'),
     BaseStore   = require('./base').BaseStore;
 
 function SQLite3Store() {}
 
 // 通过原型链实现继承
-SQLite3Store.prototype.__proto__ = BaseStore.prototype;
+_.extend(SQLite3Store.prototype, BaseStore.prototype);
 
 /**
  * Saves the image to storage (the file system)

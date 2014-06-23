@@ -348,7 +348,7 @@ var path           = require('path'),
         grunt.initConfig(cfg);
 
         // ## Utilities
-        // @TODO casperJS
+        //
         // ### Spawn Casper.js
         // Custom test runner for our Casper.js functional tests
         // This really ought to be refactored into a separate grunt task module
@@ -357,10 +357,10 @@ var path           = require('path'),
             target = _.contains(['client'], target) ? target + '/' : undefined;
 
             var done = this.async(),
-                options = ['host', 'noPort', 'port', 'email', 'password'],
+                options = ['host', 'noPort', 'port'],
                 args = ['test']
                     .concat(grunt.option('target') || target || ['client/'])
-                    .concat(['--includes=base.js', '--log-level=debug', '--port=2369']);
+                    .concat(['--includes=base.js', '--log-level=debug', '--port=1222']);
 
             // Forward parameters from grunt to casperjs
             _.each(options, function processOption(option) {
@@ -374,7 +374,7 @@ var path           = require('path'),
             }
 
             // Show concise logs in Travis as ours are getting too long
-            if (grunt.option('concise') || process.env.TRAVIS) {
+            if (grunt.option('concise')) {
                 args.push('--concise');
             } else {
                 args.push('--verbose');
@@ -460,7 +460,7 @@ var path           = require('path'),
 
         // ### Validate
         // **Main testing task**
-        // @TODO make test functional ready to work
+        //
         // `grunt validate` will lint and test your local iCollege codebase.
         //
         // `grunt validate` is one of the most important and useful grunt tasks that we have available to use. It
@@ -469,7 +469,7 @@ var path           = require('path'),
         //
         // `grunt validate` is called by `npm test`.
         grunt.registerTask('validate', 'Run tests and lint code',
-            ['jshint', 'test-routes', 'test-unit', 'test-integration'/*, 'test-functional'*/]);
+            ['jshint', 'test-routes', 'test-unit', 'test-integration', 'test-functional']);
 
         // ### Unit Tests *(sub task)*
         // `grunt test-unit` will run just the unit tests
@@ -536,7 +536,7 @@ var path           = require('path'),
             ['clean:test', 'setTestEnv', 'loadConfig', 'mochacli:routes']);
 
         // ### Functional tests *(sub task)*
-        // @TODO test-functional is here
+        //
         // `grunt test-functional` will run just the functional tests
         //
         // You can use the `--target` argument to run any individual test file, or the admin or frontend tests:
@@ -555,7 +555,7 @@ var path           = require('path'),
         // The purpose of the functional tests is to ensure that Ghost is working as is expected from a user perspective
         // including buttons and other important interactions in the admin UI.
         grunt.registerTask('test-functional', 'Run functional interface tests (CasperJS)',
-            ['clean:test', 'setTestEnv', 'loadConfig', 'express:test', /*'spawnCasperJS',*/ 'express:test:stop']
+            ['clean:test', 'setTestEnv', 'loadConfig', 'express:test', 'spawnCasperJS', 'express:test:stop']
         );
 
         // ### Coverage
