@@ -248,7 +248,7 @@ var path           = require('path'),
             // Generate documentation from code
             jsdoc : {
                 dist : {
-                    src: ['.'],
+                    src: ['README.md', '*.js', 'core/*.js', 'core/server/*.js', 'core/server/**/*.js'],
                     options: {
                         destination: 'docs'
                     }

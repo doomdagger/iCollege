@@ -86,7 +86,7 @@
         "should": "~3.3.1",
         "sinon": "~1.7.3",
         "supertest": "~0.8.2",
-        "jsdoc": "git+https://github.com/jsdoc3/jsdoc.git",
+        "jsdoc": "~3.2",
         "grunt-jsdoc": "^0.5.6"
     }
 }
