@@ -35,6 +35,10 @@ Please do **NOT** use the master branch of iCollege in production.
 
 **Use `grunt dev` while you develop iCollege**, express will restart for modifications of server side code
 
+### Apps
+
+Apps Getting Started for iCollege Devs. Learn more from [Ghost App Architecture](https://github.com/TryGhost/Ghost/wiki/Apps-Getting-Started-for-Ghost-Devs).
+
 ### Who are we ?
 
 * CodeHolic Team.
