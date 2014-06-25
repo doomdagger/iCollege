@@ -17,7 +17,6 @@ core/client/touch/
 /.build
 /.dist
 bower_components/
-docs/
 
 # coverage report #
 coverage.html

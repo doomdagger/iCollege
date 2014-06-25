@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>bootstrap.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../", thisFile = "core/bootstrap.js", defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+  <script src="../fileSearch.js"></script>
+  <link rel="stylesheet" href="../fileSearch.css" />
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>bootstrap.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+<p>This file manages the root level config.js.
+It will create config.js from config.exampe.js
+if it doesn't exist and then always attempt to load
+config.js into memory, error and quitting if config.js
+has an improper format.</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">fs</span>      <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">),</span>
+    <span class="nx">url</span>     <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">),</span>
+    <span class="nx">path</span>    <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">),</span>
+    <span class="nx">validator</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;validator&#39;</span><span class="p">),</span>
+    <span class="nx">when</span>       <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when&#39;</span><span class="p">),</span>
+
+    <span class="nx">errors</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./server/errors&#39;</span><span class="p">),</span>
+    <span class="nx">config</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./server/config&#39;</span><span class="p">),</span>
+
+    <span class="nx">appRoot</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="s1">&#39;../&#39;</span><span class="p">),</span><span class="c1">//app still not bootstrapped, cannot fetch app root from config module</span>
+    <span class="nx">configExample</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">appRoot</span><span class="p">,</span> <span class="s1">&#39;config.example.js&#39;</span><span class="p">),</span>
+    <span class="nx">configFile</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">readConfigFile</span><span class="p">(</span><span class="nx">envVal</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">require</span><span class="p">(</span><span class="nx">configFile</span><span class="p">)[</span><span class="nx">envVal</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">writeConfigFile</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">written</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Check for config file and copy from config.example.js
+if one doesn't exist. After that, start the server.   </p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">exists</span><span class="p">(</span><span class="nx">configExample</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">checkTemplate</span><span class="p">(</span><span class="nx">templateExists</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">read</span><span class="p">,</span>
+            <span class="nx">write</span><span class="p">,</span>
+            <span class="nx">error</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">templateExists</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">error</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Could not locate a configuration file.&#39;</span><span class="p">);</span>
+            <span class="nx">error</span><span class="p">.</span><span class="nx">context</span> <span class="o">=</span> <span class="nx">appRoot</span><span class="p">;</span>
+            <span class="nx">error</span><span class="p">.</span><span class="nx">help</span> <span class="o">=</span> <span class="s1">&#39;Please check your deployment for config.js or config.example.js.&#39;</span><span class="p">;</span>
+
+            <span class="k">return</span> <span class="nx">written</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+        <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>Copy config.example.js => config.js</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">read</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">createReadStream</span><span class="p">(</span><span class="nx">configExample</span><span class="p">);</span>
+        <span class="nx">read</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">errors</span><span class="p">.</span><span class="nx">logError</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Could not open config.example.js for read.&#39;</span><span class="p">),</span> <span class="nx">appRoot</span><span class="p">,</span> <span class="s1">&#39;Please check your deployment for config.js or config.example.js.&#39;</span><span class="p">);</span>
+
+            <span class="k">return</span> <span class="nx">written</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+        <span class="p">});</span>
+
+        <span class="nx">write</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">createWriteStream</span><span class="p">(</span><span class="nx">configFile</span><span class="p">);</span>
+        <span class="nx">write</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">errors</span><span class="p">.</span><span class="nx">logError</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Could not open config.js for write.&#39;</span><span class="p">),</span> <span class="nx">appRoot</span><span class="p">,</span> <span class="s1">&#39;Please check your deployment for config.js or config.example.js.&#39;</span><span class="p">);</span>
+
+            <span class="k">return</span> <span class="nx">written</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="nx">write</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;finish&#39;</span><span class="p">,</span> <span class="nx">written</span><span class="p">.</span><span class="nx">resolve</span><span class="p">);</span>
+
+        <span class="nx">read</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">write</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="k">return</span> <span class="nx">written</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">validateConfigEnvironment</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">envVal</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span> <span class="o">||</span> <span class="kc">undefined</span><span class="p">,</span>
+        <span class="nx">hasHostAndPort</span><span class="p">,</span>
+        <span class="nx">config</span><span class="p">,</span>
+        <span class="nx">parsedUrl</span><span class="p">;</span>
+
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="nx">config</span> <span class="o">=</span> <span class="nx">readConfigFile</span><span class="p">(</span><span class="nx">envVal</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span>
+    <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>Check if we don't even have a config</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">config</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">errors</span><span class="p">.</span><span class="nx">logError</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Cannot find the configuration for the current NODE_ENV&#39;</span><span class="p">),</span> <span class="s1">&#39;NODE_ENV=&#39;</span> <span class="o">+</span> <span class="nx">envVal</span><span class="p">,</span>
+            <span class="s1">&#39;Ensure your config.js has a section for the current NODE_ENV value and is formatted properly.&#39;</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Unable to load config for NODE_ENV=&#39;</span> <span class="o">+</span> <span class="nx">envVal</span><span class="p">));</span>
+    <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>Check that our url is valid</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">validator</span><span class="p">.</span><span class="nx">isURL</span><span class="p">(</span><span class="nx">config</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span> <span class="p">{</span> <span class="nx">protocols</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;http&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">],</span> <span class="nx">require_protocol</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}))</span> <span class="p">{</span>
+        <span class="nx">errors</span><span class="p">.</span><span class="nx">logError</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Your site url in config.js is invalid.&#39;</span><span class="p">),</span> <span class="nx">config</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span> <span class="s1">&#39;Please make sure this is a valid url before restarting&#39;</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;invalid site url&#39;</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="nx">parsedUrl</span> <span class="o">=</span> <span class="nx">url</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">config</span><span class="p">.</span><span class="nx">url</span> <span class="o">||</span> <span class="s1">&#39;invalid&#39;</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="sr">/\/icollege(\/|$)/</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">parsedUrl</span><span class="p">.</span><span class="nx">pathname</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">errors</span><span class="p">.</span><span class="nx">logError</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Your site url in config.js cannot contain a subdirectory called ghost.&#39;</span><span class="p">),</span> <span class="nx">config</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span> <span class="s1">&#39;Please rename the subdirectory before restarting&#39;</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;icollege subdirectory not allowed&#39;</span><span class="p">));</span>
+    <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+</div>
+<p>Check that we have database values</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">config</span><span class="p">.</span><span class="nx">database</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">errors</span><span class="p">.</span><span class="nx">logError</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Your database configuration in config.js is invalid.&#39;</span><span class="p">),</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">config</span><span class="p">.</span><span class="nx">database</span><span class="p">),</span> <span class="s1">&#39;Please make sure this is a valid database configuration&#39;</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;invalid database configuration&#39;</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="nx">hasHostAndPort</span> <span class="o">=</span> <span class="nx">config</span><span class="p">.</span><span class="nx">server</span> <span class="o">&amp;&amp;</span> <span class="o">!!</span><span class="nx">config</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">host</span> <span class="o">&amp;&amp;</span> <span class="o">!!</span><span class="nx">config</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">port</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+</div>
+<p>Check for valid server host and port values</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">config</span><span class="p">.</span><span class="nx">server</span> <span class="o">||</span> <span class="o">!</span><span class="nx">hasHostAndPort</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">errors</span><span class="p">.</span><span class="nx">logError</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Your server values (host and port) in config.js are invalid.&#39;</span><span class="p">),</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">config</span><span class="p">.</span><span class="nx">server</span><span class="p">),</span> <span class="s1">&#39;Please provide them before restarting.&#39;</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;invalid server configuration&#39;</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">config</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Bootstrap的入口方法，</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">configFilePath</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">*
+</span>
+      <span>{*}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">loadConfig</span><span class="p">(</span><span class="nx">configFilePath</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">loaded</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">(),</span>
+        <span class="nx">pendingConfig</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+</div>
+<p>Allow config file path to be taken from, in order of importance:
+environment process, passed in value, default location</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">configFile</span> <span class="o">=</span> <span class="nx">configFilePath</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Check for config file and copy from config.example.js
+if one doesn't exist. After that, start the server.   </p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">exists</span><span class="p">(</span><span class="nx">configFile</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">checkConfig</span><span class="p">(</span><span class="nx">configExists</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">configExists</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">pendingConfig</span> <span class="o">=</span> <span class="nx">writeConfigFile</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="nx">when</span><span class="p">(</span><span class="nx">pendingConfig</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">validateConfigEnvironment</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">rawConfig</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
+</div>
+<p>Protect against accessing a non-existant object.
+This ensures there's always at least a paths object
+because it's referenced in multiple places.</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">rawConfig</span><span class="p">.</span><span class="nx">paths</span> <span class="o">=</span> <span class="nx">rawConfig</span><span class="p">.</span><span class="nx">paths</span> <span class="o">||</span> <span class="p">{};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
+</div>
+<p>add some path info to rawConfig</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">rawConfig</span><span class="p">.</span><span class="nx">paths</span><span class="p">.</span><span class="nx">appRoot</span> <span class="o">=</span> <span class="nx">appRoot</span><span class="p">;</span>
+            <span class="nx">rawConfig</span><span class="p">.</span><span class="nx">paths</span><span class="p">.</span><span class="nx">configExample</span> <span class="o">=</span> <span class="nx">configExample</span><span class="p">;</span>
+            <span class="nx">rawConfig</span><span class="p">.</span><span class="nx">paths</span><span class="p">.</span><span class="nx">config</span> <span class="o">=</span> <span class="nx">configFile</span><span class="p">;</span>
+
+            <span class="k">return</span> <span class="nx">config</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="nx">rawConfig</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">loaded</span><span class="p">.</span><span class="nx">resolve</span><span class="p">);</span>
+        <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">loaded</span><span class="p">.</span><span class="nx">reject</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="k">return</span> <span class="nx">loaded</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">loadConfig</span><span class="p">;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>index.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../", thisFile = "core/server/api/index.js", defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+  <script src="../../../fileSearch.js"></script>
+  <link rel="stylesheet" href="../../../fileSearch.css" />
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h1">
+        <a href="#icollege%20data%20api">ICollege Data API</a>
+      </div>
+      <div class="heading h3">
+        <a href="#cache%20invalidation%20header">Cache Invalidation Header</a>
+      </div>
+      <div class="heading h3">
+        <a href="#location%20header">Location Header</a>
+      </div>
+      <div class="heading h3">
+        <a href="#content%20disposition%20header">Content Disposition Header</a>
+      </div>
+      <div class="heading h3">
+        <a href="#format%20http%20errors">Format HTTP Errors</a>
+      </div>
+      <div class="heading h3">
+        <a href="#http">HTTP</a>
+      </div>
+      <div class="heading h4">
+        <a href="#success">Success</a>
+      </div>
+      <div class="heading h4">
+        <a href="#error">Error</a>
+      </div>
+      <div class="heading h2">
+        <a href="#public%20api">Public API</a>
+      </div>
+      <div class="heading h2">
+        <a href="#api%20methods">API Methods</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="icollege%20data%20api">
+  <h1>
+    <a href="#icollege%20data%20api" name="icollege%20data%20api" class="pilcrow">&#182;</a>
+    ICollege Data API
+  </h1>
+</div>
+
+
+<p>Provides access from anywhere to the ICollege data layer.</p>
+
+<p>ICollege's JSON API is integral to the workings of ICollege, regardless of whether you want to access data internally,
+from a theme, an app, or from an external app, you'll use the ICollege JSON API to do so.</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">_</span>             <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">),</span>
+    <span class="nx">when</span>          <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when&#39;</span><span class="p">),</span>
+    <span class="nx">config</span>        <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../config&#39;</span><span class="p">),</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>Include Endpoints</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">users</span>         <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./users&#39;</span><span class="p">),</span>
+    <span class="nx">settings</span>      <span class="o">=</span> <span class="p">{},</span>
+    <span class="nx">http</span><span class="p">,</span>
+    <span class="nx">formatHttpErrors</span><span class="p">,</span>
+    <span class="nx">cacheInvalidationHeader</span><span class="p">,</span>
+    <span class="nx">locationHeader</span><span class="p">,</span>
+    <span class="nx">contentDispositionHeader</span><span class="p">;</span>
+
+
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="cache%20invalidation%20header">
+  <h3>
+    <a href="#cache%20invalidation%20header" name="cache%20invalidation%20header" class="pilcrow">&#182;</a>
+    Cache Invalidation Header
+  </h3>
+</div>
+
+
+<p>Calculate the header string for the X-Cache-Invalidate: header.
+The resulting string instructs any cache in front of the blog that request has occurred
+which invalidates any cached versions of the listed URIs.</p>
+  </div>
+  <div class="body"><p><code>/*</code> is used to mean the entire cache is invalid</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">private</span>
+    </div>
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">req</span>
+      <span class="dox_type">express.request</span>
+      <span>Original HTTP Request</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">result</span>
+      <span class="dox_type">Object</span>
+      <span>API method result</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">String</span>
+      <span>Resolves to header string</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">cacheInvalidationHeader</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>make the url into array, like ['','icollege','api','v0.1','users','id']</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="kd">var</span> <span class="nx">parsedUrl</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">_parsedUrl</span><span class="p">.</span><span class="nx">pathname</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\/$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span>
+        <span class="nx">method</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">method</span><span class="p">,</span>
+        <span class="nx">endpoint</span> <span class="o">=</span> <span class="nx">parsedUrl</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="c1">// endpoint, like users, groups, posts, etc. just like modules</span>
+        <span class="nx">id</span> <span class="o">=</span> <span class="nx">parsedUrl</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="c1">//id or any other important unique flag</span>
+        <span class="nx">cacheInvalidate</span><span class="p">,</span>
+        <span class="nx">jsonResult</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">toJSON</span> <span class="o">?</span> <span class="nx">result</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">()</span> <span class="o">:</span> <span class="nx">result</span><span class="p">,</span>
+        <span class="nx">post</span><span class="p">,</span>
+        <span class="nx">hasStatusChanged</span><span class="p">,</span>
+        <span class="nx">wasDeleted</span><span class="p">,</span>
+        <span class="nx">wasPublishedUpdated</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>console.log(require('util').inspect(parsedUrl));</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">method</span> <span class="o">===</span> <span class="s1">&#39;POST&#39;</span> <span class="o">||</span> <span class="nx">method</span> <span class="o">===</span> <span class="s1">&#39;PUT&#39;</span> <span class="o">||</span> <span class="nx">method</span> <span class="o">===</span> <span class="s1">&#39;DELETE&#39;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">endpoint</span> <span class="o">===</span> <span class="s1">&#39;settings&#39;</span> <span class="o">||</span> <span class="nx">endpoint</span> <span class="o">===</span> <span class="s1">&#39;users&#39;</span> <span class="o">||</span> <span class="nx">endpoint</span> <span class="o">===</span> <span class="s1">&#39;db&#39;</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+</div>
+<p>如果是这些endpoint，作废全部的cache</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">cacheInvalidate</span> <span class="o">=</span> <span class="s1">&#39;/*&#39;</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">endpoint</span> <span class="o">===</span> <span class="s1">&#39;posts&#39;</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+</div>
+<p>如果是posts</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">post</span> <span class="o">=</span> <span class="nx">jsonResult</span><span class="p">.</span><span class="nx">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+            <span class="nx">hasStatusChanged</span> <span class="o">=</span> <span class="nx">post</span><span class="p">.</span><span class="nx">statusChanged</span><span class="p">;</span>
+            <span class="nx">wasDeleted</span> <span class="o">=</span> <span class="nx">method</span> <span class="o">===</span> <span class="s1">&#39;DELETE&#39;</span><span class="p">;</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+</div>
+<p>Invalidate cache when post was updated but not when post is draft</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">wasPublishedUpdated</span> <span class="o">=</span> <span class="nx">method</span> <span class="o">===</span> <span class="s1">&#39;PUT&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">post</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="s1">&#39;published&#39;</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+</div>
+<p>Remove the statusChanged value from the response</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="k">delete</span> <span class="nx">post</span><span class="p">.</span><span class="nx">statusChanged</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+</div>
+<p>Don't set x-cache-invalidate header for drafts</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">hasStatusChanged</span> <span class="o">||</span> <span class="nx">wasDeleted</span> <span class="o">||</span> <span class="nx">wasPublishedUpdated</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">cacheInvalidate</span> <span class="o">=</span> <span class="s1">&#39;/, /page/*, /rss/, /rss/*, /tag/*&#39;</span><span class="p">;</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">id</span> <span class="o">&amp;&amp;</span> <span class="nx">post</span><span class="p">.</span><span class="nx">slug</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">return</span> <span class="nx">config</span><span class="p">.</span><span class="nx">urlForPost</span><span class="p">(</span><span class="nx">settings</span><span class="p">,</span> <span class="nx">post</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">postUrl</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">return</span> <span class="nx">cacheInvalidate</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span> <span class="o">+</span> <span class="nx">postUrl</span><span class="p">;</span>
+                    <span class="p">});</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">when</span><span class="p">(</span><span class="nx">cacheInvalidate</span><span class="p">);</span>
+<span class="p">};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="location%20header">
+  <h3>
+    <a href="#location%20header" name="location%20header" class="pilcrow">&#182;</a>
+    Location Header
+  </h3>
+</div>
+
+  </div>
+  <div class="body"><p>If the API request results in the creation of a new object, construct a Location: header which points to the new
+resource.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">private</span>
+    </div>
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">req</span>
+      <span class="dox_type">express.request</span>
+      <span>Original HTTP Request</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">result</span>
+      <span class="dox_type">Object</span>
+      <span>API method result</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">String</span>
+      <span>Resolves to header string</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">locationHeader</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">apiRoot</span> <span class="o">=</span> <span class="nx">config</span><span class="p">.</span><span class="nx">urlFor</span><span class="p">(</span><span class="s1">&#39;api&#39;</span><span class="p">),</span>
+        <span class="nx">location</span><span class="p">,</span>
+        <span class="nx">post</span><span class="p">,</span>
+        <span class="nx">notification</span><span class="p">,</span>
+        <span class="nx">parsedUrl</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">_parsedUrl</span><span class="p">.</span><span class="nx">pathname</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\/$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span>
+        <span class="nx">endpoint</span> <span class="o">=</span> <span class="nx">parsedUrl</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">method</span> <span class="o">===</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="s1">&#39;posts&#39;</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">post</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+            <span class="nx">location</span> <span class="o">=</span> <span class="nx">apiRoot</span> <span class="o">+</span> <span class="s1">&#39;/posts/&#39;</span> <span class="o">+</span> <span class="nx">post</span><span class="p">.</span><span class="nx">id</span> <span class="o">+</span> <span class="s1">&#39;/?status=&#39;</span> <span class="o">+</span> <span class="nx">post</span><span class="p">.</span><span class="nx">status</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">endpoint</span> <span class="o">===</span> <span class="s1">&#39;notifications&#39;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">notification</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">notifications</span><span class="p">;</span>
+            <span class="nx">location</span> <span class="o">=</span> <span class="nx">apiRoot</span> <span class="o">+</span> <span class="s1">&#39;/notifications/&#39;</span> <span class="o">+</span> <span class="nx">notification</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">id</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">when</span><span class="p">(</span><span class="nx">location</span><span class="p">);</span>
+<span class="p">};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="content%20disposition%20header">
+  <h3>
+    <a href="#content%20disposition%20header" name="content%20disposition%20header" class="pilcrow">&#182;</a>
+    Content Disposition Header
+  </h3>
+</div>
+
+
+<p>create a header that invokes the 'Save As' dialog in the browser when exporting the database to file. The 'filename'
+parameter is governed by <a href="http://tools.ietf.org/html/rfc6266#section-4.3">RFC6266</a>.</p>
+  </div>
+  <div class="body"><p>For encoding whitespace and non-ISO-8859-1 characters, you MUST use the "filename*=" attribute, NOT "filename=".
+Ideally, both. Examples: <a href='http://tools.ietf.org/html/rfc6266#section-5'>http://tools.ietf.org/html/rfc6266#section-5</a></p>
+
+<p>We'll use ISO-8859-1 characters here to keep it simple.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">private</span>
+    </div>
+    <div class="dox_tag_title">See</div>
+    <div class="dox_tag_detail">
+      <a href="http://tools.ietf.org/html/rfc598">http://tools.ietf.org/html/rfc598</a>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">string
+</span>
+      <span>{string}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">contentDispositionHeader</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+</div>
+<p>replace ':' with '_' for OS that don't support it</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()).</span><span class="nx">toJSON</span><span class="p">().</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/:/g</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="s1">&#39;Attachment; filename=&quot;icollege-&#39;</span> <span class="o">+</span> <span class="nx">now</span> <span class="o">+</span> <span class="s1">&#39;.json&quot;&#39;</span><span class="p">;</span>
+<span class="p">};</span>
+
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="format%20http%20errors">
+  <h3>
+    <a href="#format%20http%20errors" name="format%20http%20errors" class="pilcrow">&#182;</a>
+    Format HTTP Errors
+  </h3>
+</div>
+
+
+<p>Converts the error response from the API into a format which can be returned over HTTP</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">private</span>
+    </div>
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">error</span>
+      <span class="dox_type">Array</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">errors:Array</span>
+      <span class="dox_type">statusCode:number
+</span>
+      <span>{{errors:Array,statusCode:number}}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">formatHttpErrors</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">statusCode</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+        <span class="nx">errors</span> <span class="o">=</span> <span class="p">[];</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">error</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">error</span> <span class="o">=</span> <span class="p">[].</span><span class="nx">concat</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">errorItem</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">errorContent</span> <span class="o">=</span> <span class="p">{};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
+</div>
+<p>TODO: add logic to set the correct status code</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">statusCode</span> <span class="o">=</span> <span class="nx">errorItem</span><span class="p">.</span><span class="nx">code</span> <span class="o">||</span> <span class="mi">500</span><span class="p">;</span>
+
+        <span class="nx">errorContent</span><span class="p">.</span><span class="nx">message</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">errorItem</span><span class="p">)</span> <span class="o">?</span> <span class="nx">errorItem</span> <span class="o">:</span>
+            <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span><span class="p">(</span><span class="nx">errorItem</span><span class="p">)</span> <span class="o">?</span> <span class="nx">errorItem</span><span class="p">.</span><span class="nx">message</span> <span class="o">:</span> <span class="s1">&#39;Unknown API Error&#39;</span><span class="p">);</span>
+        <span class="nx">errorContent</span><span class="p">.</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">errorItem</span><span class="p">.</span><span class="nx">type</span> <span class="o">||</span> <span class="s1">&#39;InternalServerError&#39;</span><span class="p">;</span>
+        <span class="nx">errors</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">errorContent</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="nx">errors</span><span class="o">:</span> <span class="nx">errors</span><span class="p">,</span> <span class="nx">statusCode</span><span class="o">:</span> <span class="nx">statusCode</span><span class="p">};</span>
+<span class="p">};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="http">
+  <h3>
+    <a href="#http" name="http" class="pilcrow">&#182;</a>
+    HTTP
+  </h3>
+</div>
+
+  </div>
+  <div class="body"><p>Decorator for API functions which are called via an HTTP request. Takes the API method and wraps it so that it gets
+data from the request and returns a sensible JSON response.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">public</span>
+    </div>
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">apiMethod</span>
+      <span class="dox_type">Function</span>
+      <span>API method to call</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Function</span>
+      <span>middleware format function to be called by the route when a matching request is made</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">http</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">apiMethod</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-17" id="section-17">&#182;</a>
+</div>
+<p>We define 2 properties for using as arguments in API calls:</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="kd">var</span> <span class="nx">object</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">,</span>
+            <span class="nx">options</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">req</span><span class="p">.</span><span class="nx">files</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">,</span> <span class="p">{</span>
+                <span class="nx">context</span><span class="o">:</span> <span class="p">{</span>
+                    <span class="nx">user</span><span class="o">:</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span> <span class="o">&amp;&amp;</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span><span class="p">)</span> <span class="o">?</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span> <span class="o">:</span> <span class="kc">null</span>
+                <span class="p">}</span>
+            <span class="p">});</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
+</div>
+<p>If this is a GET, or a DELETE, req.body should be null, so we only have options (route and query params)
+If this is a PUT, POST, or PATCH, req.body is an object</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="nx">object</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">object</span> <span class="o">=</span> <span class="nx">options</span><span class="p">;</span>
+            <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="nx">apiMethod</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
+</div>
+<p>Handle adding headers</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="nx">onSuccess</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
+</div>
+<p>Add X-Cache-Invalidate header</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+                <span class="k">return</span> <span class="nx">cacheInvalidationHeader</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
+                    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="nx">addCacheHeader</span><span class="p">(</span><span class="nx">header</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="nx">header</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="nx">res</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span><span class="s1">&#39;X-Cache-Invalidate&#39;</span><span class="o">:</span> <span class="nx">header</span><span class="p">});</span>
+                        <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-21" id="section-21">&#182;</a>
+</div>
+<p>Add Location header</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+                        <span class="k">return</span> <span class="nx">locationHeader</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">result</span><span class="p">);</span>
+                    <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="nx">addLocationHeader</span><span class="p">(</span><span class="nx">header</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="nx">header</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="nx">res</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span><span class="s1">&#39;Location&#39;</span><span class="o">:</span> <span class="nx">header</span><span class="p">});</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
+</div>
+<p>The location header indicates that a new object was created.
+In this case the status code should be 201 Created</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+                            <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mi">201</span><span class="p">);</span>
+                        <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
+</div>
+<p>Add Content-Disposition Header
+if (apiMethod === db.exportContent) {
+   res.set({
+       'Content-Disposition': contentDispositionHeader()
+   });
+}</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="success">
+  <h4>
+    <a href="#success" name="success" class="pilcrow">&#182;</a>
+    Success
+  </h4>
+</div>
+
+
+<p>Send a properly formatting HTTP response containing the data with correct headers</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+                        <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="nx">result</span> <span class="o">||</span> <span class="p">{});</span>
+                    <span class="p">});</span>
+            <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span> <span class="nx">onError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="error">
+  <h4>
+    <a href="#error" name="error" class="pilcrow">&#182;</a>
+    Error
+  </h4>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+                <span class="kd">var</span> <span class="nx">httpErrors</span> <span class="o">=</span> <span class="nx">formatHttpErrors</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-26" id="section-26">&#182;</a>
+</div>
+<p>Send a properly formatted HTTP response containing the errors</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+                <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="nx">httpErrors</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">,</span> <span class="p">{</span><span class="nx">errors</span><span class="o">:</span> <span class="nx">httpErrors</span><span class="p">.</span><span class="nx">errors</span><span class="p">});</span>
+            <span class="p">});</span>
+    <span class="p">};</span>
+<span class="p">};</span>
+
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="public%20api">
+  <h2>
+    <a href="#public%20api" name="public%20api" class="pilcrow">&#182;</a>
+    Public API
+  </h2>
+</div>
+
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-28" id="section-28">&#182;</a>
+</div>
+<p>Extras</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">http</span><span class="o">:</span> <span class="nx">http</span><span class="p">,</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-29" id="section-29">&#182;</a>
+</div>
+<p>API Endpoints</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">users</span><span class="o">:</span> <span class="nx">users</span>
+<span class="p">};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="api%20methods">
+  <h2>
+    <a href="#api%20methods" name="api%20methods" class="pilcrow">&#182;</a>
+    API Methods
+  </h2>
+</div>
+
+  </div>
+  <div class="body"><p>Most API methods follow the BREAD pattern, although not all BREAD methods are available for all resources.
+Most API methods have a similar signature, they either take just <code>options</code>, or both <code>object</code> and <code>options</code>.
+For RESTful resources <code>object</code> is always a model object of the correct type in the form <code>name: [{object}]</code>
+<code>options</code> is an object with several named properties, the possibilities are listed for each method.</p>
+
+<p>Read / Edit / Destroy routes expect some sort of identifier (id / slug / key) for which object they are handling</p>
+
+<p>All API methods take a context object as one of the options:</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">typedef</div>
+    <div class="dox_tag_detail">
+      <span>context
+Context provides information for determining permissions. Usually a user, but sometimes an app, or the internal flag</span>
+    </div>
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">user</span>
+      <span class="dox_type">Number</span>
+      <span>(optional)</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">app</span>
+      <span class="dox_type">String</span>
+      <span>(optional)</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">internal</span>
+      <span class="dox_type">Boolean</span>
+      <span>(optional)</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

@@ -246,11 +246,15 @@ var path           = require('path'),
 
             // ### grunt-docker
             // Generate documentation from code
-            jsdoc : {
-                dist : {
-                    src: ['README.md', '*.js', 'core/*.js', 'core/server/*.js', 'core/server/**/*.js'],
+            docker: {
+                docs: {
+                    dest: 'docs',
+                    src: ['.'],
                     options: {
-                        destination: 'docs'
+                        onlyUpdated: true,
+                        exclude: 'node_modules,.git,.tmp,bower_components,content,*built,*test,*doc*,*vendor,' +
+                            'config.js,coverage.html,.travis.yml,*.min.css,screen.css,*touch*,*resources*,*.sencha*',
+                        extras: ['fileSearch']
                     }
                 }
             },
@@ -421,7 +425,7 @@ var path           = require('path'),
 
         // ### Documentation
         // Run `grunt docs` to generate annotated source code using the documentation described in the code comments.
-        grunt.registerTask('docs', 'Generate Docs', ['jsdoc']);
+        grunt.registerTask('docs', 'Generate Docs', ['docker']);
 
 
         // ## Testing

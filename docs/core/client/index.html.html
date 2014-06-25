@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>index.html</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../", thisFile = "core/client/index.html", defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+  <script src="../../fileSearch.js"></script>
+  <link rel="stylesheet" href="../../fileSearch.css" />
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>index.html</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="cp">&lt;!DOCTYPE HTML&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">manifest=</span><span class="s">&quot;&quot;</span> <span class="na">lang=</span><span class="s">&quot;en-US&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">&quot;UTF-8&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;title&gt;</span>ICollege<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;style </span><span class="na">type=</span><span class="s">&quot;text/css&quot;</span><span class="nt">&gt;</span>
+         <span class="c">/**</span>
+<span class="c">         * Example of an initial loading indicator.</span>
+<span class="c">         * It is recommended to keep this as minimal as possible to provide instant feedback</span>
+<span class="c">         * while other resources are still being loaded for the first time</span>
+<span class="c">         */</span>
+        <span class="nt">html</span><span class="o">,</span> <span class="nt">body</span> <span class="p">{</span>
+            <span class="k">height</span><span class="o">:</span> <span class="m">100</span><span class="o">%</span><span class="p">;</span>
+            <span class="k">background-color</span><span class="o">:</span> <span class="m">#1985D0</span>
+        <span class="p">}</span>
+
+        <span class="nf">#appLoadingIndicator</span> <span class="p">{</span>
+            <span class="k">position</span><span class="o">:</span> <span class="k">absolute</span><span class="p">;</span>
+            <span class="k">top</span><span class="o">:</span> <span class="m">50</span><span class="o">%</span><span class="p">;</span>
+            <span class="k">margin-top</span><span class="o">:</span> <span class="m">-15px</span><span class="p">;</span>
+            <span class="k">text-align</span><span class="o">:</span> <span class="k">center</span><span class="p">;</span>
+            <span class="k">width</span><span class="o">:</span> <span class="m">100</span><span class="o">%</span><span class="p">;</span>
+            <span class="k">height</span><span class="o">:</span> <span class="m">30px</span><span class="p">;</span>
+            <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="n">animation</span><span class="o">-</span><span class="n">name</span><span class="o">:</span> <span class="n">appLoadingIndicator</span><span class="p">;</span>
+            <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="n">animation</span><span class="o">-</span><span class="n">duration</span><span class="o">:</span> <span class="m">0.5s</span><span class="p">;</span>
+            <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="n">animation</span><span class="o">-</span><span class="n">iteration</span><span class="o">-</span><span class="n">count</span><span class="o">:</span> <span class="n">infinite</span><span class="p">;</span>
+            <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="n">animation</span><span class="o">-</span><span class="k">direction</span><span class="o">:</span> <span class="n">linear</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="nf">#appLoadingIndicator</span> <span class="o">&gt;</span> <span class="o">*</span> <span class="p">{</span>
+            <span class="k">background-color</span><span class="o">:</span> <span class="m">#FFFFFF</span><span class="p">;</span>
+            <span class="k">display</span><span class="o">:</span> <span class="k">inline</span><span class="o">-</span><span class="k">block</span><span class="p">;</span>
+            <span class="k">height</span><span class="o">:</span> <span class="m">30px</span><span class="p">;</span>
+            <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">15px</span><span class="p">;</span>
+            <span class="k">margin</span><span class="o">:</span> <span class="m">0</span> <span class="m">5px</span><span class="p">;</span>
+            <span class="k">width</span><span class="o">:</span> <span class="m">30px</span><span class="p">;</span>
+            <span class="k">opacity</span><span class="o">:</span> <span class="m">0</span><span class="o">.</span><span class="m">8</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">@-webkit-keyframes</span> <span class="nt">appLoadingIndicator</span><span class="p">{</span>
+            <span class="nt">0</span><span class="o">%</span> <span class="p">{</span>
+                <span class="k">opacity</span><span class="o">:</span> <span class="m">0</span><span class="o">.</span><span class="m">8</span>
+            <span class="p">}</span>
+            <span class="nt">50</span><span class="o">%</span> <span class="p">{</span>
+                <span class="k">opacity</span><span class="o">:</span> <span class="m">0</span>
+            <span class="p">}</span>
+            <span class="nt">100</span><span class="o">%</span> <span class="p">{</span>
+                <span class="k">opacity</span><span class="o">:</span> <span class="m">0</span><span class="o">.</span><span class="m">8</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="nt">&lt;/style&gt;</span>
+    <span class="c">&lt;!-- The line below must be kept intact for Sencha Command to build your application --&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">id=</span><span class="s">&quot;microloader&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;.sencha/app/microloader/development.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;appLoadingIndicator&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div&gt;&lt;/div&gt;</span>
+        <span class="nt">&lt;div&gt;&lt;/div&gt;</span>
+        <span class="nt">&lt;div&gt;&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//localhost:35729/livereload.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>
