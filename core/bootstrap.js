@@ -55,6 +55,7 @@ function writeConfigFile() {
         });
         write.on('finish', written.resolve);
 
+
         read.pipe(write);
     });
 

@@ -28,7 +28,7 @@ Ext.define('ICollege.view.Main', {
                 ].join("")
             },
             {
-                title: 'Video',
+                title: 'Chaochao',
                 iconCls: 'action',
 
                 items: [
