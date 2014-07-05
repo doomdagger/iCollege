@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>url.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../", thisFile = "core/server/config/url.js", defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+  <script src="../../../fileSearch.js"></script>
+  <link rel="stylesheet" href="../../../fileSearch.css" />
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h2">
+        <a href="#setconfig">setConfig</a>
+      </div>
+      <div class="heading h2">
+        <a href="#createurl">createUrl</a>
+      </div>
+      <div class="heading h2">
+        <a href="#urlpathforpost">urlPathForPost</a>
+      </div>
+      <div class="heading h2">
+        <a href="#urlfor">urlFor</a>
+      </div>
+      <div class="heading h2">
+        <a href="#urlforpost">urlForPost</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>url.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+<p>Contains all path information to be used throughout
+the codebase.</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">moment</span>            <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;moment&#39;</span><span class="p">),</span>
+    <span class="nx">_</span>                 <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">),</span>
+    <span class="nx">icollegeConfig</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="setconfig">
+  <h2>
+    <a href="#setconfig" name="setconfig" class="pilcrow">&#182;</a>
+    setConfig
+  </h2>
+</div>
+
+
+<p>Simple utility function to allow
+passing of the icollegeConfig
+object here to be used locally
+to ensure clean depedency graph
+(i.e. no circular dependencies).</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">setConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">icollegeConfig</span> <span class="o">=</span> <span class="nx">config</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="createurl">
+  <h2>
+    <a href="#createurl" name="createurl" class="pilcrow">&#182;</a>
+    createUrl
+  </h2>
+</div>
+
+
+<p>Simple url creation from a given path
+Ensures that our urls contain the subdirectory if there is one
+And are correctly formatted as either relative or absolute
+Usage:
+createUrl('/', true) -> <a href='http://my-ghost-blog.com/'>http://my-ghost-blog.com/</a>
+E.g. /blog/ subdir
+createUrl('/welcome-to-ghost/') -> /blog/welcome-to-ghost/
+Parameters:
+- urlPath - string which must start and end with a slash
+- absolute (optional, default:false) - boolean whether or not the url should be absolute
+- secure (optional, default:false) - boolean whether or not to use urlSSL or url config
+Returns:
+ - a URL which always ends with a slash</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">createUrl</span><span class="p">(</span><span class="nx">urlPath</span><span class="p">,</span> <span class="nx">absolute</span><span class="p">,</span> <span class="nx">secure</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">urlPath</span> <span class="o">=</span> <span class="nx">urlPath</span> <span class="o">||</span> <span class="s1">&#39;/&#39;</span><span class="p">;</span>
+    <span class="nx">absolute</span> <span class="o">=</span> <span class="nx">absolute</span> <span class="o">||</span> <span class="kc">false</span><span class="p">;</span>
+
+    <span class="kd">var</span> <span class="nx">output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">baseUrl</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>create base of url, always ends without a slash</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">absolute</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">baseUrl</span> <span class="o">=</span> <span class="p">(</span><span class="nx">secure</span> <span class="o">&amp;&amp;</span> <span class="nx">icollegeConfig</span><span class="p">.</span><span class="nx">urlSSL</span><span class="p">)</span> <span class="o">?</span> <span class="nx">icollegeConfig</span><span class="p">.</span><span class="nx">urlSSL</span> <span class="o">:</span> <span class="nx">icollegeConfig</span><span class="p">.</span><span class="nx">url</span><span class="p">;</span>
+        <span class="nx">output</span> <span class="o">+=</span> <span class="nx">baseUrl</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\/$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span> <span class="c1">// remove trailing</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">output</span> <span class="o">+=</span> <span class="nx">icollegeConfig</span><span class="p">.</span><span class="nx">paths</span><span class="p">.</span><span class="nx">subdir</span><span class="p">;</span>
+    <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>append the path, always starts and ends with a slash</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">output</span> <span class="o">+=</span> <span class="nx">urlPath</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="nx">output</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="urlpathforpost">
+  <h2>
+    <a href="#urlpathforpost" name="urlpathforpost" class="pilcrow">&#182;</a>
+    urlPathForPost
+  </h2>
+</div>
+
+
+<p>Always sync
+Creates the url path for a post, given a post and a permalink
+Parameters:
+- post - a json object representing a post
+- permalinks - a json object containing the permalinks setting</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">urlPathForPost</span><span class="p">(</span><span class="nx">post</span><span class="p">,</span> <span class="nx">permalinks</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="nx">tags</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nx">year</span><span class="o">:</span>   <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">moment</span><span class="p">(</span><span class="nx">post</span><span class="p">.</span><span class="nx">published_at</span><span class="p">).</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;YYYY&#39;</span><span class="p">);</span> <span class="p">},</span>
+            <span class="nx">month</span><span class="o">:</span>  <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">moment</span><span class="p">(</span><span class="nx">post</span><span class="p">.</span><span class="nx">published_at</span><span class="p">).</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;MM&#39;</span><span class="p">);</span> <span class="p">},</span>
+            <span class="nx">day</span><span class="o">:</span>    <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">moment</span><span class="p">(</span><span class="nx">post</span><span class="p">.</span><span class="nx">published_at</span><span class="p">).</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;DD&#39;</span><span class="p">);</span> <span class="p">},</span>
+            <span class="nx">slug</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">post</span><span class="p">.</span><span class="nx">slug</span><span class="p">;</span> <span class="p">},</span>
+            <span class="nx">id</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">post</span><span class="p">.</span><span class="nx">id</span><span class="p">;</span> <span class="p">}</span>
+        <span class="p">};</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">post</span><span class="p">.</span><span class="nx">page</span> <span class="o">===</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">output</span> <span class="o">+=</span> <span class="s1">&#39;/:slug/&#39;</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">output</span> <span class="o">+=</span> <span class="nx">permalinks</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
+    <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+</div>
+<p>replace tags like :slug or :year with actual values</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">output</span> <span class="o">=</span> <span class="nx">output</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/(:[a-z]+)/g</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">match</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">tags</span><span class="p">,</span> <span class="nx">match</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">tags</span><span class="p">[</span><span class="nx">match</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">)]();</span>
+        <span class="p">}</span>
+    <span class="p">});</span>
+
+    <span class="k">return</span> <span class="nx">output</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="urlfor">
+  <h2>
+    <a href="#urlfor" name="urlfor" class="pilcrow">&#182;</a>
+    urlFor
+  </h2>
+</div>
+
+
+<p>Synchronous url creation for a given context
+Can generate a url for a named path, given path, or known object (post)
+Determines what sort of context it has been given, and delegates to the correct generation method,
+Finally passing to createUrl, to ensure any subdirectory is honoured, and the url is absolute if needed
+Usage:
+urlFor('home', true) -> <a href='http://my-ghost-blog.com/'>http://my-ghost-blog.com/</a>
+E.g. /blog/ subdir
+urlFor({relativeUrl: '/my-static-page/') -> /blog/my-static-page/
+E.g. if post object represents welcome post, and slugs are set to standard
+urlFor('post', {...}) -> /welcome-to-ghost/
+E.g. if post object represents welcome post, and slugs are set to date
+urlFor('post', {...}) -> /2014/01/01/welcome-to-ghost/</p>
+  </div>
+  <div class="body"><p>{
+     secure: true,
+     relativeUrl: String
+}</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">context</span>
+      <span class="dox_type">String</span>
+      <span class="dox_type">Object</span>
+      <span><ul>
+<li>a string, or json object describing the context for which you need a url</li>
+</ul></span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">data</span>
+      <span class="dox_type">?Object</span>
+      <span><ul>
+<li>a json object containing data needed to generate a url</li>
+</ul></span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">absolute</span>
+      <span class="dox_type">?Object</span>
+      <span><ul>
+<li>boolean whether or not the url should be absolute</li>
+</ul></span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">*
+</span>
+      <span>{*}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">urlFor</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">absolute</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">urlPath</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span>
+        <span class="nx">secure</span><span class="p">,</span>
+        <span class="nx">knownObjects</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">],</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+</div>
+<p>this will become really big</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">knownPaths</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;home&#39;</span><span class="o">:</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;rss&#39;</span><span class="o">:</span> <span class="s1">&#39;/rss/&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;api&#39;</span><span class="o">:</span> <span class="s1">&#39;/icollege/api/v0.1&#39;</span>
+    <span class="p">};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+</div>
+<p>Make data properly optional</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isBoolean</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">absolute</span> <span class="o">=</span> <span class="nx">data</span><span class="p">;</span>
+        <span class="nx">data</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+    <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
+</div>
+<p>Can pass 'secure' flag in either context or data arg</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">secure</span> <span class="o">=</span> <span class="p">(</span><span class="nx">context</span> <span class="o">&amp;&amp;</span> <span class="nx">context</span><span class="p">.</span><span class="nx">secure</span><span class="p">)</span> <span class="o">||</span> <span class="p">(</span><span class="nx">data</span> <span class="o">&amp;&amp;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">secure</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">context</span><span class="p">.</span><span class="nx">relativeUrl</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">urlPath</span> <span class="o">=</span> <span class="nx">context</span><span class="p">.</span><span class="nx">relativeUrl</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">_</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">knownObjects</span><span class="p">,</span> <span class="nx">context</span><span class="p">)</span> <span class="o">!==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
+</div>
+<p>trying to create a url for an object</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">context</span> <span class="o">===</span> <span class="s1">&#39;post&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">post</span> <span class="o">&amp;&amp;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">permalinks</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">urlPath</span> <span class="o">=</span> <span class="nx">urlPathForPost</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">post</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">permalinks</span><span class="p">);</span>
+            <span class="nx">secure</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">post</span><span class="p">.</span><span class="nx">secure</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">context</span> <span class="o">===</span> <span class="s1">&#39;tag&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">tag</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">urlPath</span> <span class="o">=</span> <span class="s1">&#39;/tag/&#39;</span> <span class="o">+</span> <span class="nx">data</span><span class="p">.</span><span class="nx">tag</span><span class="p">.</span><span class="nx">slug</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">;</span>
+            <span class="nx">secure</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">tag</span><span class="p">.</span><span class="nx">secure</span><span class="p">;</span>
+        <span class="p">}</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+</div>
+<p>other objects are recognised but not yet supported</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">_</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">knownPaths</span><span class="p">),</span> <span class="nx">context</span><span class="p">)</span> <span class="o">!==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
+</div>
+<p>trying to create a url for a named path</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">urlPath</span> <span class="o">=</span> <span class="nx">knownPaths</span><span class="p">[</span><span class="nx">context</span><span class="p">]</span> <span class="o">||</span> <span class="s1">&#39;/&#39;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">createUrl</span><span class="p">(</span><span class="nx">urlPath</span><span class="p">,</span> <span class="nx">absolute</span><span class="p">,</span> <span class="nx">secure</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="urlforpost">
+  <h2>
+    <a href="#urlforpost" name="urlforpost" class="pilcrow">&#182;</a>
+    urlForPost
+  </h2>
+</div>
+
+
+<p>This method is async as we have to fetch the permalinks
+Get the permalink setting and then get a URL for the given post
+Parameters
+- settings - passed reference to api.settings
+- post - a json object representing a post
+- absolute (optional, default:false) - boolean whether or not the url should be absolute</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">urlForPost</span><span class="p">(</span><span class="nx">settings</span><span class="p">,</span> <span class="nx">post</span><span class="p">,</span> <span class="nx">absolute</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">settings</span><span class="p">.</span><span class="nx">read</span><span class="p">(</span><span class="s1">&#39;permalinks&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">permalinks</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">settings</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+
+        <span class="k">return</span> <span class="nx">urlFor</span><span class="p">(</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">post</span><span class="o">:</span> <span class="nx">post</span><span class="p">,</span> <span class="nx">permalinks</span><span class="o">:</span> <span class="nx">permalinks</span><span class="p">},</span> <span class="nx">absolute</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">setConfig</span> <span class="o">=</span> <span class="nx">setConfig</span><span class="p">;</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">urlFor</span> <span class="o">=</span> <span class="nx">urlFor</span><span class="p">;</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">urlForPost</span> <span class="o">=</span> <span class="nx">urlForPost</span><span class="p">;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

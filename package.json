@@ -72,8 +72,8 @@
         "grunt-contrib-jshint": "~0.8.0",
         "grunt-contrib-uglify": "~0.2.5",
         "grunt-contrib-watch": "~0.5.3",
-        "grunt-docker": "~0.0.8",
         "grunt-express-server": "~0.4.11",
+        "grunt-docker": "~0.0.8",
         "grunt-mocha-cli": "~1.4.0",
         "grunt-shell": "~0.6.1",
         "grunt-update-submodules": "~0.4.0",
@@ -83,10 +83,9 @@
         "rewire": "~2.0.0",
         "request": "~2.29.0",
         "require-dir": "~0.1.0",
+        "mkdirp": "0.3.0",
         "should": "~3.3.1",
         "sinon": "~1.7.3",
-        "supertest": "~0.8.2",
-        "jsdoc": "~3.2",
-        "grunt-jsdoc": "^0.5.6"
+        "supertest": "~0.8.2"
     }
 }

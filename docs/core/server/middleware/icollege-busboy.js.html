@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>icollege-busboy.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../", thisFile = "core/server/middleware/icollege-busboy.js", defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+  <script src="../../../fileSearch.js"></script>
+  <link rel="stylesheet" href="../../../fileSearch.css" />
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h3">
+        <a href="#ghostbusboy">ghostBusboy</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>icollege-busboy.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">BusBoy</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;busboy&#39;</span><span class="p">),</span>
+    <span class="nx">fs</span>      <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs-extra&#39;</span><span class="p">),</span>
+    <span class="nx">path</span>    <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">),</span>
+    <span class="nx">os</span>      <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;os&#39;</span><span class="p">),</span>
+    <span class="nx">crypto</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;crypto&#39;</span><span class="p">),</span>
+    <span class="nx">errors</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../errors&#39;</span><span class="p">);</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="ghostbusboy">
+  <h3>
+    <a href="#ghostbusboy" name="ghostbusboy" class="pilcrow">&#182;</a>
+    ghostBusboy
+  </h3>
+</div>
+
+
+<p>Process multipart file streams</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">icollegeBusBoy</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">busboy</span><span class="p">,</span>
+        <span class="nx">stream</span><span class="p">,</span>
+        <span class="nx">tmpDir</span><span class="p">,</span>
+        <span class="nx">hasError</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>busboy is only used for POST requests</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">method</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">req</span><span class="p">.</span><span class="nx">method</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/post/i</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">next</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="nx">busboy</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">BusBoy</span><span class="p">({</span> <span class="nx">headers</span><span class="o">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">headers</span> <span class="p">});</span>
+    <span class="nx">tmpDir</span> <span class="o">=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">tmpdir</span><span class="p">();</span>
+
+    <span class="nx">req</span><span class="p">.</span><span class="nx">files</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">files</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="nx">req</span><span class="p">.</span><span class="nx">body</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span> <span class="o">||</span> <span class="p">{};</span>
+
+    <span class="nx">busboy</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">fieldname</span><span class="p">,</span> <span class="nx">file</span><span class="p">,</span> <span class="nx">filename</span><span class="p">,</span> <span class="nx">encoding</span><span class="p">,</span> <span class="nx">mimetype</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">filePath</span><span class="p">,</span>
+            <span class="nx">tmpFileName</span><span class="p">,</span>
+            <span class="nx">md5</span> <span class="o">=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;md5&#39;</span><span class="p">);</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>If the filename is invalid, mark an error</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">filename</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">hasError</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+        <span class="p">}</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>If we've flagged any errors, do not process any streams</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">hasError</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">file</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">);</span>
+        <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+</div>
+<p>Create an MD5 hash of original filename</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">md5</span><span class="p">.</span><span class="nx">update</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span> <span class="s1">&#39;utf8&#39;</span><span class="p">);</span>
+
+        <span class="nx">tmpFileName</span> <span class="o">=</span> <span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()).</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">+</span> <span class="nx">md5</span><span class="p">.</span><span class="nx">digest</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">);</span>
+
+        <span class="nx">filePath</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">tmpDir</span><span class="p">,</span> <span class="nx">tmpFileName</span> <span class="o">||</span> <span class="s1">&#39;temp.tmp&#39;</span><span class="p">);</span>
+
+        <span class="nx">file</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+            <span class="nx">req</span><span class="p">.</span><span class="nx">files</span><span class="p">[</span><span class="nx">fieldname</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="nx">type</span><span class="o">:</span> <span class="nx">mimetype</span><span class="p">,</span>
+                <span class="nx">encoding</span><span class="o">:</span> <span class="nx">encoding</span><span class="p">,</span>
+                <span class="nx">name</span><span class="o">:</span> <span class="nx">filename</span><span class="p">,</span>
+                <span class="nx">path</span><span class="o">:</span> <span class="nx">filePath</span>
+            <span class="p">};</span>
+        <span class="p">});</span>
+
+        <span class="nx">busboy</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;limit&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+            <span class="nx">hasError</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">413</span><span class="p">,</span> <span class="k">new</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">RequestEntityTooLargeError</span><span class="p">(</span><span class="s1">&#39;File size limit breached.&#39;</span><span class="p">));</span>
+        <span class="p">});</span>
+
+        <span class="nx">busboy</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Error&#39;</span><span class="p">,</span> <span class="s1">&#39;Something went wrong uploading the file&#39;</span><span class="p">,</span> <span class="nx">error</span><span class="p">);</span>
+        <span class="p">});</span>
+
+        <span class="nx">stream</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">createWriteStream</span><span class="p">(</span><span class="nx">filePath</span><span class="p">);</span>
+
+        <span class="nx">stream</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Error&#39;</span><span class="p">,</span> <span class="s1">&#39;Something went wrong uploading the file&#39;</span><span class="p">,</span> <span class="nx">error</span><span class="p">);</span>
+        <span class="p">});</span>
+
+        <span class="nx">file</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">stream</span><span class="p">);</span>
+
+    <span class="p">});</span>
+
+    <span class="nx">busboy</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;field&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">fieldname</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">[</span><span class="nx">fieldname</span><span class="p">]</span> <span class="o">=</span> <span class="nx">val</span><span class="p">;</span>
+    <span class="p">});</span>
+
+    <span class="nx">busboy</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nx">next</span><span class="p">();</span>
+    <span class="p">});</span>
+
+    <span class="nx">req</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">busboy</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">icollegeBusBoy</span><span class="p">;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

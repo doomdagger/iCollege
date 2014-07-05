@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>base.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../", thisFile = "core/server/storage/base.js", defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+  <script src="../../../fileSearch.js"></script>
+  <link rel="stylesheet" href="../../../fileSearch.css" />
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>base.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">moment</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;moment&#39;</span><span class="p">),</span>
+    <span class="nx">path</span>    <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">),</span>
+    <span class="nx">when</span>    <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when&#39;</span><span class="p">);</span>
+
+
+<span class="kd">function</span> <span class="nx">BaseStore</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary">
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">baseDir</span>
+      <span class="dox_type">String</span>
+      <span><ul>
+<li>base directory</li>
+</ul></span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">String
+</span>
+      <span>{String}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">BaseStore</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">getTargetDir</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">baseDir</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">m</span> <span class="o">=</span> <span class="nx">moment</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">()),</span>
+        <span class="nx">month</span> <span class="o">=</span> <span class="nx">m</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;MMM&#39;</span><span class="p">),</span>
+        <span class="nx">year</span> <span class="o">=</span>  <span class="nx">m</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;YYYY&#39;</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">baseDir</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">baseDir</span><span class="p">,</span> <span class="nx">year</span><span class="p">,</span> <span class="nx">month</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">year</span><span class="p">,</span> <span class="nx">month</span><span class="p">);</span>
+<span class="p">};</span>
+
+
+<span class="nx">BaseStore</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">generateUnique</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">store</span><span class="p">,</span> <span class="nx">dir</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">ext</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">,</span>
+        <span class="nx">filename</span><span class="p">,</span>
+        <span class="nx">append</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">append</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nx">i</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nx">filename</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">dir</span><span class="p">,</span> <span class="nx">name</span> <span class="o">+</span> <span class="nx">append</span> <span class="o">+</span> <span class="nx">ext</span><span class="p">);</span>
+
+    <span class="nx">store</span><span class="p">.</span><span class="nx">exists</span><span class="p">(</span><span class="nx">filename</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">exists</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">exists</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">setImmediate</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+                <span class="nx">i</span> <span class="o">=</span> <span class="nx">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+                <span class="nx">self</span><span class="p">.</span><span class="nx">generateUnique</span><span class="p">(</span><span class="nx">store</span><span class="p">,</span> <span class="nx">dir</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">ext</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">done</span><span class="p">);</span>
+            <span class="p">});</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">done</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">filename</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+
+<span class="nx">BaseStore</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">getUniqueFileName</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">store</span><span class="p">,</span> <span class="nx">image</span><span class="p">,</span> <span class="nx">targetDir</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">done</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">(),</span>
+        <span class="nx">ext</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">extname</span><span class="p">(</span><span class="nx">image</span><span class="p">.</span><span class="nx">name</span><span class="p">),</span>
+        <span class="nx">name</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">basename</span><span class="p">(</span><span class="nx">image</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">ext</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/[\W]/gi</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">);</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">generateUnique</span><span class="p">(</span><span class="nx">store</span><span class="p">,</span> <span class="nx">targetDir</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">ext</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">done</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="nx">done</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+<span class="p">};</span>
+
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">BaseStore</span> <span class="o">=</span> <span class="nx">BaseStore</span><span class="p">;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>
