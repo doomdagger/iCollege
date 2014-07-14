@@ -32,13 +32,33 @@ var db = {
             group_id: {type: ObjectId},
             message_alert: {type: Boolean},
             location_share: {type: Boolean},
-            profile_visible: {type: Boolean}
+            profile_visible: {type: Boolean},
+            created_at: {type: Date},
+            created_by: {type: ObjectId},
+            updated_at: {type: Date},
+            updated_by: {type: ObjectId}
         }],
         circles: [{
             circle_id: {type: ObjectId},
             post_alert: {type: Boolean},
             location_share: {type: Boolean},
-            profile_visible: {type: Boolean}
+            profile_visible: {type: Boolean},
+            created_at: {type: Date},
+            created_by: {type: ObjectId},
+            updated_at: {type: Date},
+            updated_by: {type: ObjectId}
+        }],
+        friends: [{
+            friend_id: {type: ObjectId},
+            remark_name: {type: String}, // 好友备注名称
+            friend_group:{type: String}, // 好友所属分组， 这个灵活些~
+            esp_care: {type: Boolean}, // 特别关心此好友吗
+            message_block: {type: Boolean}, // 屏蔽消息
+            status: {type: String}, // 已经成为好友了吗，好友记录会在好友申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由好友申请构建的好友系统消息不会消失
+            created_at: {type: Date},
+            created_by: {type: ObjectId},
+            updated_at: {type: Date},
+            updated_by: {type: ObjectId}
         }]
     },
 
