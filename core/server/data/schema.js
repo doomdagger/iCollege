@@ -1,6 +1,20 @@
 // # Schema
 // 这里定义了数据库实体的字段信息，export后供models模块使用
-
+// Schema Type 都有哪些：
+// 1. String: { type: String, enum: ['one','two','three'], lowercase: true, match: [ /\.html$/, "That file doesn't end in .html ({VALUE})" ], trim: true, uppercase: true }
+// 2. Number: { type: Number, max: 10, min: 2 }
+// 3. Date: { type: Date, expires: 60*60*24 }
+//
+// > Default SchemaTypes available for all types
+// 1. index: true or false, 'hashed' '2d' '2dsphere', { type: '2dsphere', sparse: true } { unique: true, expires: '1d' }
+// 2. required: true or false
+// 3. select: true or false - Set to true if this path should always be included in the results
+// 4. set: function - should receive a value and return a tweaked value to be set on this field
+// 5. sparse: true or false - sparse index
+// 6. unique: true or false - unique index
+// 7. validate: function receive a value return true or false, [function, msg], [{validator:validator, msg:msg},{...}]
+// 8. default: value
+// 9. get: function - should receive a value and return a tweaked value to get
 // ## DB Design
 var db = {
     // ### users 用户实体
@@ -20,7 +34,7 @@ var db = {
         website: {type: String},
         location: [{type: Number}],
         location_info: {type: String},
-        tags: [{type: String}],
+        tags: [{type: String}], // 用户标签
         status: {type: String}, // online offline or ...
         language: {type: String},
         last_login: {type: Date},
@@ -59,7 +73,41 @@ var db = {
             created_by: {type: ObjectId},
             updated_at: {type: Date},
             updated_by: {type: ObjectId}
+        }],
+        roles:[{
+            type: ObjectId
+        }],
+        permissions: [{
+            type: ObjectId
         }]
+    },
+
+    // ### 角色
+    // 定义了用户的多个不同的角色分类
+    roles: {
+        uuid: {type: String},
+        name: {type: String},
+        permissions: [{
+            type: ObjectId
+        }],
+        description: {type: String},
+        created_at: {type: Date},
+        created_by: {type: ObjectId},
+        updated_at: {type: Date},
+        updated_by: {type: ObjectId}
+    },
+
+    // ### 权限
+    permissions: {
+        uuid: {type: String},
+        name: {type: String},
+        object_type: {type: String},
+        action_type: {type: String},
+        object_id: {type: ObjectId}, // 权限对象？这个字段什么意思
+        created_at: {type: Date},
+        created_by: {type: ObjectId},
+        updated_at: {type: Date},
+        updated_by: {type: ObjectId}
     },
 
     // ### groups 群组实体
@@ -85,7 +133,9 @@ var db = {
             size: {type: Number},
             path: {type: String}, // 文件路径
             created_at: {type: Date},
-            created_by: {type: ObjectId}
+            created_by: {type: ObjectId},
+            updated_at: {type: Date},
+            updated_by: {type: ObjectId}
         }],
         created_at: {type: Date},
         created_by: {type: ObjectId},
@@ -121,7 +171,7 @@ var db = {
         uuid: {type: String}, // uuid
         content: {type: String},
         source_category: {type: String}, // 消息来自于系统，还是个人（好友之间），还是群组
-        content_category: {type: String}, // 消息类型：多媒体消息（视频，纯图片，音频），富文本消息(html)，其他类型的系统消息（好友请求，其他由系统relay的具有特殊格式的消息），
+        content_category: {type: String}, // 消息类型：多媒体消息（视频，纯图片，音频），富文本消息(html，谨防js注入)，其他类型的系统消息（好友请求，其他由系统relay的具有特殊格式的消息），
         message_from: {type: ObjectId}, // 从这也能看出来，账户必须有角色，角色具有权限分级，并预留一个账户具备超级管理员角色，可以赋予普通用户管理员角色
         message_to: {type: ObjectId}, // to的多样性，用户，群组
         being_pulled: {type: Boolean}, // 前端是否曾经抓取过
@@ -136,14 +186,16 @@ var db = {
         uuid: {type: String},
         title: {type: String},
         slug: {type: String}, // 消息的唯一标识符，全局分配，会被用于url中
-        html: {type: String}, // 帖子内容
+        html: {type: String}, // 帖子内容，谨防js注入
         attachments: [{
             name: {type: String},
             extension: {type: String}, // 文件扩展类型
             size: {type: Number},
             path: {type: String}, // 文件路径
             created_at: {type: Date},
-            created_by: {type: ObjectId}
+            created_by: {type: ObjectId},
+            updated_at: {type: Date},
+            updated_by: {type: ObjectId}
         }],
         featured: {type: Boolean}, // 特色贴
         status: {type: String}, // 帖子的状态，draft or published
@@ -161,7 +213,7 @@ var db = {
     // ### 回帖实体
     re_posts: {
         uuid: {type: String},
-        html: {type: String}, // 帖子内容
+        html: {type: String}, // 帖子内容，谨防js注入
         attachments: [{
             name: {type: String},
             extension: {type: String}, // 文件扩展类型
