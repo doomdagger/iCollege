@@ -19,20 +19,20 @@
 var db = {
     // ### users 用户实体
     users: {
-        uuid: {type: String}, // uuid
+        uuid: {type: String, required: true}, // uuid
         name: {type: String}, // nickname
-        username: {type: String}, // used for sign in
-        password: {type: String},
-        email: {type: String},
+        username: {type: String, required: true}, // used for sign in
+        password: {type: String, required: true},
+        email: {type: String, match: /.*?@.*?/, trim: true},
         avatar: {type: String},
         images: [{type: String}],
-        credit: {type: Number}, // 积分，也就是经验值
-        bio: {type: String},
-        signature: {type: String},
-        gender: {type: String},
-        birth_date: {type: Date},
-        website: {type: String},
-        location: [{type: Number}],
+        credit: {type: Number, min: 0, default: 0, required: true}, // 积分，也就是经验值
+        bio: {type: String, trim: true, default: 'I love iCollege'},
+        signature: {type: String, trim: true, default: 'I love iCollege'},
+        gender: {type: String, enum: ['male', 'female']},
+        birth_date: {type: Date, default: Date.now()},
+        website: {type: String, trim: true},
+        location: [{type: Number, index: '2dsphere'}],
         location_info: {type: String},
         tags: [{type: String}], // 用户标签
         status: {type: String}, // online offline or ...
@@ -44,9 +44,9 @@ var db = {
         updated_by: {type: ObjectId},
         groups: [{
             group_id: {type: ObjectId},
-            message_alert: {type: Boolean},
-            location_share: {type: Boolean},
-            profile_visible: {type: Boolean},
+            message_alert: {type: Boolean, default: true},
+            location_share: {type: Boolean, default: true},
+            profile_visible: {type: Boolean, default: false},
             created_at: {type: Date},
             created_by: {type: ObjectId},
             updated_at: {type: Date},
@@ -54,9 +54,9 @@ var db = {
         }],
         circles: [{
             circle_id: {type: ObjectId},
-            post_alert: {type: Boolean},
-            location_share: {type: Boolean},
-            profile_visible: {type: Boolean},
+            post_alert: {type: Boolean, default: true},
+            location_share: {type: Boolean, default: true},
+            profile_visible: {type: Boolean, default: false},
             created_at: {type: Date},
             created_by: {type: ObjectId},
             updated_at: {type: Date},
@@ -65,10 +65,10 @@ var db = {
         friends: [{
             friend_id: {type: ObjectId},
             remark_name: {type: String}, // 好友备注名称
-            friend_group:{type: String}, // 好友所属分组， 这个灵活些~
-            esp_care: {type: Boolean}, // 特别关心此好友吗
-            message_block: {type: Boolean}, // 屏蔽消息
-            status: {type: String}, // 已经成为好友了吗，好友记录会在好友申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由好友申请构建的好友系统消息不会消失
+            friend_group:{type: String, default: 'friends'}, // 好友所属分组， 这个灵活些~
+            esp_care: {type: Boolean, default: false}, // 特别关心此好友吗
+            message_block: {type: Boolean, default: false}, // 屏蔽消息
+            status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], required: true}, // 已经成为好友了吗，好友记录会在好友申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由好友申请构建的好友系统消息不会消失
             created_at: {type: Date},
             created_by: {type: ObjectId},
             updated_at: {type: Date},
@@ -117,16 +117,16 @@ var db = {
         avatar: {type: String},
         category: {type: String}, // 群组类型
         description: {type: String}, // 群组介绍
-        location: [{type: Number}], // longitude latitude
+        location: [{type: Number, index: '2dsphere'}], // longitude latitude
         location_info: {type: String}, // location name
-        permission_on_add: {type: String}, // 添加成员进群组时的审核策略：不需要审核或需要管理员审核等
-        visibility: {type: Boolean}, // 对附近人的可见性
+        permission_on_add: {type: String, enum: ['not_allowed', 'need_permission', 'need_nothing']}, // 添加成员进群组时的审核策略：不需要审核或需要管理员审核等
+        visibility: {type: Boolean, default: false}, // 对附近人的可见性
         members: [{
             member_id: {type: ObjectId},
             member_name: {type: String}
         }], // user list
         owner: {type: ObjectId}, // user object id
-        credit: {type: Number}, // 积分
+        credit: {type: Number, min: 0, default: 0}, // 积分
         attachments: [{
             name: {type: String},
             extension: {type: String}, // 文件扩展类型
@@ -148,18 +148,18 @@ var db = {
         uuid: {type: String}, // uuid
         name: {type: String}, // name
         avatar: {type: String},
-        category: {type: String}, // 圈子类型
+        category: {type: String}, // 圈子类型，枚举内置类型，参考微群组
         description: {type: String}, // 圈子介绍
-        location: [{type: Number}], // longitude latitude
+        location: [{type: Number, index: '2dsphere'}], // longitude latitude
         location_info: {type: String}, // location name
-        permission_on_add: {type: String}, // 添加成员进圈子时的审核策略：不需要审核或需要管理员审核等
-        visibility: {type: Boolean}, // 对附近人的可见性
+        permission_on_add: {type: String, enum: ['not_allowed', 'need_permission', 'need_nothing']}, // 添加成员进圈子时的审核策略：不需要审核或需要管理员审核等
+        visibility: {type: Boolean, default: false}, // 对附近人的可见性
         members: [{
             member_id: {type: ObjectId},
             member_name: {type: String}
         }], // user list
         owner: {type: ObjectId}, // user object id
-        credit: {type: Number}, // 积分
+        credit: {type: Number, min: 0, default: 0}, // 积分
         created_at: {type: Date},
         created_by: {type: ObjectId},
         updated_at: {type: Date},
@@ -170,11 +170,11 @@ var db = {
     messages: {
         uuid: {type: String}, // uuid
         content: {type: String},
-        source_category: {type: String}, // 消息来自于系统，还是个人（好友之间），还是群组
-        content_category: {type: String}, // 消息类型：多媒体消息（视频，纯图片，音频），富文本消息(html，谨防js注入)，其他类型的系统消息（好友请求，其他由系统relay的具有特殊格式的消息），
+        source_category: {type: String, enum: ['friends', 'groups'], required: true}, // 消息来自于系统，还是个人（好友之间），还是群组
+        content_category: {type: String, enum: ['media', 'text', 'system'], default: 'text'}, // 消息类型：多媒体消息（视频，纯图片，音频），富文本消息(html，谨防js注入)，其他类型的系统消息（好友请求，其他由系统relay的具有特殊格式的消息），
         message_from: {type: ObjectId}, // 从这也能看出来，账户必须有角色，角色具有权限分级，并预留一个账户具备超级管理员角色，可以赋予普通用户管理员角色
         message_to: {type: ObjectId}, // to的多样性，用户，群组
-        being_pulled: {type: Boolean}, // 前端是否曾经抓取过
+        being_pulled: {type: Boolean, default: false}, // 前端是否曾经抓取过
         created_at: {type: Date},
         created_by: {type: ObjectId},
         updated_at: {type: Date},
@@ -185,7 +185,7 @@ var db = {
     posts: {
         uuid: {type: String},
         title: {type: String},
-        slug: {type: String}, // 消息的唯一标识符，全局分配，会被用于url中
+        slug: {type: String, required: true}, // 消息的唯一标识符，全局分配，会被用于url中
         html: {type: String}, // 帖子内容，谨防js注入
         attachments: [{
             name: {type: String},
@@ -197,10 +197,10 @@ var db = {
             updated_at: {type: Date},
             updated_by: {type: ObjectId}
         }],
-        featured: {type: Boolean}, // 特色贴
-        status: {type: String}, // 帖子的状态，draft or published
-        language: {type: String},
-        source_category: {type: String}, // 帖子的来源，好友圈（默认），或是其他某一个圈子：好友圈这个圈子其实并不存在，这个圈子包含了用户的所有好友
+        featured: {type: Boolean, default: false}, // 特色贴
+        status: {type: String, enum: ['draft', 'published'], default: 'draft'}, // 帖子的状态，draft or published
+        language: {type: String, enum: ['zh', 'en'], default: 'zh'}, // 帖子的语言
+        source_category: {type: String, enum: ['friends', 'circles']}, // 帖子的来源，好友圈（默认），或是其他某一个圈子：好友圈这个圈子其实并不存在，这个圈子包含了用户的所有好友
         post_from: {type: ObjectId}, // 用户Id，谁发的帖子
         created_at: {type: Date},
         created_by: {type: ObjectId},
@@ -223,7 +223,7 @@ var db = {
             created_by: {type: ObjectId}
         }],
         language: {type: String},
-        source_category: {type: String}, // 是来自于帖子 还是 回帖
+        source_category: {type: String, enum: ['posts, re_posts']}, // 是来自于帖子 还是 回帖
         re_post_from: {type: ObjectId}, // 用户Id，谁发的帖子回复
         re_post_to: {type: ObjectId}, // 帖子ID或是回帖ID
         created_at: {type: Date},
@@ -232,35 +232,19 @@ var db = {
         updated_by: {type: ObjectId}
     }
 
-    /*
-    users: {
-        name: {type: String, default: "Li He", required: true},
-        password: {type: String, default: "12345", required: true},
-        // # display functions below
-        status: {type: String, enum: ['online', 'offline', 'invalid'], lowercase: true},
-        email: {type: String, match: /.*?@.*?/, trim: true},
-        createAt: {type: Date, expires: 60 * 60 * 24}, // 24 hours
-        age: {type: Number, min: 0, max: 150},
-        tags: [{type: String}], // array
-        address: {
-            city: String,
-            street: String
-        }
-    }*/
 };
 
 function isPost(jsonData) {
-    return jsonData.hasOwnProperty('html') && jsonData.hasOwnProperty('markdown') &&
+    return jsonData.hasOwnProperty('html') && jsonData.hasOwnProperty('post_from') &&
         jsonData.hasOwnProperty('title') && jsonData.hasOwnProperty('slug');
 }
 
-function isTag(jsonData) {
-    return jsonData.hasOwnProperty('name') && jsonData.hasOwnProperty('slug')
-        && jsonData.hasOwnProperty('description') && jsonData.hasOwnProperty('parent_id');
+function isRePost(jsonData) {
+    return jsonData.hasOwnProperty('html') && jsonData.hasOwnProperty('re_post_from');
 }
 
 module.exports.collections = db;
 module.exports.checks = {
     isPost: isPost,
-    isTag: isTag
+    isRePost: isRePost
 };
