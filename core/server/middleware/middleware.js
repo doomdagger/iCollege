@@ -26,26 +26,34 @@ var middleware = {
     // exceptions for signin, signout, signup, forgotten, reset only
     // api and frontend use different authentication mechanisms atm
     authenticate: function (req, res, next) {
+        // all path should be regex
         var noAuthNeeded = [
-                '/api/signin/', '/api/forgotten/', '/api/reset/'
+                /^\/api\/v[0-9]+(\.[0-9]+)?\/signin\//,
+                /^\/api\/v[0-9]+(\.[0-9]+)?\/forgotten\//,
+                /^\/api\/v[0-9]+(\.[0-9]+)?\/signout\//,
+                /^\/api\/v[0-9]+(\.[0-9]+)?\/reset\//
             ],
             path,
             subPath;
 
         // SubPath is the url path starting after any default subdirectories
-        // it is stripped of anything after the two levels `/icollege/.*?/` as the reset link has an argument
+        // it is stripped of anything after the three levels `/api/v0.1/.*?/` as the reset link has an argument
         path = req.path.substring(config().paths.subdir.length);
         /*jslint regexp:true, unparam:true*/
-        subPath = path.replace(/^(\/.*?\/.*?\/)(.*)?/, function (match, a) {
+        subPath = path.replace(/^(\/.*?\/v[0-9]+(\.[0-9]+)?\/.*?\/)(.*)?/, function (match, a) {
             return a;
         });
 
         if (res.isRestful) {
             // if included in the no auth needed
-            if (noAuthNeeded.indexOf(subPath) < 0) {
-                return middleware.authAPI(req, res, next);
+            for(var index in noAuthNeeded) {
+                if(noAuthNeeded[index].test(subPath)) {
+                    return next()
+                }
             }
+            return middleware.authAPI(req, res, next);
         }
+
         next();
     },
 
@@ -64,27 +72,16 @@ var middleware = {
     // ## Restful API Version-ize
     versionAPI: function(req, res, next) {
         var path,
-            subPath,
             apiIndex;
 
         if(res.isRestful) {
-            // SubPath is the url path starting after any default subdirectories
-            // it is stripped of anything after the two levels `/icollege/.*?/` as the reset link has an argument
             path = req.path.substring(config().paths.subdir.length);
-            /*jslint regexp:true, unparam:true*/
-            subPath = path.replace(/^(\/.*?\/.*?\/)(.*)?/, function (match, a) {
-                return a;
-            });
 
-            if(!/^\/api\/v[0-9](\.[0-9])?\/(.*)?/.test(subPath)){
-                console.log("no version:"+req.path);
+            if(!/^\/api\/v[0-9]+(\.[0-9]+)?\/(.*)?/.test(path)){
                 // api url does not have version
-                apiIndex = req.path.indexOf('/api/');
-                console.log("api index:"+apiIndex);
-                var tempPath = req.path.substring(0, apiIndex+5)+"v"+config().api.version+"/"+req.path.substring(apiIndex+5);
-                req.path = tempPath;
-                console.log(tempPath);
-                console.log(req.path);
+                apiIndex = req.url.indexOf('/api/');
+                req.url = req.url.substring(0, apiIndex + 5) + "v" + config().api.version + "/" + req.url.substring(apiIndex + 5);
+                req.originalUrl = req.url; // make the logger log correctly
             }
         }
 
@@ -99,7 +96,7 @@ var middleware = {
 
         if (res.isRestful) {
             // if restful request, do something?
-
+            //console.log("is restful!!!")
         } else {
             // if not restful request, do something?
 

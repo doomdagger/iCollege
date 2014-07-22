@@ -66,7 +66,8 @@ module.exports = function (server) {
 
     // First determine whether we're serving api or other stuff
     expressServer.use(middleware.decideContext);
-
+    // Version-ize api
+    expressServer.use(middleware.versionAPI);
     // Serve robots.txt if not found in theme
     expressServer.use(middleware.robots());
 
@@ -101,8 +102,6 @@ module.exports = function (server) {
     // #### API routing has private policy for caching
     expressServer.use(subdir + '/api/', middleware.cacheControl('private'));
 
-    // ### Version-ize api
-    expressServer.use(middleware.versionAPI);
 
     // ### Global authenticating
     // enable authentication; has to be done before CSRF handling
