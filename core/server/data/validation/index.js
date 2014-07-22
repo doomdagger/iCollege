@@ -10,15 +10,22 @@ var _         = require('lodash'),
     validateSettings,
     validate;
 
-// Provide a few custom validators
-//
-validator.extend('empty', function (str) {
-    return _.isEmpty(str);
-});
 
-validator.extend('notContains', function (str, badString) {
-    return !_.contains(str, badString);
-});
+function init() {
+    // Provide a few custom validators
+    //
+    validator.extend('empty', function (str) {
+        return _.isEmpty(str);
+    });
+
+    validator.extend('notContains', function (str, badString) {
+        return !_.contains(str, badString);
+    });
+
+    validator.extend('isNumber', function (str) {
+        return validator.isFloat(str) || validator.isInt(str);
+    });
+}
 
 
 // Validation for settings
@@ -81,3 +88,4 @@ validate = function (value, key, validations) {
 };
 
 module.exports.validateSettings = validateSettings;
+module.exports.init = init;

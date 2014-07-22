@@ -76,6 +76,10 @@ config = {
             contentPath: path.join(__dirname, '/content/')
         },
 
+        api: {
+            version: 0.1
+        },
+
         logging: 'dev'
 
     },

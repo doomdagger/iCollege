@@ -12,7 +12,7 @@ userRoutes = function (middleware) {
         subdir = config().paths.subdir;
 
 
-    router.get('/index', middleware.test, user.index);
+    router.get('/index', user.index);
 
     router.get('/good', function redirect(req, res) {
         res.set({'Cache-Control': 'public, max-age=' + ONE_YEAR_S});

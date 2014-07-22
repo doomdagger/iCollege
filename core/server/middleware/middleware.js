@@ -8,7 +8,7 @@ var _           = require('lodash'),
     fs          = require('fs'),
     busboy      = require('./icollege-busboy'),
     packageInfo = require('../../../package.json'),
-    when        = require('when')
+    when        = require('when'),
 
 
     expressServer,
@@ -131,27 +131,27 @@ var middleware = {
         res.locals.relativeUrl = req.path.replace(config().paths.subdir, '');
 
         if (res.isRestful) {
-            when.all([
-                // api method needed to initialize any data
-            ]).then(function (values) {
-
-                _.extend(res.locals,  {
-                    // object to extend res.locals for successful initial
-                });
-                next();
-            }).catch(function () {
-                // Only show passive notifications
-                // objects to extend res.locals for passive initial
+//            when.all([
+//                // api method needed to initialize any data
+//            ]).then(function (values) {
+//
+//                _.extend(res.locals,  {
+//                    // object to extend res.locals for successful initial
+//                });
+//                next();
+//            }).catch(function () {
+//                // Only show passive notifications
+//                // objects to extend res.locals for passive initial
 //                api.notifications.browse().then(function (notifications) {
 //                    _.extend(res.locals, {
 //                        messages: _.reject(notifications.notifications, function (notification) {
 //                            return notification.status !== 'passive';
 //                        })
 //                    });
-                    // do not forget next()
+//                    // do not forget next()
                     next();
 //                });
-            });
+//            });
         } else {
             next();
         }

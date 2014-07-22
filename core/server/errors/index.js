@@ -150,13 +150,15 @@ errors = {
             return this.error404(req, res, next);
         }
 
-        if (req.method === 'GET') {
+        if (!res.isRestful) {
             if (!err || !(err instanceof Error)) {
                 next();
             }
+            res.send(404, "Page Not Found");
+        } else {
+            res.json(err.status || 500, {success: false, reason: err.message});
         }
 
-        res.json(err.status || 500, {success: false, reason: err.message});
     }
 };
 
