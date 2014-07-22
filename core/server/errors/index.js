@@ -129,6 +129,34 @@ errors = {
         this.logError(err, context, help);
 
         this.throwError(err, context, help);
+    },
+
+    error404: function (req, res) {
+        // do not cache 404 error
+        res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
+
+        if (res.isRestful) {
+            res.json(404, {success: false, reason: "No iCollege Found"});
+        } else {
+            res.send(404, "Page Not Found");
+        }
+    },
+
+    error500: function (err, req, res, next) {
+        // 500 errors should never be cached
+        res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
+
+        if (err.status === 404) {
+            return this.error404(req, res, next);
+        }
+
+        if (req.method === 'GET') {
+            if (!err || !(err instanceof Error)) {
+                next();
+            }
+        }
+
+        res.json(err.status || 500, {success: false, reason: err.message});
     }
 };
 

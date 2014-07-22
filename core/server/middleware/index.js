@@ -18,6 +18,7 @@ var express     = require('express'),
     slashes     = require('connect-slashes'),
     storage     = require('../storage'),
     _           = require('lodash'),
+    errors       = require('../errors'),
 
     expressServer,
     ONE_HOUR_S  = 60 * 60,
@@ -63,6 +64,9 @@ module.exports = function (server) {
     expressServer.use(subdir + '/app', express['static'](path.join(corePath, '/client'), {maxAge: ONE_YEAR_MS}));
 
 
+    // First determine whether we're serving api or other stuff
+    expressServer.use(middleware.decideContext);
+
     // Serve robots.txt if not found in theme
     expressServer.use(middleware.robots());
 
@@ -94,15 +98,30 @@ module.exports = function (server) {
 
     // ### Caching
     expressServer.use(middleware.cacheControl('public'));
+    // #### API routing has private policy for caching
     expressServer.use(subdir + '/api/', middleware.cacheControl('private'));
-    expressServer.use(subdir + '/icollege/', middleware.cacheControl('private'));
 
+    // ### Global authenticating
+    // enable authentication; has to be done before CSRF handling
+    expressServer.use(middleware.authenticate);
+
+    // local data
+    expressServer.use(middleware.icollegeLocals);
+    
     // ### Routing
     // Set up API routes
     expressServer.use(subdir, routes.api(middleware));
 
     // Set up User routes
     expressServer.use(subdir, routes.user(middleware));
+
+
+    // ### Error handling
+    // 404 Handler
+    expressServer.use(errors.error404);
+
+    // 500 Handler
+    expressServer.use(errors.error500);
 };
 
 // Export middleware functions directly

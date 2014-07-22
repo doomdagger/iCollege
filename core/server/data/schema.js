@@ -35,7 +35,7 @@ var db = {
         location: [{type: Number, index: '2dsphere'}],
         location_info: {type: String},
         tags: [{type: String}], // 用户标签
-        status: {type: String}, // online offline or ...
+        status: {type: String, enum: ['online', 'invisible', 'offline']}, // online offline or ...
         language: {type: String},
         last_login: {type: Date},
         created_at: {type: Date},

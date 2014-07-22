@@ -39,6 +39,12 @@ Please do **NOT** use the master branch of iCollege in production.
 
 Apps Getting Started for iCollege Devs. Learn more from [Ghost App Architecture](https://github.com/TryGhost/Ghost/wiki/Apps-Getting-Started-for-Ghost-Devs).
 
+### API & Sencha Touch
+
+iCollege has two parts of routing policies:
+1. `/app` - the sencha touch app of iCollege
+2. `/api` - the restful API of iCollege
+
 ### Who are we ?
 
 * CodeHolic Team.
