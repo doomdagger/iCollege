@@ -101,6 +101,9 @@ module.exports = function (server) {
     // #### API routing has private policy for caching
     expressServer.use(subdir + '/api/', middleware.cacheControl('private'));
 
+    // ### Version-ize api
+    expressServer.use(middleware.versionAPI);
+
     // ### Global authenticating
     // enable authentication; has to be done before CSRF handling
     expressServer.use(middleware.authenticate);

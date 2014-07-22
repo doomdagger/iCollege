@@ -88,4 +88,4 @@ validate = function (value, key, validations) {
 };
 
 module.exports.validateSettings = validateSettings;
-module.exports.init = init;
+module.exports.init = init; // in ./server/index.js we initialize validation expansion

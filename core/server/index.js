@@ -10,6 +10,7 @@ var express     = require('express'),
     packageInfo = require('../../package.json'),
     models      = require('./models'),
     middleware  = require('./middleware'),
+    validation  = require('./data/validation'),
 
     httpServer;
 
@@ -92,9 +93,12 @@ function init(server) {
     Polyglot.instance = new Polyglot();
 
 
-    return models.init().then(function () {
-        var deferred = when.defer();
+    return models.init().then(function() {
+        // initialize validations
+        validation.init();
 
+    }).then(function () {
+        var deferred = when.defer();
 
         // return the correct mime type for woff filess
         express['static'].mime.define({'application/font-woff': ['woff']});

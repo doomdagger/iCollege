@@ -10,7 +10,6 @@ var _           = require('lodash'),
     packageInfo = require('../../../package.json'),
     when        = require('when'),
 
-
     expressServer,
     ONE_HOUR_MS = 60 * 60 * 1000,
     ONE_YEAR_MS = 365 * 24 * ONE_HOUR_MS;
@@ -57,6 +56,36 @@ var middleware = {
         if (1!==1) {
             res.json(401, { success: false, reason: 'Please sign in' });
             return;
+        }
+
+        next();
+    },
+
+    // ## Restful API Version-ize
+    versionAPI: function(req, res, next) {
+        var path,
+            subPath,
+            apiIndex;
+
+        if(res.isRestful) {
+            // SubPath is the url path starting after any default subdirectories
+            // it is stripped of anything after the two levels `/icollege/.*?/` as the reset link has an argument
+            path = req.path.substring(config().paths.subdir.length);
+            /*jslint regexp:true, unparam:true*/
+            subPath = path.replace(/^(\/.*?\/.*?\/)(.*)?/, function (match, a) {
+                return a;
+            });
+
+            if(!/^\/api\/v[0-9](\.[0-9])?\/(.*)?/.test(subPath)){
+                console.log("no version:"+req.path);
+                // api url does not have version
+                apiIndex = req.path.indexOf('/api/');
+                console.log("api index:"+apiIndex);
+                var tempPath = req.path.substring(0, apiIndex+5)+"v"+config().api.version+"/"+req.path.substring(apiIndex+5);
+                req.path = tempPath;
+                console.log(tempPath);
+                console.log(req.path);
+            }
         }
 
         next();
