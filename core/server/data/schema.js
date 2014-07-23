@@ -22,7 +22,7 @@ var db = {
     // ### users 用户实体
     users: {
         uuid: {type: String, required: true}, // uuid
-        name: {type: String, trim: true}, // nickname
+        nickname: {type: String, trim: true}, // nickname
         lowercase_username: {type: String, required: true, lowercase: true, trim: true},
         username: {type: String, required: true, trim: true}, // used for sign in
         password: {type: String, required: true, trim: true},
@@ -50,7 +50,7 @@ var db = {
             message_alert: {type: Boolean, default: true},
             location_share: {type: Boolean, default: true},
             profile_visible: {type: Boolean, default: false},
-            created_at: {type: Date, default: Date.now()},
+            created_at: {type: Date, default: Date.now()}, // 记录了什么时候加入群组的信息
             created_by: {type: Schema.Types.ObjectId, required: true},
             updated_at: {type: Date, default: Date.now()},
             updated_by: {type: Schema.Types.ObjectId, required: true}
@@ -60,7 +60,7 @@ var db = {
             post_alert: {type: Boolean, default: true},
             location_share: {type: Boolean, default: true},
             profile_visible: {type: Boolean, default: false},
-            created_at: {type: Date, default: Date.now()},
+            created_at: {type: Date, default: Date.now()}, // 记录了什么时候加入圈子的信息
             created_by: {type: Schema.Types.ObjectId, required: true},
             updated_at: {type: Date, default: Date.now()},
             updated_by: {type: Schema.Types.ObjectId, required: true}
@@ -72,7 +72,7 @@ var db = {
             esp_care: {type: Boolean, default: false}, // 特别关心此好友吗
             message_block: {type: Boolean, default: false}, // 屏蔽消息
             status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'}, // 已经成为好友了吗，好友记录会在好友申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由好友申请构建的好友系统消息不会消失
-            created_at: {type: Date, default: Date.now()},
+            created_at: {type: Date, default: Date.now()},  // 记录了什么时候添加好友的信息
             created_by: {type: Schema.Types.ObjectId, required: true},
             updated_at: {type: Date, default: Date.now()},
             updated_by: {type: Schema.Types.ObjectId, required: true}
@@ -82,11 +82,11 @@ var db = {
             required: true
         }],
         permissions: [{
-            type: Schema.Types.ObjectId,
-            required: true
+            permission_id: {type: Schema.Types.ObjectId, required: true},
+            permission_scope: {type: String, enum: ['all', 'related', 'own']} // 最高Scope，无限制，有关联，仅限自己
         }],
         installed_apps: [{
-            app_id: {type: Schema.Types.ObjectId,required: true},
+            app_id: {type: Schema.Types.ObjectId, required: true},
             app_fields: [{
                 uuid: {type: String, required: true}, // uuid
                 key: {type: String, required: true},
@@ -125,9 +125,10 @@ var db = {
         updated_at: {type: Date, default: Date.now()},
         updated_by: {type: Schema.Types.ObjectId, required: true},
         // 这个 app 需要哪些permission，安装时需争取到用户同意，方可继续安装
+        // app 能够拥有的permission永远是user permission的子集，这点需要验证！！！
         permissions: [{
-            type: Schema.Types.ObjectId,
-            required: true
+            permission_id: {type: Schema.Types.ObjectId, required: true},
+            permission_scope: {type: String, enum: ['all', 'related', 'own']} // 最高Scope，无限制，有关联，仅限自己
         }]
     },
 
@@ -150,8 +151,8 @@ var db = {
         uuid: {type: String, required: true}, // uuid
         name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger'], required: true},
         permissions: [{
-            type: Schema.Types.ObjectId,
-            required: true
+            permission_id: {type: Schema.Types.ObjectId, required: true},
+            permission_scope: {type: String, enum: ['all', 'related', 'own']} // 最高Scope，无限制，有关联，仅限自己
         }],
         description: {type: String, trim: true, default: ""},
         created_at: {type: Date, default: Date.now()},
@@ -188,10 +189,22 @@ var db = {
     // ### groups 群组实体
     groups: {
         uuid: {type: String, required: true}, // uuid
-        name: {type: String, trim: true}, // name
+        nickname: {type: String, trim: true}, // group用于显示的名字，可以与其他群组重复的
         lowercase_group_name: {type: String, required: true, lowercase: true, trim: true}, // 小写形式，方便进行防止群组命名重复测试
         group_name: {type: String, required: true, trim: true}, // 标记了群组的唯一性
         avatar: {type: String}, // be what, for file storage, not sure
+        // 群主
+        user_id: {type: Schema.Types.ObjectId, required: true}, // user object id, who owns the group
+        // 群组管理员，非！系统管理员
+        related_ids: [{
+            type: Schema.Types.ObjectId,
+            required: true
+        }],
+        // user list, 全部的用户列表，包含群主和管理员
+        members: [{
+            member_id: {type: Schema.Types.ObjectId, required: true},
+            member_name: {type: String, required: true, trim: true}
+        }],
         // we have a limited range of categories for user to select, but not listed here as enums
         // 兴趣爱好：影视，音乐，星座，动漫，运动，读书，摄影，其他
         // 生活休闲：同城，同乡，购物，旅游，美食，美容，宠物，健康，母婴，其他
@@ -208,11 +221,6 @@ var db = {
         location_info: {type: String, trim: true},// location name
         permission_on_add: {type: String, enum: ['not_allowed', 'need_permission', 'need_nothing'], default: 'need_permission'}, // 添加成员进群组时的审核策略：不需要审核或需要管理员审核等
         visibility: {type: Boolean, default: false}, // 对附近人的可见性
-        members: [{
-            member_id: {type: Schema.Types.ObjectId, required: true},
-            member_name: {type: String, required: true, trim: true}
-        }], // user list
-        owner: {type: Schema.Types.ObjectId, required: true}, // user object id
         credit: {type: Number, min: 0, default: 0}, // 积分
         attachments: [{
             uuid: {type: String, required: true}, // uuid
@@ -234,21 +242,43 @@ var db = {
 // ---------------------------------------- 扩充以下的实体字段 注:根据mongoose标准添加，如果有default，就无需加上required ------------- //
 
     // ### circles 圈子实体
+    // 系统会为每一个用户创建一个好友圈，这个圈子只会用来抓取别的好友的posts，不应该写入任何内容
     circles: {
         uuid: {type: String, required: true}, // uuid
-        name: {type: String}, // name
+        nickname: {type: String}, // circle用于显示的名字，可以与其他圈子重复
+        lowercase_circle_name: {type: String, required: true, lowercase: true, trim: true}, // 小写形式，方便进行防止圈子命名重复测试
+        circle_name: {type: String, required: true, trim: true}, // 标记了圈子的唯一性
+        // 圈主，圈子拥有者
+        user_id: {type: Schema.Types.ObjectId}, // user object id
+        // 圈子管理员，非！系统管理员
+        related_ids: [{
+            type: Schema.Types.ObjectId,
+            required: true
+        }],
+        // user list, 全部的用户列表，包含圈主和管理员
+        members: [{
+            member_id: {type: Schema.Types.ObjectId, required: true},
+            member_name: {type: String, required: true, trim: true}
+        }],
         avatar: {type: String},
-        category: {type: String}, // 圈子类型，枚举内置类型，参考微群组
+        // we have a limited range of categories for user to select, but not listed here as enums
+        // 兴趣爱好：影视，音乐，星座，动漫，运动，读书，摄影，其他
+        // 生活休闲：同城，同乡，购物，旅游，美食，美容，宠物，健康，母婴，其他
+        // 游戏
+        // 行业交流：投资，IT/互联网，建筑工程，服务，传媒，营销与广告，教师，律师，公务员，银行，咨询，其他
+        // 学习考试：托福，雅思，CET4/6，GRE，GMAT，MBA，考研，高考，中考，职业认证，公务员，其他
+        // 粉丝
+        // 置业安家：业主，装修
+        // 品牌产品
+        // 同事*同学*朋友：亲友，同学，同事
+        //
+        // **圈子应该额外加一个category，是系统生成的专属个人朋友圈，还是用户创建的**
+        category: {type: String, required: true, trim: true}, // 圈子类型，参考微群组
         description: {type: String}, // 圈子介绍
         location: [{type: Number, index: '2dsphere'}], // longitude latitude
         location_info: {type: String}, // location name
         permission_on_add: {type: String, enum: ['not_allowed', 'need_permission', 'need_nothing']}, // 添加成员进圈子时的审核策略：不需要审核或需要管理员审核等
         visibility: {type: Boolean, default: false}, // 对附近人的可见性
-        members: [{
-            member_id: {type: Schema.Types.ObjectId},
-            member_name: {type: String}
-        }], // user list
-        owner: {type: Schema.Types.ObjectId}, // user object id
         credit: {type: Number, min: 0, default: 0}, // 积分
         created_at: {type: Date},
         created_by: {type: Schema.Types.ObjectId},
@@ -257,6 +287,7 @@ var db = {
     },
 
     // ### 消息实体 一定要考虑消息的共通性，系统消息和聊天消息
+    // 消息没有常规的 user_id 和 related_ids 字段，因为消息无所有者，仅有管理员和超级管理员可以删除
     messages: {
         uuid: {type: String}, // uuid
         content: {type: String},
@@ -277,8 +308,12 @@ var db = {
     // ### 帖子实体 一定要考虑帖子的共通性，发帖（日志）；存在于圈子里（所以人，都有一个自己的圈子，好友圈，其他圈子都是额外创建的）
     posts: {
         uuid: {type: String},
+        slug: {type: String, required: true}, // 帖子的标识符，时间与title与作者关联组成，标注了帖子的唯一性
         title: {type: String},
-        slug: {type: String, required: true}, // 消息的唯一标识符，全局分配，会被用于url中
+        user_id: {type: Schema.Types.ObjectId}, // 用户Id，谁发的帖子
+        circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，自己专属朋友圈的ID或自己加入的朋友圈的ID
+        source_category: {type: String, enum: ['friends', 'circles']}, // 帖子的来源，好友圈（默认），或是其他某一个圈子：好友圈这个圈子专属于自己，这个圈子包含了用户的所有好友
+
         // ================== 转发信息 ==================
         is_forward: {type: Boolean}, // 是否为转发
         forward_info: {     // 转发信息
@@ -288,6 +323,7 @@ var db = {
         // ================== 原创信息 ==================
         html: {type: String}, // 帖子内容，谨防js注入
         attachments: [{
+            uuid: {type: String, required: true}, // uuid
             name: {type: String},
             extension: {type: String}, // 文件扩展类型
             size: {type: Number},
@@ -297,31 +333,35 @@ var db = {
             updated_at: {type: Date},
             updated_by: {type: Schema.Types.ObjectId}
         }],
-
-        featured: {type: Boolean, default: false}, // 特色贴
         status: {type: String, enum: ['draft', 'published'], default: 'draft'}, // 帖子的状态，draft or published
         language: {type: String, enum: ['zh', 'en'], default: 'zh'}, // 帖子的语言
-        source_category: {type: String, enum: ['friends', 'circles']}, // 帖子的来源，好友圈（默认），或是其他某一个圈子：好友圈这个圈子其实并不存在，这个圈子包含了用户的所有好友
-        post_from: {type: Schema.Types.ObjectId}, // 用户Id，谁发的帖子
+
+        at_users: [{type: Schema.Types.ObjectId}], // @user ids
         favored_users: [{ // 点赞的用户
             user_id: {type: Schema.Types.ObjectId}, // 用户ID
             timestamp: {type: Date}   // 点赞的时间
         }],
         viewed_times: {type: Number}, // 浏览过的次数，不限制同一个用户浏览多次
-        at_users: [{type: Schema.Types.ObjectId}], // @user ids
+        published_at: {type: Date},
+        published_by: {type: Schema.Types.ObjectId},
         created_at: {type: Date},
         created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date},
-        updated_by: {type: Schema.Types.ObjectId},
-        published_at: {type: Date},
-        published_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: Schema.Types.ObjectId}
     },
 
     // ### 回帖实体
     re_posts: {
         uuid: {type: String},
+        user_id: {type: Schema.Types.ObjectId}, // 用户Id，谁发的帖子回复
+        circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，回帖回的帖子属于哪个圈子
+        source_category: {type: String, enum: ['posts, re_posts']}, // 是来自于帖子 还是 回帖
+        re_post_to: {type: Schema.Types.ObjectId}, // 帖子ID或是回帖ID
+
+        // ================== 回帖内容 ==============
         html: {type: String}, // 帖子内容，谨防js注入
         attachments: [{
+            uuid: {type: String, required: true}, // uuid
             name: {type: String},
             extension: {type: String}, // 文件扩展类型
             size: {type: Number},
@@ -330,10 +370,9 @@ var db = {
             created_by: {type: Schema.Types.ObjectId}
         }],
         language: {type: String},
-        source_category: {type: String, enum: ['posts, re_posts']}, // 是来自于帖子 还是 回帖
-        re_post_from: {type: Schema.Types.ObjectId}, // 用户Id，谁发的帖子回复
-        re_post_to: {type: Schema.Types.ObjectId}, // 帖子ID或是回帖ID
+
         at_users: [{type: Schema.Types.ObjectId}], // @user ids
+
         created_at: {type: Date},
         created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date},
