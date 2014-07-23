@@ -93,7 +93,7 @@ function init(server) {
     Polyglot.instance = new Polyglot();
 
 
-    return models.init().then(function() {
+    return models.init().then(function () {
         // initialize validations
         validation.init();
 

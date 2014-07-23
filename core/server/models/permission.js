@@ -2,7 +2,7 @@
  * ## Permission Model
  * Created by Li He on 2014/7/23.
  */
-var when = require('when'),
+var //when = require('when'),
     mongoose = require('mongoose'),
     icollegeSchema = require('./base'),
 

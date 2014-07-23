@@ -14,7 +14,7 @@ userRoutes = function (middleware) {
 
     router.get('/index', user.index);
 
-    router.get('/good', function redirect(req, res) {
+    router.get('/good', middleware.busboy, function redirect(req, res) {
         res.set({'Cache-Control': 'public, max-age=' + ONE_YEAR_S});
         res.redirect(301, subdir + '/index');
     });

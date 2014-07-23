@@ -48,7 +48,7 @@ function parseContext(context) {
 
 // Base class for canThis call results
 CanThisResult = function () {
-    return;
+
 };
 
 CanThisResult.prototype.buildObjectTypeHandlers = function (obj_types, act_type, context, permissionLoad) {

@@ -106,15 +106,15 @@ function validateConfigEnvironment() {
     }
 
     // Warn if we don't have an api version
-    if (!config.api || !config.api.version ) {
+    if (!config.api || !config.api.version) {
         errors.logWarn('Your do not provide an api version in config.js.', 'no api version provided in config.js', 'iCollege will use api version as 0.1');
         // do not reject, modify the api version
         config.api = config.api || {};
-        config.api.version = "0.1"
+        config.api.version = "0.1";
     }
 
     // Check that we have api.version and the value is pure numeric
-    if (config.api && config.api.version && !(validator.isFloat(config.api.version)||validator.isInt(config.api.version))) {
+    if (config.api && config.api.version && !(validator.isFloat(config.api.version) || validator.isInt(config.api.version))) {
         errors.logError(new Error('Your api version configuration in config.js is invalid.'), JSON.stringify(config.api.version), 'Please make sure api version is purely numeric');
 
         return when.reject(new Error('invalid api version configuration'));

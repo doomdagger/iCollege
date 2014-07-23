@@ -8,7 +8,6 @@ var _           = require('lodash'),
     fs          = require('fs'),
     busboy      = require('./icollege-busboy'),
     packageInfo = require('../../../package.json'),
-    when        = require('when'),
 
     expressServer,
     ONE_HOUR_MS = 60 * 60 * 1000,
@@ -34,7 +33,8 @@ var middleware = {
                 /^\/api\/v[0-9]+(\.[0-9]+)?\/reset\//
             ],
             path,
-            subPath;
+            subPath,
+            index;
 
         // SubPath is the url path starting after any default subdirectories
         // it is stripped of anything after the three levels `/api/v0.1/.*?/` as the reset link has an argument
@@ -46,9 +46,9 @@ var middleware = {
 
         if (res.isRestful) {
             // if included in the no auth needed
-            for(var index in noAuthNeeded) {
-                if(noAuthNeeded[index].test(subPath)) {
-                    return next()
+            for (index in noAuthNeeded) {
+                if (noAuthNeeded[index].test(subPath)) {
+                    return next();
                 }
             }
             return middleware.authAPI(req, res, next);
@@ -61,7 +61,7 @@ var middleware = {
     // Authenticate a request to the API by responding with a 401 and json error details
     authAPI: function (req, res, next) {
         // validate username(id) and dynamic key against server's dynamic
-        if (1!==1) {
+        if (1 !== 1) {
             res.json(401, { success: false, reason: 'Please sign in' });
             return;
         }
@@ -70,14 +70,14 @@ var middleware = {
     },
 
     // ## Restful API Version-ize
-    versionAPI: function(req, res, next) {
+    versionAPI: function (req, res, next) {
         var path,
             apiIndex;
 
-        if(res.isRestful) {
+        if (res.isRestful) {
             path = req.path.substring(config().paths.subdir.length);
 
-            if(!/^\/api\/v[0-9]+(\.[0-9]+)?\/(.*)?/.test(path)){
+            if (!/^\/api\/v[0-9]+(\.[0-9]+)?\/(.*)?/.test(path)) {
                 // api url does not have version
                 apiIndex = req.url.indexOf('/api/');
                 req.url = req.url.substring(0, apiIndex + 5) + "v" + config().api.version + "/" + req.url.substring(apiIndex + 5);
@@ -91,16 +91,16 @@ var middleware = {
     // ### decideContext Middleware
     // Uses the URL to detect whether this response should be an admin response
     // This is used to ensure the right content is served, and is not for security purposes
-    'decideContext' : function(req, res, next) {
+    'decideContext' : function (req, res, next) {
         res.isRestful = req.url.lastIndexOf(config().paths.subdir + '/api/', 0) === 0;
 
-        if (res.isRestful) {
-            // if restful request, do something?
-            //console.log("is restful!!!")
-        } else {
-            // if not restful request, do something?
-
-        }
+//        if (res.isRestful) {
+//            // if restful request, do something?
+//            //console.log("is restful!!!")
+//        } else {
+//            // if not restful request, do something?
+//
+//        }
 
         // Pass 'secure' flag to the view engine
         // so that templates can choose 'url' vs 'urlSSL'
@@ -149,7 +149,7 @@ var middleware = {
     // ### Extend Properties
     // in Ghost, those properties are saved for template,
     // while in iCollege, we save them for api request
-    'icollegeLocals': function(req, res, next) {
+    'icollegeLocals': function (req, res, next) {
         // Make sure we have a locals value.
         res.locals = res.locals || {};
         res.locals.version = packageInfo.version;
@@ -175,7 +175,7 @@ var middleware = {
 //                        })
 //                    });
 //                    // do not forget next()
-                    next();
+            next();
 //                });
 //            });
         } else {

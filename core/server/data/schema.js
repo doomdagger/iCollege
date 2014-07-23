@@ -68,7 +68,7 @@ var db = {
         friends: [{
             friend_id: {type: Schema.Types.ObjectId},
             remark_name: {type: String, default: '', trim: true}, // 好友备注名称
-            friend_group:{type: String, default: 'friends', trim: true}, // 好友所属分组， 这个灵活些~
+            friend_group: {type: String, default: 'friends', trim: true}, // 好友所属分组， 这个灵活些~
             esp_care: {type: Boolean, default: false}, // 特别关心此好友吗
             message_block: {type: Boolean, default: false}, // 屏蔽消息
             status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'}, // 已经成为好友了吗，好友记录会在好友申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由好友申请构建的好友系统消息不会消失
@@ -77,7 +77,7 @@ var db = {
             updated_at: {type: Date, default: Date.now()},
             updated_by: {type: Schema.Types.ObjectId, required: true}
         }],
-        roles:[{
+        roles: [{
             type: Schema.Types.ObjectId,
             required: true
         }],
