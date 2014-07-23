@@ -22,142 +22,178 @@ var db = {
     // ### users 用户实体
     users: {
         uuid: {type: String, required: true}, // uuid
-        name: {type: String}, // nickname
-        username: {type: String, required: true}, // used for sign in
-        password: {type: String, required: true},
+        name: {type: String, trim: true}, // nickname
+        lowercase_username: {type: String, required: true, lowercase: true, trim: true},
+        username: {type: String, required: true, trim: true}, // used for sign in
+        password: {type: String, required: true, trim: true},
         email: {type: String, match: /.*?@.*?/, trim: true},
-        avatar: {type: String},
-        images: [{type: String}],
-        credit: {type: Number, min: 0, default: 0, required: true}, // 积分，也就是经验值
+        avatar: {type: String}, // be what, for file storage, not sure
+        images: [{type: String}], // be what, for file storage, not sure
+        credit: {type: Number, default: 0, min: 0}, // 积分，也就是经验值
         bio: {type: String, trim: true, default: 'I love iCollege'},
         signature: {type: String, trim: true, default: 'I love iCollege'},
-        gender: {type: String, enum: ['male', 'female']},
+        gender: {type: String, enum: ['male', 'female', 'unknown'], default: 'unknown'},
         birth_date: {type: Date, default: Date.now()},
-        website: {type: String, trim: true},
-        location: [{type: Number, index: '2dsphere'}],
-        location_info: {type: String},
-        tags: [{type: String}], // 用户标签
-        status: {type: String, enum: ['online', 'invisible', 'offline']}, // online offline or ...
-        language: {type: String},
+        website: {type: String, trim: true, default: 'http://blog.icollege.com'},
+        location: [{type: Number, index: '2dsphere', default: 0.0}],
+        location_info: {type: String, trim: true},
+        tags: [{type: String, trim: true}], // 用户个性标签
+        status: {type: String, enum: ['online', 'invisible', 'offline'], default: 'offline', required: true}, // online offline or ...
+        language: {type: String, enum: ['zh', 'en', 'fr'], default: 'zh'},
         last_login: {type: Date},
-        created_at: {type: Date},
-        created_by: {type: Schema.Types.ObjectId},
-        updated_at: {type: Date},
-        updated_by: {type: Schema.Types.ObjectId},
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true},
         groups: [{
             group_id: {type: Schema.Types.ObjectId},
             message_alert: {type: Boolean, default: true},
             location_share: {type: Boolean, default: true},
             profile_visible: {type: Boolean, default: false},
-            created_at: {type: Date},
-            created_by: {type: Schema.Types.ObjectId},
-            updated_at: {type: Date},
-            updated_by: {type: Schema.Types.ObjectId}
+            created_at: {type: Date, default: Date.now()},
+            created_by: {type: Schema.Types.ObjectId, required: true},
+            updated_at: {type: Date, default: Date.now()},
+            updated_by: {type: Schema.Types.ObjectId, required: true}
         }],
         circles: [{
             circle_id: {type: Schema.Types.ObjectId},
             post_alert: {type: Boolean, default: true},
             location_share: {type: Boolean, default: true},
             profile_visible: {type: Boolean, default: false},
-            created_at: {type: Date},
-            created_by: {type: Schema.Types.ObjectId},
-            updated_at: {type: Date},
-            updated_by: {type: Schema.Types.ObjectId}
+            created_at: {type: Date, default: Date.now()},
+            created_by: {type: Schema.Types.ObjectId, required: true},
+            updated_at: {type: Date, default: Date.now()},
+            updated_by: {type: Schema.Types.ObjectId, required: true}
         }],
         friends: [{
             friend_id: {type: Schema.Types.ObjectId},
-            remark_name: {type: String}, // 好友备注名称
-            friend_group:{type: String, default: 'friends'}, // 好友所属分组， 这个灵活些~
+            remark_name: {type: String, default: '', trim: true}, // 好友备注名称
+            friend_group:{type: String, default: 'friends', trim: true}, // 好友所属分组， 这个灵活些~
             esp_care: {type: Boolean, default: false}, // 特别关心此好友吗
             message_block: {type: Boolean, default: false}, // 屏蔽消息
-            status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], required: true}, // 已经成为好友了吗，好友记录会在好友申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由好友申请构建的好友系统消息不会消失
-            created_at: {type: Date},
-            created_by: {type: Schema.Types.ObjectId},
-            updated_at: {type: Date},
-            updated_by: {type: Schema.Types.ObjectId}
+            status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'}, // 已经成为好友了吗，好友记录会在好友申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由好友申请构建的好友系统消息不会消失
+            created_at: {type: Date, default: Date.now()},
+            created_by: {type: Schema.Types.ObjectId, required: true},
+            updated_at: {type: Date, default: Date.now()},
+            updated_by: {type: Schema.Types.ObjectId, required: true}
         }],
-
         roles:[{
-            type: Schema.Types.ObjectId
+            type: Schema.Types.ObjectId,
+            required: true
         }],
         permissions: [{
-            type: Schema.Types.ObjectId
+            type: Schema.Types.ObjectId,
+            required: true
         }]
     },
 
     // ### 通知
     // 主要是为了应对圈子的回帖以及转发，@等动态的通知
     notifications: {
-        uuid: {type: String},
-        user_id: {type: Schema.Types.ObjectId},
-        note_category: {type: String},  // 这么几种类别: 回复，赞，转发，@ 这四种
-        object_id: {type: Schema.Types.ObjectId} // 对应着以上通知的类别，跟通知有关的对象ID可能是，re_post, post两种
+        uuid: {type: String, required: true}, // uuid
+        user_id: {type: Schema.Types.ObjectId, required: true},
+        note_category: {type: String, enum: ['re_post', 'favored', 'forward', 'at'], required: true},  // 这么几种类别: 回复，赞，转发，@ 这四种
+        object_id: {type: Schema.Types.ObjectId, required: true}, // 对应着以上通知的类别，跟通知有关的对象ID可能是，re_post, post两种
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true}
     },
 
     // ### 角色
     // 定义了用户的多个不同的角色分类
     roles: {
-        uuid: {type: String},
-        name: {type: String},
+        uuid: {type: String, required: true}, // uuid
+        name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger'], required: true, trim: true},
         permissions: [{
-            type: Schema.Types.ObjectId
+            type: Schema.Types.ObjectId,
+            required: true
         }],
-        description: {type: String},
-        created_at: {type: Date},
-        created_by: {type: Schema.Types.ObjectId},
-        updated_at: {type: Date},
-        updated_by: {type: Schema.Types.ObjectId}
+        description: {type: String, trim: true, default: ""},
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true}
     },
 
     // ### 权限
     permissions: {
-        uuid: {type: String},
-        name: {type: String},
-        object_type: {type: String},
-        action_type: {type: String},
+        uuid: {type: String, required: true}, // uuid
+        name: {type: String, required: true, trim: true},
+        // object_types map the sub-modules of api module
+        object_type: {
+            type: String,
+            enum: ['db', 'user', 'notification', 'role', 'permission',
+                'group', 'circle', 'message', 'post', 're_post'],
+            required: true,
+            trim: true
+        },
+        // action_types map the operations of each sub-module
+        action_type: {
+            type: String,
+            enum: ['edit', 'remove', 'create', 'read', 'generate', 'exportContent',
+                'importContent', 'deleteAllContent', 'browse', 'add'],
+            required: true,
+            trim: true
+        },
         object_id: {type: Schema.Types.ObjectId}, // 权限对象？这个字段什么意思
-        created_at: {type: Date},
-        created_by: {type: Schema.Types.ObjectId},
-        updated_at: {type: Date},
-        updated_by: {type: Schema.Types.ObjectId}
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true}
     },
 
     // ### groups 群组实体
     groups: {
-        uuid: {type: String}, // uuid
-        name: {type: String}, // name
-        avatar: {type: String},
-        category: {type: String}, // 群组类型
-        description: {type: String}, // 群组介绍
-        location: [{type: Number, index: '2dsphere'}], // longitude latitude
-        location_info: {type: String}, // location name
-        permission_on_add: {type: String, enum: ['not_allowed', 'need_permission', 'need_nothing']}, // 添加成员进群组时的审核策略：不需要审核或需要管理员审核等
+        uuid: {type: String, required: true}, // uuid
+        name: {type: String, trim: true}, // name
+        lowercase_group_name: {type: String, required: true, lowercase: true, trim: true}, // 小写形式，方便进行防止群组命名重复测试
+        group_name: {type: String, required: true, trim: true}, // 标记了群组的唯一性
+        avatar: {type: String}, // be what, for file storage, not sure
+        // we have a limited range of categories for user to select, but not listed here as enums
+        // 兴趣爱好：影视，音乐，星座，动漫，运动，读书，摄影，其他
+        // 生活休闲：同城，同乡，购物，旅游，美食，美容，宠物，健康，母婴，其他
+        // 游戏
+        // 行业交流：投资，IT/互联网，建筑工程，服务，传媒，营销与广告，教师，律师，公务员，银行，咨询，其他
+        // 学习考试：托福，雅思，CET4/6，GRE，GMAT，MBA，考研，高考，中考，职业认证，公务员，其他
+        // 粉丝
+        // 置业安家：业主，装修
+        // 品牌产品
+        // 同事*同学*朋友：亲友，同学，同事
+        category: {type: String, required: true, trim: true}, // 群组类型
+        description: {type: String, trim: true, default: "A Group of iCollege"}, // 群组介绍
+        location: [{type: Number, index: '2dsphere', default: 0.0}],// longitude latitude
+        location_info: {type: String, trim: true},// location name
+        permission_on_add: {type: String, enum: ['not_allowed', 'need_permission', 'need_nothing'], default: 'need_permission'}, // 添加成员进群组时的审核策略：不需要审核或需要管理员审核等
         visibility: {type: Boolean, default: false}, // 对附近人的可见性
         members: [{
-            member_id: {type: Schema.Types.ObjectId},
-            member_name: {type: String}
+            member_id: {type: Schema.Types.ObjectId, required: true},
+            member_name: {type: String, required: true, trim: true}
         }], // user list
-        owner: {type: Schema.Types.ObjectId}, // user object id
+        owner: {type: Schema.Types.ObjectId, required: true}, // user object id
         credit: {type: Number, min: 0, default: 0}, // 积分
         attachments: [{
-            name: {type: String},
-            extension: {type: String}, // 文件扩展类型
-            size: {type: Number},
+            uuid: {type: String, required: true}, // uuid
+            name: {type: String, default: 'group_file', trim: true},
+            extension: {type: String, default: '', trim: true}, // 文件扩展类型
+            size: {type: Number, min: 0, default: 0},
             path: {type: String}, // 文件路径
-            created_at: {type: Date},
-            created_by: {type: Schema.Types.ObjectId},
-            updated_at: {type: Date},
-            updated_by: {type: Schema.Types.ObjectId}
+            created_at: {type: Date, default: Date.now()},
+            created_by: {type: Schema.Types.ObjectId, required: true},
+            updated_at: {type: Date, default: Date.now()},
+            updated_by: {type: Schema.Types.ObjectId, required: true}
         }],
-        created_at: {type: Date},
-        created_by: {type: Schema.Types.ObjectId},
-        updated_at: {type: Date},
-        updated_by: {type: Schema.Types.ObjectId}
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true}
     },
+
+// ---------------------------------------- 扩充以下的实体字段 注:根据mongoose标准添加，如果有default，就无需加上required ------------- //
 
     // ### circles 圈子实体
     circles: {
-        uuid: {type: String}, // uuid
+        uuid: {type: String, required: true}, // uuid
         name: {type: String}, // name
         avatar: {type: String},
         category: {type: String}, // 圈子类型，枚举内置类型，参考微群组
