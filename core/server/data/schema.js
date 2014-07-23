@@ -84,6 +84,50 @@ var db = {
         permissions: [{
             type: Schema.Types.ObjectId,
             required: true
+        }],
+        installed_apps: [{
+            app_id: {type: Schema.Types.ObjectId,required: true},
+            app_fields: [{
+                uuid: {type: String, required: true}, // uuid
+                key: {type: String, required: true},
+                value: {type: String, default: ""},
+                type: {type: String, enum: ['html', 'markdown'], default: 'html'},
+                relatable_id: {type: Schema.Types.ObjectId, required: true},
+                relatable_type: {type: String, enum: ['messages', 'posts', 'groups', 'circles'], default: 'posts'},
+                created_at: {type: Date, default: Date.now()},
+                created_by: {type: Schema.Types.ObjectId, required: true},
+                updated_at: {type: Date, default: Date.now()},
+                updated_by: {type: Schema.Types.ObjectId, required: true}
+            }],
+            app_settings: [{
+                uuid: {type: String, required: true}, // uuid
+                key: {type: String, required: true},
+                value: {type: String, default: ""},
+                created_at: {type: Date, default: Date.now()},
+                created_by: {type: Schema.Types.ObjectId, required: true},
+                updated_at: {type: Date, default: Date.now()},
+                updated_by: {type: Schema.Types.ObjectId, required: true}
+            }]
+        }]
+    },
+
+    // ### APP
+    // 所有开发者注册发布或iCollege维护的apps
+    apps: {
+        uuid: {type: String, required: true},
+        lowercase_name: {type: String, required: true, trim: true, lowercase: true},
+        name: {type: String, required: true, trim: true},
+        slug: {type: String, required: true, trim: true},
+        version: {type: String, required: true, trim: true},
+        status: {type: String, required: true, enum: ['developing', 'released', 'inactive'], default: 'developing'},
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true},
+        // 这个 app 需要哪些permission，安装时需争取到用户同意，方可继续安装
+        permissions: [{
+            type: Schema.Types.ObjectId,
+            required: true
         }]
     },
 
@@ -104,7 +148,7 @@ var db = {
     // 定义了用户的多个不同的角色分类
     roles: {
         uuid: {type: String, required: true}, // uuid
-        name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger'], required: true, trim: true},
+        name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger'], required: true},
         permissions: [{
             type: Schema.Types.ObjectId,
             required: true
@@ -125,16 +169,14 @@ var db = {
             type: String,
             enum: ['db', 'user', 'notification', 'role', 'permission',
                 'group', 'circle', 'message', 'post', 're_post'],
-            required: true,
-            trim: true
+            required: true
         },
         // action_types map the operations of each sub-module
         action_type: {
             type: String,
             enum: ['edit', 'remove', 'create', 'read', 'generate', 'exportContent',
                 'importContent', 'deleteAllContent', 'browse', 'add'],
-            required: true,
-            trim: true
+            required: true
         },
         object_id: {type: Schema.Types.ObjectId}, // 权限对象？这个字段什么意思
         created_at: {type: Date, default: Date.now()},

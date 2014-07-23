@@ -2,7 +2,9 @@
 
 module.exports = {
     // add last modified field and middleware
-    lastModifiedPlugin: function (schema, options) {
+    // Deprecated! we have updateAt and createdAt field with default value options!
+    // there is no need to use this plugin
+    'lastModifiedPlugin': function (schema, options) {
         schema.add({ lastMod: Date });
 
         schema.pre('save', function (next) {

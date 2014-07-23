@@ -1,3 +1,6 @@
+/**
+ * # User Model
+ */
 var when    = require('when'),
     mongoose = require('mongoose'),
     icollegeSchema = require('./base'),
@@ -6,14 +9,17 @@ var when    = require('when'),
     Users;
 
 
-// Schema definition
+// ## Schema definition
 Users = icollegeSchema.extend("users", {
-    // # statics
+    // ### statics
+
+    // findByName function, with the param name, find users
     'findByName': function (name, cb) {
         // this refers to Model instance
         this.find({ name: new RegExp(name, 'i') }, cb);
     },
 
+    // findByNamePromise, the Promise/A+ version of findByName
     'findByNamePromise': function (name) {
 
         var found = when.defer();
@@ -32,7 +38,9 @@ Users = icollegeSchema.extend("users", {
     }
 
 }, {
-    // # methods
+    // ### methods
+
+    // findSameNames function
     'findSameNames': function (cb) {
         // this refers to Doc Instance,
         return this.model('User').find({ name: this.name }, cb);
@@ -40,7 +48,7 @@ Users = icollegeSchema.extend("users", {
 
 }, [
     // add plugins for Users schema
-    icollegeSchema.plugins.lastModifiedPlugin
+    //icollegeSchema.plugins.lastModifiedPlugin
 
 ]);
 
@@ -55,8 +63,3 @@ module.exports = {
     User: User,
     Users: Users
 };
-
-
-
-
-
