@@ -27,7 +27,7 @@ var fixtures = {
     roles: [
         {
             uuid: node_uuid.v4(),
-            name: 'SuperAdministrator',
+            name: 'SuperAdministrator'
 
         }
     ]

@@ -1,16 +1,16 @@
 /**
- * ## Re_post Model
+ * ## Repost Model
  * Created by balcat on 7/24/2014.
  */
 
 var mongoose = require('mongoose'),
     icollegeSchema = require('./base'),
 
-    Re_posts,
-    Re_post;
+    Reposts,
+    Repost;
 
 //Schema definition
-Re_posts = icollegeSchema.extend("re_posts", {
+Reposts = icollegeSchema.extend("reposts", {
     //statics here
 
 }, {
@@ -22,9 +22,9 @@ Re_posts = icollegeSchema.extend("re_posts", {
 ]);
 
 //Model definition
-Re_post = mongoose.model('Re_post', Re_posts);
+Repost = mongoose.model('Repost', Reposts);
 
 module.exports = {
-    Re_post: Re_post,
-    Re_posts: Re_posts
+    Repost: Repost,
+    Reposts: Reposts
 };

@@ -27,6 +27,7 @@ var db = {
         username: {type: String, required: true, trim: true}, // used for sign in
         password: {type: String, required: true, trim: true},
         email: {type: String, match: /.*?@.*?/, trim: true},
+        phone: {type: String, match: /1[0-9]{10}/, trim: true},
         avatar: {type: String}, // be what, for file storage, not sure
         images: [{type: String}], // be what, for file storage, not sure
         credit: {type: Number, default: 0, min: 0}, // 积分，也就是经验值
@@ -137,8 +138,8 @@ var db = {
     notifications: {
         uuid: {type: String, required: true}, // uuid
         user_id: {type: Schema.Types.ObjectId, required: true},
-        note_category: {type: String, enum: ['re_post', 'favored', 'forward', 'at'], required: true},  // 这么几种类别: 回复，赞，转发，@ 这四种
-        object_id: {type: Schema.Types.ObjectId, required: true}, // 对应着以上通知的类别，跟通知有关的对象ID可能是，re_post, post两种
+        note_category: {type: String, enum: ['repost', 'favored', 'forward', 'at'], required: true},  // 这么几种类别: 回复，赞，转发，@ 这四种
+        object_id: {type: Schema.Types.ObjectId, required: true}, // 对应着以上通知的类别，跟通知有关的对象ID可能是，repost, post两种
         created_at: {type: Date, default: Date.now()},
         created_by: {type: Schema.Types.ObjectId, required: true},
         updated_at: {type: Date, default: Date.now()},
@@ -169,7 +170,7 @@ var db = {
         object_type: {
             type: String,
             enum: ['db', 'user', 'notification', 'role', 'permission',
-                'group', 'circle', 'message', 'post', 're_post'],
+                'group', 'circle', 'message', 'post', 'repost'],
             required: true
         },
         // action_types map the operations of each sub-module
@@ -195,15 +196,17 @@ var db = {
         avatar: {type: String}, // be what, for file storage, not sure
         // 群主
         user_id: {type: Schema.Types.ObjectId, required: true}, // user object id, who owns the group
-        // 群组管理员，非！系统管理员
-        related_ids: [{
-            type: Schema.Types.ObjectId,
-            required: true
-        }],
+//        群组管理员，非！系统管理员
+//        related_ids: [{
+//            type: Schema.Types.ObjectId,
+//            required: true
+//        }],
         // user list, 全部的用户列表，包含群主和管理员
         members: [{
             member_id: {type: Schema.Types.ObjectId, required: true},
-            member_name: {type: String, required: true, trim: true}
+            member_name: {type: String, required: true, trim: true},
+            related: {type: Boolean, default: false}, // 是否为群管理员，群主也标记related为true
+            status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'} // 已经成为成员了吗，成员记录会在用户加入群组申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由成员申请构建生成的系统消息不会消失
         }],
         // we have a limited range of categories for user to select, but not listed here as enums
         // 兴趣爱好：影视，音乐，星座，动漫，运动，读书，摄影，其他
@@ -250,15 +253,17 @@ var db = {
         circle_name: {type: String, required: true, trim: true}, // 标记了圈子的唯一性
         // 圈主，圈子拥有者
         user_id: {type: Schema.Types.ObjectId, required: true}, // user object id
-        // 圈子管理员，非！系统管理员
-        related_ids: [{
-            type: Schema.Types.ObjectId,
-            required: true
-        }],
+//        圈子管理员，非！系统管理员
+//        related_ids: [{
+//            type: Schema.Types.ObjectId,
+//            required: true
+//        }],
         // user list, 全部的用户列表，包含圈主和管理员
         members: [{
             member_id: {type: Schema.Types.ObjectId, required: true},
-            member_name: {type: String, required: true, trim: true}
+            member_name: {type: String, required: true, trim: true},
+            related: {type: Boolean, default: false}, // 是否为圈子管理员，圈子主也标记related为true
+            status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'} // 已经成为成员了吗，成员记录会在用户加入群组申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由成员申请构建生成的系统消息不会消失
         }],
         avatar: {type: String},
         // we have a limited range of categories for user to select, but not listed here as enums
@@ -353,12 +358,12 @@ var db = {
     },
 
     // ### 回帖实体
-    re_posts: {
+    reposts: {
         uuid: {type: String, required: true},
         user_id: {type: Schema.Types.ObjectId, required: true}, // 用户Id，谁发的帖子回复
         circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，回帖回的帖子属于哪个圈子 !!是否应该存在默认值（好友圈），是否必须？
-        source_category: {type: String, enum: ['posts, re_posts']}, // 是来自于帖子 还是 回帖
-        re_post_to: {type: Schema.Types.ObjectId, required: true}, // 帖子ID或是回帖ID
+        source_category: {type: String, enum: ['posts, reposts']}, // 是来自于帖子 还是 回帖
+        repost_to: {type: Schema.Types.ObjectId, required: true}, // 帖子ID或是回帖ID
 
         // ================== 回帖内容 ==============
         html: {type: String}, // 帖子内容，谨防js注入
@@ -384,12 +389,12 @@ var db = {
 };
 
 function isPost(jsonData) {
-    return jsonData.hasOwnProperty('html') && jsonData.hasOwnProperty('post_from') &&
+    return jsonData.hasOwnProperty('html') && jsonData.hasOwnProperty('user_id') &&
         jsonData.hasOwnProperty('title') && jsonData.hasOwnProperty('slug');
 }
 
 function isRePost(jsonData) {
-    return jsonData.hasOwnProperty('html') && jsonData.hasOwnProperty('re_post_from');
+    return jsonData.hasOwnProperty('html') && jsonData.hasOwnProperty('user_id');
 }
 
 module.exports.collections = db;

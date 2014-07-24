@@ -9,7 +9,7 @@ module.exports = {
     Message: require('./message').Message,
     Notification: require('./notification').Notification,
     Post: require('./post').Post,
-    Re_post: require('./re_post').Re_post,
+    Repost: require('./repost').Repost,
 
     init: require('./base').init
 };
