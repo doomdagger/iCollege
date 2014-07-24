@@ -245,11 +245,11 @@ var db = {
     // 系统会为每一个用户创建一个好友圈，这个圈子只会用来抓取别的好友的posts，不应该写入任何内容
     circles: {
         uuid: {type: String, required: true}, // uuid
-        nickname: {type: String}, // circle用于显示的名字，可以与其他圈子重复
+        nickname: {type: String, required: true}, // circle用于显示的名字，可以与其他圈子重复
         lowercase_circle_name: {type: String, required: true, lowercase: true, trim: true}, // 小写形式，方便进行防止圈子命名重复测试
         circle_name: {type: String, required: true, trim: true}, // 标记了圈子的唯一性
         // 圈主，圈子拥有者
-        user_id: {type: Schema.Types.ObjectId}, // user object id
+        user_id: {type: Schema.Types.ObjectId, required: true}, // user object id
         // 圈子管理员，非！系统管理员
         related_ids: [{
             type: Schema.Types.ObjectId,
@@ -276,46 +276,48 @@ var db = {
         category: {type: String, required: true, trim: true}, // 圈子类型，参考微群组
         description: {type: String}, // 圈子介绍
         location: [{type: Number, index: '2dsphere'}], // longitude latitude
-        location_info: {type: String}, // location name
-        permission_on_add: {type: String, enum: ['not_allowed', 'need_permission', 'need_nothing']}, // 添加成员进圈子时的审核策略：不需要审核或需要管理员审核等
+        location_info: {type: String, trim: true}, // location name
+        // 添加成员进圈子时的审核策略：不需要审核或需要管理员审核等
+        permission_on_add: {type: String, enum: ['not_allowed', 'need_permission', 'need_nothing'], default: 'need_permission'},
         visibility: {type: Boolean, default: false}, // 对附近人的可见性
         credit: {type: Number, min: 0, default: 0}, // 积分
-        created_at: {type: Date},
-        created_by: {type: Schema.Types.ObjectId},
-        updated_at: {type: Date},
-        updated_by: {type: Schema.Types.ObjectId}
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true}
     },
 
     // ### 消息实体 一定要考虑消息的共通性，系统消息和聊天消息
     // 消息没有常规的 user_id 和 related_ids 字段，因为消息无所有者，仅有管理员和超级管理员可以删除
     messages: {
-        uuid: {type: String}, // uuid
-        content: {type: String},
+        uuid: {type: String, required: true}, // uuid
+        content: {type: String, required: true},
         source_category: {type: String, enum: ['friends', 'groups'], required: true}, // 消息来自于个人（好友或系统（系统也是一个人类账号）），还是群组
         group_id: {type: Schema.Types.ObjectId}, // 仅有在消息来源于groups时此字段才有值
         content_category: {type: String, enum: ['media', 'text', 'system'], default: 'text'}, // 消息类型：多媒体消息（视频，纯图片，音频），富文本消息(html，谨防js注入)，其他类型的系统消息（好友请求，其他由系统relay的具有特殊格式的消息），
-        message_from: {type: Schema.Types.ObjectId}, // 从这也能看出来，账户必须有角色，角色具有权限分级，并预留一个账户具备超级管理员角色，可以赋予普通用户管理员角色
+        message_from: {type: Schema.Types.ObjectId, required: true}, // 从这也能看出来，账户必须有角色，角色具有权限分级，并预留一个账户具备超级管理员角色，可以赋予普通用户管理员角色
         message_to: [{
             user_id: {type: Schema.Types.ObjectId},
             being_pulled: {type: Boolean, default: false} // 前端是否曾经抓取过
         }], // to的多样性，用户，群组
-        created_at: {type: Date},
-        created_by: {type: Schema.Types.ObjectId},
-        updated_at: {type: Date},
-        updated_by: {type: Schema.Types.ObjectId} // 消息的某些状态被改变，改变者为谁
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true} // 消息的某些状态被改变，改变者为谁
     },
 
     // ### 帖子实体 一定要考虑帖子的共通性，发帖（日志）；存在于圈子里（所以人，都有一个自己的圈子，好友圈，其他圈子都是额外创建的）
     posts: {
-        uuid: {type: String},
+        uuid: {type: String, required: true},
         slug: {type: String, required: true}, // 帖子的标识符，时间与title与作者关联组成，标注了帖子的唯一性
         title: {type: String},
-        user_id: {type: Schema.Types.ObjectId}, // 用户Id，谁发的帖子
+        user_id: {type: Schema.Types.ObjectId, required: true}, // 用户Id，谁发的帖子
         circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，自己专属朋友圈的ID或自己加入的朋友圈的ID
-        source_category: {type: String, enum: ['friends', 'circles']}, // 帖子的来源，好友圈（默认），或是其他某一个圈子：好友圈这个圈子专属于自己，这个圈子包含了用户的所有好友
+        // 帖子的来源，好友圈（默认），或是其他某一个圈子：好友圈这个圈子专属于自己，这个圈子包含了用户的所有好友
+        source_category: {type: String, enum: ['friends', 'circles'], required: true},
 
         // ================== 转发信息 ==================
-        is_forward: {type: Boolean}, // 是否为转发
+        is_forward: {type: Boolean, default: false}, // 是否为转发
         forward_info: {     // 转发信息
             forward_message: {type: String},
             post_id: {type: Schema.Types.ObjectId}
@@ -324,59 +326,59 @@ var db = {
         html: {type: String}, // 帖子内容，谨防js注入
         attachments: [{
             uuid: {type: String, required: true}, // uuid
-            name: {type: String},
-            extension: {type: String}, // 文件扩展类型
-            size: {type: Number},
+            name: {type: String, trim: true},
+            extension: {type: String, default: '', trim: true}, // 文件扩展类型
+            size: {type: Number, min: 0, default: 0},
             path: {type: String}, // 文件路径
-            created_at: {type: Date},
-            created_by: {type: Schema.Types.ObjectId},
-            updated_at: {type: Date},
-            updated_by: {type: Schema.Types.ObjectId}
+            created_at: {type: Date, default: Date.now()},
+            created_by: {type: Schema.Types.ObjectId, required: true},
+            updated_at: {type: Date, default: Date.now()},
+            updated_by: {type: Schema.Types.ObjectId, required: true}
         }],
         status: {type: String, enum: ['draft', 'published'], default: 'draft'}, // 帖子的状态，draft or published
         language: {type: String, enum: ['zh', 'en'], default: 'zh'}, // 帖子的语言
 
         at_users: [{type: Schema.Types.ObjectId}], // @user ids
         favored_users: [{ // 点赞的用户
-            user_id: {type: Schema.Types.ObjectId}, // 用户ID
+            user_id: {type: Schema.Types.ObjectId, required: true}, // 用户ID
             timestamp: {type: Date}   // 点赞的时间
         }],
-        viewed_times: {type: Number}, // 浏览过的次数，不限制同一个用户浏览多次
-        published_at: {type: Date},
-        published_by: {type: Schema.Types.ObjectId},
-        created_at: {type: Date},
-        created_by: {type: Schema.Types.ObjectId},
-        updated_at: {type: Date},
-        updated_by: {type: Schema.Types.ObjectId}
+        viewed_times: {type: Number, min: 0, default: 0}, // 浏览过的次数，不限制同一个用户浏览多次
+        published_at: {type: Date, default: Date.now()},
+        published_by: {type: Schema.Types.ObjectId, required: true},
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true}
     },
 
     // ### 回帖实体
     re_posts: {
-        uuid: {type: String},
-        user_id: {type: Schema.Types.ObjectId}, // 用户Id，谁发的帖子回复
-        circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，回帖回的帖子属于哪个圈子
+        uuid: {type: String, required: true},
+        user_id: {type: Schema.Types.ObjectId, required: true}, // 用户Id，谁发的帖子回复
+        circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，回帖回的帖子属于哪个圈子 !!是否应该存在默认值（好友圈），是否必须？
         source_category: {type: String, enum: ['posts, re_posts']}, // 是来自于帖子 还是 回帖
-        re_post_to: {type: Schema.Types.ObjectId}, // 帖子ID或是回帖ID
+        re_post_to: {type: Schema.Types.ObjectId, required: true}, // 帖子ID或是回帖ID
 
         // ================== 回帖内容 ==============
         html: {type: String}, // 帖子内容，谨防js注入
         attachments: [{
             uuid: {type: String, required: true}, // uuid
-            name: {type: String},
-            extension: {type: String}, // 文件扩展类型
-            size: {type: Number},
+            name: {type: String, trim: true},
+            extension: {type: String, default: '', trim: true}, // 文件扩展类型
+            size: {type: Number, min: 0, default: 0},
             path: {type: String}, // 文件路径
-            created_at: {type: Date},
-            created_by: {type: Schema.Types.ObjectId}
+            created_at: {type: Date, default: Date.now()},
+            created_by: {type: Schema.Types.ObjectId, required: true}
         }],
-        language: {type: String},
+        language: {type: String, enum: ['zh', 'en', 'fr'], default: 'zh'},
 
         at_users: [{type: Schema.Types.ObjectId}], // @user ids
 
-        created_at: {type: Date},
-        created_by: {type: Schema.Types.ObjectId},
-        updated_at: {type: Date},
-        updated_by: {type: Schema.Types.ObjectId}
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true}
     }
 
 };
