@@ -10,13 +10,13 @@ var mongoose = require('mongoose'),
     Post;
 
 //Schema definition
-Posts = icollegeSchema.extend('Posts'), {
+Posts = icollegeSchema.extend('posts', {
     //statics here
 }, {
     //methods here
 }, [
     //plugins here
-];
+]);
 
 //Model definition
 Post = mongoose.model('Post', Posts);
