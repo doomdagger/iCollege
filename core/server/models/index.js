@@ -10,6 +10,8 @@ module.exports = {
     Notification: require('./notification').Notification,
     Post: require('./post').Post,
     Repost: require('./repost').Repost,
+    // Ghost中是Settings，我们这里是Setting，不一样
+    Setting: require('./settings').Setting,
 
     init: require('./base').init
 };

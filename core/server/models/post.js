@@ -1,6 +1,7 @@
 /**
  * ## Post Model
  * Created by balcat on 7/24/2014.
+ * Updated by Li He on 7/25/2014.
  */
 
 var mongoose = require('mongoose'),

@@ -1,0 +1,10 @@
+{
+    "core": {
+        "databaseVersion": {
+            "defaultValue": "000"
+        },
+        "apiVersion": {
+            "defaultValue": "0.1"
+        }
+    }
+}

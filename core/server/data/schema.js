@@ -384,6 +384,19 @@ var db = {
         created_by: {type: Schema.Types.ObjectId, required: true},
         updated_at: {type: Date, default: Date.now()},
         updated_by: {type: Schema.Types.ObjectId, required: true}
+    },
+
+    // ### 设置实体，相当于数据字典，也相当于一些系统级的默认配置
+    settings: {
+        uuid: {type: String, required: true},
+        key: {type: String, required: true, unique: true},
+        value: {type: String, required: false},
+        // TODO: add more setting types for icollege
+        type: {type: String, required: true, default: 'core', enum: ['core', 'post', 'app']},
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true}
     }
 
 };

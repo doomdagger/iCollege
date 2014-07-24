@@ -8,7 +8,6 @@ var sequence    = require('when/sequence'),
     node_uuid   = require('node-uuid'),
     Role        = require('../../models/role').Role,
     Permission  = require('../../models/permission').Permission,
-    Permissions = require('../../models/permission').Permissions,
 
     populateFixtures,
     updateFixtures;
@@ -20,7 +19,33 @@ var fixtures = {
     permissions: [
         {
             uuid: node_uuid.v4(),
-            name: ""
+            name: "",
+            object_type: "",
+            action_type: "browse"
+        },
+        {
+            uuid: node_uuid.v4(),
+            name: "",
+            object_type: "",
+            action_type: "read"
+        },
+        {
+            uuid: node_uuid.v4(),
+            name: "",
+            object_type: "",
+            action_type: "edit"
+        },
+        {
+            uuid: node_uuid.v4(),
+            name: "",
+            object_type: "",
+            action_type: "add"
+        },
+        {
+            uuid: node_uuid.v4(),
+            name: "",
+            object_type: "",
+            action_type: "remove"
         }
     ],
 
@@ -32,4 +57,29 @@ var fixtures = {
         }
     ]
 
+};
+
+populateFixtures = function () {
+    var ops = [],
+        relations = [];
+
+
+    return sequence(ops).then(function () {
+        sequence(relations);
+    });
+};
+
+updateFixtures = function () {
+    var ops = [],
+        relations = [];
+
+
+    return sequence(ops).then(function () {
+        sequence(relations);
+    });
+};
+
+module.exports = {
+    populateFixtures: populateFixtures,
+    updateFixtures: updateFixtures
 };
