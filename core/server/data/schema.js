@@ -40,7 +40,7 @@ var db = {
         location_info: {type: String, trim: true},
         tags: [{type: String, trim: true}], // 用户个性标签
         status: {type: String, enum: ['online', 'invisible', 'offline'], default: 'offline', required: true}, // online offline or ...
-        language: {type: String, enum: ['zh', 'en', 'fr'], default: 'zh'},
+        language: {type: String, enum: ['zh_CN', 'en_US'], default: 'zh_CN'},
         last_login: {type: Date},
         created_at: {type: Date, default: Date.now()},
         created_by: {type: Schema.Types.ObjectId, required: true},
@@ -86,7 +86,7 @@ var db = {
             permission_id: {type: Schema.Types.ObjectId, required: true},
             permission_scope: {type: String, enum: ['all', 'related', 'own']} // 最高Scope，无限制，有关联，仅限自己
         }],
-        installed_apps: [{
+        apps: [{
             app_id: {type: Schema.Types.ObjectId, required: true},
             app_fields: [{
                 uuid: {type: String, required: true}, // uuid
@@ -118,9 +118,9 @@ var db = {
         uuid: {type: String, required: true},
         lowercase_name: {type: String, required: true, trim: true, lowercase: true},
         name: {type: String, required: true, trim: true},
+        avatar: {type: String}, // be what, for file storage, not sure
         slug: {type: String, required: true, trim: true},
         version: {type: String, required: true, trim: true},
-        status: {type: String, required: true, enum: ['developing', 'released', 'inactive'], default: 'developing'},
         created_at: {type: Date, default: Date.now()},
         created_by: {type: Schema.Types.ObjectId, required: true},
         updated_at: {type: Date, default: Date.now()},
@@ -341,7 +341,7 @@ var db = {
             updated_by: {type: Schema.Types.ObjectId, required: true}
         }],
         status: {type: String, enum: ['draft', 'published'], default: 'draft'}, // 帖子的状态，draft or published
-        language: {type: String, enum: ['zh', 'en'], default: 'zh'}, // 帖子的语言
+        language: {type: String, enum: ['zh_CN', 'en_US'], default: 'zh_CN'}, // 帖子的语言
 
         at_users: [{type: Schema.Types.ObjectId}], // @user ids
         favored_users: [{ // 点赞的用户
@@ -376,7 +376,7 @@ var db = {
             created_at: {type: Date, default: Date.now()},
             created_by: {type: Schema.Types.ObjectId, required: true}
         }],
-        language: {type: String, enum: ['zh', 'en', 'fr'], default: 'zh'},
+        language: {type: String, enum: ['zh_CN', 'en_US'], default: 'zh_CN'},
 
         at_users: [{type: Schema.Types.ObjectId}], // @user ids
 
@@ -392,7 +392,7 @@ var db = {
         key: {type: String, required: true, unique: true},
         value: {type: String, required: false},
         // TODO: add more setting types for icollege
-        type: {type: String, required: true, default: 'core', enum: ['core', 'post', 'app']},
+        type: {type: String, required: true, default: 'core', enum: ['core', 'user', 'app', 'group', 'circle']},
         created_at: {type: Date, default: Date.now()},
         created_by: {type: Schema.Types.ObjectId, required: true},
         updated_at: {type: Date, default: Date.now()},

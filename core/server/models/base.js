@@ -103,6 +103,69 @@ icollegeSchema = new ICollegeSchema({
 }, {
     // static methods definition goes here
 
+    /**
+     * Find one using Promise/A+
+     * @param {Object} conditions
+     * @param {Object} [fields] optional fields to select
+     * @param {Object} [options] optional
+     * @return {Promise} when.promise
+     */
+    'findOnePromised': function (conditions, fields, options) {
+        var deferred = when.defer();
+        this.findOne(conditions, fields, options, function (err, found) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+
+            deferred.resolve(found);
+        });
+
+        return deferred.promise;
+    },
+
+    /**
+     * Find Multi using Promise/A+
+     * @param {Object} conditions
+     * @param {Object} [fields] optional fields to select
+     * @param {Object} [options] optional
+     * @return {Promise} when.promise
+     */
+    'findPromised': function (conditions, fields, options) {
+        var deferred = when.defer();
+        this.find(conditions, fields, options, function (err, founds) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+
+            deferred.resolve(founds);
+        });
+
+        return deferred.promise;
+    },
+
+    /**
+     * Find one by id using Promise/A+
+     * @param {ObjectId} id
+     * @param {Object} [fields] optional fields to select
+     * @param {Object} [options] optional
+     * @return {Promise} when.promise
+     */
+    'findByIdPromised': function (id, fields, options) {
+        var deferred = when.defer();
+        this.findById(id, fields, options, function (err, found) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+
+            deferred.resolve(found);
+        });
+
+        return deferred.promise;
+    }
+
 });
 
 

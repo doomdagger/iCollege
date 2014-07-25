@@ -6,5 +6,39 @@
         "apiVersion": {
             "defaultValue": "0.1"
         }
+    },
+
+    "user": {
+        "avatar": {
+            "defaultValue": ""
+        },
+
+        "defaultLang": {
+            "defaultValue": "zh_CN",
+            "validations": {
+                "isNull": false
+            }
+        }
+    },
+
+    "app": {
+        "activeApps": {
+            "defaultValue": "[]"
+        },
+        "installedApps": {
+            "defaultValue": "[]"
+        }
+    },
+
+    "group": {
+        "avatar": {
+            "defaultValue": ""
+        }
+    },
+
+    "circle": {
+        "avatar": {
+            "defaultValue": ""
+        }
     }
 }

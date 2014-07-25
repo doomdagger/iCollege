@@ -48,15 +48,93 @@ function getDefaultSettings() {
 Settings = icollegeSchema.extend('settings', {
     //statics here
 
-}, {
-    //methods here
-
-    defaults: function() {
+    /**
+     * Get Default Minimised Setting Entry
+     * @returns {{uuid: *, type: string}}
+     */
+    defaults: function () {
         return {
             uuid: node_uuid.v4(),
             type: 'core'
         }
+    },
+
+    /**
+     * Populate specific key for default setting
+     * @param key
+     * @returns {*}
+     */
+    populateDefault: function (key) {
+        if (!getDefaultSettings()[key]) {
+            return when.reject(new errors.NotFoundError('Unable to find default setting: ' + key));
+        }
+
+        return Setting.findOnePromised({ key: key }).then(function (foundSetting) {
+            if (foundSetting) {
+                return foundSetting;
+            }
+
+            var defaultSetting = _.clone(getDefaultSettings()[key]);
+            defaultSetting.value = defaultSetting.defaultValue;
+
+            var deferred = when.defer();
+            new Setting(defaultSetting).save(function (err, savedSetting) {
+                if (err) {
+                    deferred.reject(err);
+                    return;
+                }
+                deferred.resolve(savedSetting);
+            });
+            return deferred.promise;
+        });
+    },
+
+    /**
+     * Populate default settings
+     * @returns {*}
+     */
+    populateDefaults: function () {
+        return Setting.findPromised({}).then(function (allSettings) {
+            var usedKeys = allSettings.map(function (setting) { return setting.key; }),
+                insertOperations = [];
+
+            _.each(getDefaultSettings(), function (defaultSetting, defaultSettingKey) {
+                var isMissingFromDB = usedKeys.indexOf(defaultSettingKey) === -1;
+                // Temporary code to deal with old databases with currentVersion settings
+
+                if (isMissingFromDB) {
+                    defaultSetting.value = defaultSetting.defaultValue;
+                    insertOperations.push((function () {
+                        var deferred = when.defer();
+                        new Setting(defaultSetting).save(function (err, saved) {
+                            if (err) {
+                                deferred.reject(err);
+                                return;
+                            }
+                            deferred.resolve(saved);
+                        });
+                        return deferred.promise;
+                    })());
+                }
+            });
+
+            return when.all(insertOperations);
+        });
     }
+
+
+}, {
+    //methods here
+
+    /**
+     * Validate a entry of setting
+     * @returns {*}
+     */
+    validate: function () {
+        var self = this;
+        return when(validation.validateSettings(getDefaultSettings(), self));
+    }
+
 
 }, [
     //plugins here
