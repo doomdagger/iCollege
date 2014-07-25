@@ -389,14 +389,14 @@ var db = {
     // ### 设置实体，相当于数据字典，也相当于一些系统级的默认配置
     settings: {
         uuid: {type: String, required: true},
-        key: {type: String, required: true, unique: true},
-        value: {type: String, required: false},
+        key: {type: String, required: true},
+        value: {type: String},
         // TODO: add more setting types for icollege
         type: {type: String, required: true, default: 'core', enum: ['core', 'user', 'app', 'group', 'circle']},
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true}
+        updated_by: {type: Schema.Types.ObjectId}
     }
 
 };

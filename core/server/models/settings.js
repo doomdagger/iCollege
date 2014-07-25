@@ -12,8 +12,8 @@ var mongoose       = require('mongoose'),
     validation     = require('../data/validation'),
 
     defaultSettings,
-    Settings,
-    Setting;
+    Setting,
+    Settings;
 
 
 // For neatness, the defaults file is split into categories.
@@ -52,11 +52,11 @@ Settings = icollegeSchema.extend('settings', {
      * Get Default Minimised Setting Entry
      * @returns {{uuid: *, type: string}}
      */
-    defaults: function () {
+    'defaults': function () {
         return {
             uuid: node_uuid.v4(),
             type: 'core'
-        }
+        };
     },
 
     /**
@@ -64,21 +64,29 @@ Settings = icollegeSchema.extend('settings', {
      * @param key
      * @returns {*}
      */
-    populateDefault: function (key) {
+    'populateDefault': function (key) {
         if (!getDefaultSettings()[key]) {
             return when.reject(new errors.NotFoundError('Unable to find default setting: ' + key));
         }
 
-        return Setting.findOnePromised({ key: key }).then(function (foundSetting) {
+        return this.findOnePromised({ key: key }).then(function (foundSetting) {
+            var defaultSetting,
+                deferred;
+
             if (foundSetting) {
                 return foundSetting;
             }
 
-            var defaultSetting = _.clone(getDefaultSettings()[key]);
+            defaultSetting = _.clone(getDefaultSettings()[key]);
             defaultSetting.value = defaultSetting.defaultValue;
 
-            var deferred = when.defer();
-            new Setting(defaultSetting).save(function (err, savedSetting) {
+            deferred = when.defer();
+            new Setting({
+                uuid: node_uuid.v4(),
+                key: defaultSetting.key,
+                value: defaultSetting.value,
+                type: defaultSetting.type
+            }).save(function (err, savedSetting) {
                 if (err) {
                     deferred.reject(err);
                     return;
@@ -93,8 +101,9 @@ Settings = icollegeSchema.extend('settings', {
      * Populate default settings
      * @returns {*}
      */
-    populateDefaults: function () {
-        return Setting.findPromised({}).then(function (allSettings) {
+    'populateDefaults': function () {
+
+        return this.findPromised({}).then(function (allSettings) {
             var usedKeys = allSettings.map(function (setting) { return setting.key; }),
                 insertOperations = [];
 
@@ -106,7 +115,12 @@ Settings = icollegeSchema.extend('settings', {
                     defaultSetting.value = defaultSetting.defaultValue;
                     insertOperations.push((function () {
                         var deferred = when.defer();
-                        new Setting(defaultSetting).save(function (err, saved) {
+                        new Setting({
+                            uuid: node_uuid.v4(),
+                            key: defaultSetting.key,
+                            value: defaultSetting.value,
+                            type: defaultSetting.type
+                        }).save(function (err, saved) {
                             if (err) {
                                 deferred.reject(err);
                                 return;
@@ -130,7 +144,7 @@ Settings = icollegeSchema.extend('settings', {
      * Validate a entry of setting
      * @returns {*}
      */
-    validate: function () {
+    'validateSetting': function () {
         var self = this;
         return when(validation.validateSettings(getDefaultSettings(), self));
     }

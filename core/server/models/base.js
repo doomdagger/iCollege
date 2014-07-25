@@ -150,7 +150,7 @@ icollegeSchema = new ICollegeSchema({
      * @param {ObjectId} id
      * @param {Object} [fields] optional fields to select
      * @param {Object} [options] optional
-     * @return {Promise} when.promise
+     * @return {Promise} when.promise found model
      */
     'findByIdPromised': function (id, fields, options) {
         var deferred = when.defer();
@@ -163,6 +163,78 @@ icollegeSchema = new ICollegeSchema({
             deferred.resolve(found);
         });
 
+        return deferred.promise;
+    },
+
+    /**
+     * update Multi using Promise/A+
+     * @param {Object} conditions
+     * @param {Object} [update] optional fields to update with the given operator
+     * @param {Object} [options] optional
+     * @return {Promise} when.promise number of documents affected
+     */
+    'updatePromised': function (conditions, update, options) {
+        var deferred = when.defer();
+        this.update(conditions, update, options, function (err, numberAffected) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+
+            deferred.resolve(numberAffected);
+        });
+        return deferred.promise;
+    },
+
+    /**
+     * update Multi using Promise/A+
+     * @param {Object} conditions
+     * @return {Promise} when.promise number of documents affected
+     */
+    'removePromised': function (conditions) {
+        var deferred = when.defer();
+        this.remove(conditions, function (err) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+            deferred.resolve();
+        });
+        return deferred.promise;
+    },
+
+    /**
+     * Aggregate query
+     * @param {Array} array containing all the aggregation framework commands for the execution.
+     * @param {Object} [options] additional options during update.
+     * @returns {*}
+     */
+    'aggregatePromised': function (array, options) {
+        var deferred = when.defer();
+        this.aggregate(array, options, function (err, res) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+            deferred.resolve(res);
+        });
+        return deferred.promise;
+    },
+
+    /**
+     * Count entry size with the given conditions
+     * @param {Object} conditions
+     * @returns {Promise} when.Promise with Number
+     */
+    'countPromised': function (conditions) {
+        var deferred = when.defer();
+        this.count(conditions, function (err, count) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+            deferred.resolve(count);
+        });
         return deferred.promise;
     }
 

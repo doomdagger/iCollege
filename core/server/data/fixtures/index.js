@@ -16,6 +16,19 @@ var sequence    = require('when/sequence'),
 // into database.
 var fixtures = {
 
+    users: [
+        {
+            uuid: node_uuid.v4(),
+            nickname: "Administrator",
+            lowercase_username: "admin",
+            username: "admin",
+            password: "123456",
+            email: "admin@icollege.com",
+            phone: "18877776666",
+            location: [0.0, 0.0]
+        }
+    ],
+
     permissions: [
         {
             uuid: node_uuid.v4(),

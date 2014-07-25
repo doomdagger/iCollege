@@ -9,6 +9,7 @@ var _             = require('lodash'),
     config        = require('../config'),
 // Include Endpoints
     users         = require('./users'),
+    db            = require('./db'),
     settings      = {},
     http,
     formatHttpErrors,
@@ -236,7 +237,8 @@ module.exports = {
     // Extras
     http: http,
     // API Endpoints
-    users: users
+    users: users,
+    db: db
 };
 
 /**

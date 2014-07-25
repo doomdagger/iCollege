@@ -1,31 +1,45 @@
 /**
  * Created by Li He on 2014/7/25.
  */
-var Setting = require('../../server/models/settings').Setting,
-    initDB = require('../../server/models').init,
-    config     = require('../../server/config'),
+var dataProvider = require('../../server/models'),
     sequence = require('when/sequence'),
-    should = require('should'),
     when = require('when'),
-    node_uuid = require('node-uuid');
+    should = require('should'),
+    node_uuid = require('node-uuid'),
+    utils = require('../../server/data/utils');
 
 
 describe('Models Test for Setting Model', function(){
-    var valid_setting = new Setting({
+
+    var valid_setting = new dataProvider.Setting({
         uuid: node_uuid.v4(),
         key: "defaultLang",
         value: "zh_CH",
         type: "user"
     });
-    var mal_setting = new Setting({
+    var mal_setting = new dataProvider.Setting({
         uuid: node_uuid.v4(),
         key: "defaultLang",
         type: "user"
     });
 
-    describe('#methods.validate()', function(){
+    // connect to mongodb first!
+    before(function (done) {
+        dataProvider.init().then(function () {
+            return done();
+        }).catch(done);
+    });
+
+    // clean up the collection
+//    after(function (done) {
+//        utils.dropCollection('settings').then(function() {
+//            return done();
+//        }).catch(done);
+//    });
+
+    describe('#methods.validate()', function () {
         it('should fail for the lacking value property', function(done){
-            mal_setting.validate().catch(function(value) {
+            mal_setting.validateSetting().catch(function(value) {
                 value.length.should.equal(1);
                 value[0].message.should.equal("Settings validation (isNull) failed for defaultLang");
                 return done();
@@ -33,7 +47,7 @@ describe('Models Test for Setting Model', function(){
         });
 
         it('should success with no lacking properties', function(done){
-            valid_setting.validate().then(function() {
+            valid_setting.validateSetting().then(function() {
                 return done();
             }).catch(done);
 
@@ -51,7 +65,10 @@ describe('Models Test for Setting Model', function(){
 
     describe('#methods.populateDefaults', function(){
         it('populate all keys with default values for database', function(done){
-            sequence([initDB, Setting.populateDefaults]).then(function () {
+            // bind 'this' to dataProvider.Setting
+            dataProvider.Setting.populateDefaults = dataProvider.Setting.populateDefaults.bind(dataProvider.Setting);
+
+            dataProvider.Setting.populateDefaults().then(function () {
                 return done();
             }).catch(done);
         });

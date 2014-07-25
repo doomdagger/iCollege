@@ -4,10 +4,8 @@
  * Created by Li He on 2014/7/25.
  */
 
-var _               = require('lodash'),
-    errors          = require('../../errors'),
+var errors          = require('../../errors'),
     Setting         = require('../../models').Setting,
-    when            = require('when'),
 
     defaultSettings = require('../default-settings'),
     initialVersion  = '000',
@@ -30,45 +28,26 @@ function getDefaultDatabaseVersion() {
 // The migration version number according to the database
 // This is what the database is currently at and may need to be updated
 function getDatabaseVersion() {
-    var found = when.defer();
 
-    Setting.findOne({'key': 'databaseVersion'}, 'value', function(err, version){
+    return Setting.findOnePromised({'key': 'databaseVersion'}, 'value').then(function (version) {
         var databaseVersion;
 
-        if (err) {
-            found.reject(err);
-            return;
-        }
         if (isNaN(version.value)) {
-            found.reject('Database version is not recognised');
-            return;
+            errors.throwError('Database version is not recognised');
         }
-
         databaseVersion = version.value;
-        if (!databaseVersion || databaseVersion.length==0) {
+        if (!databaseVersion || databaseVersion.length === 0) {
             // we didn't get a response we understood, assume initialVersion
             databaseVersion = initialVersion;
         }
-
-        found.resolve(databaseVersion);
+        return databaseVersion;
     });
-
-    return found.promise;
 }
 
 function setDatabaseVersion() {
-    var updated = when.defer();
 
-    Setting.update({key: 'databaseVersion'}, {value: defaultDatabaseVersion}, function(err, numberAffected){
-        if (err) {
-            updated.reject(err);
-            return;
-        }
+    return Setting.updatePromised({key: 'databaseVersion'}, {value: defaultDatabaseVersion});
 
-        updated.resolve(numberAffected);
-    });
-
-    return updated.promise;
 }
 
 module.exports = {
