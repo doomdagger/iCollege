@@ -10,12 +10,22 @@ var _             = require('lodash'),
 // Include Endpoints
     users         = require('./users'),
     db            = require('./db'),
-    settings      = {},
+    settings       = require('./settings'),
     http,
     formatHttpErrors,
     cacheInvalidationHeader,
     locationHeader,
-    contentDispositionHeader;
+    contentDispositionHeader,
+    init;
+
+/**
+ * ### Init
+ * Initialise the API - populate the settings cache
+ * @return {Promise(Settings)} Resolves to Settings Collection
+ */
+init = function () {
+    return settings.updateSettingsCache();
+};
 
 
 
@@ -235,6 +245,7 @@ http = function (apiMethod) {
  */
 module.exports = {
     // Extras
+    init: init,
     http: http,
     // API Endpoints
     users: users,

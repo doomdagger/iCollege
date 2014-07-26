@@ -6,6 +6,8 @@ var express     = require('express'),
     when        = require('when'),
     semver      = require('semver'),
 
+    api         = require('./api'),
+    migration   = require('./data/migration'),
     config      = require('./config'),
     packageInfo = require('../../package.json'),
     models      = require('./models'),
@@ -92,10 +94,16 @@ function init(server) {
     // Set up Polygot instance on the require module
     Polyglot.instance = new Polyglot();
 
+    // initialize validations
+    validation.init();
 
     return models.init().then(function () {
-        // initialize validations
-        validation.init();
+        // Initialize database
+        return migration.init();
+
+    }).then(function () {
+        // Initialize the settings cache
+        return api.init();
 
     }).then(function () {
         var deferred = when.defer();

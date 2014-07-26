@@ -3,9 +3,9 @@
  * Created by Li He on 2014/7/25.
  */
 
-var when   = require('when'),
+var //when   = require('when'),
     _      = require('lodash'),
-    models = require('../../models'),
+    //models = require('../../models'),
     Importer000;
 
 
@@ -18,7 +18,7 @@ Importer000 = function () {
 
 module.exports = {
     Importer000: Importer000,
-    importData: function (data) {
+    importData: function (/*data*/) {
         // TODO: implement this function
         //return new Importer000().importData(data);
     }

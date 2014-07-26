@@ -32,6 +32,10 @@ function getDatabaseVersion() {
     return Setting.findOnePromised({'key': 'databaseVersion'}, 'value').then(function (version) {
         var databaseVersion;
 
+        if (!version) {
+            errors.throwError('No Database version could be found, settings collection does not exist?');
+        }
+
         if (isNaN(version.value)) {
             errors.throwError('Database version is not recognised');
         }
@@ -46,7 +50,7 @@ function getDatabaseVersion() {
 
 function setDatabaseVersion() {
 
-    return Setting.updatePromised({key: 'databaseVersion'}, {value: defaultDatabaseVersion});
+    return Setting.updatePromised({key: 'databaseVersion'}, {value: getDefaultDatabaseVersion()});
 
 }
 

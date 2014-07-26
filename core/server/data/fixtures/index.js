@@ -4,10 +4,10 @@
  * Use this class to populate or update database data
  */
 var sequence    = require('when/sequence'),
-    _           = require('lodash'),
+    //_           = require('lodash'),
     node_uuid   = require('node-uuid'),
-    Role        = require('../../models/role').Role,
-    Permission  = require('../../models/permission').Permission,
+    //Role        = require('../../models/role').Role,
+    //Permission  = require('../../models/permission').Permission,
 
     populateFixtures,
     updateFixtures;
