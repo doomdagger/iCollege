@@ -20,3 +20,9 @@ bower_components/
 
 # coverage report #
 coverage.html
+
+# content #
+/content/data/
+
+# track all markdown #
+!*.md
