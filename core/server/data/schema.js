@@ -84,7 +84,7 @@ var db = {
         }],
         permissions: [{
             permission_id: {type: Schema.Types.ObjectId, required: true},
-            permission_scope: {type: String, enum: ['all', 'related', 'own']} // 最高Scope，无限制，有关联，仅限自己
+            permission_scope: {type: String, enum: ['all', 'related', 'me']} // 最高Scope，无限制，有关联，仅限自己
         }],
         apps: [{
             app_id: {type: Schema.Types.ObjectId, required: true},
@@ -169,8 +169,8 @@ var db = {
         // object_types map the sub-modules of api module
         object_type: {
             type: String,
-            enum: ['db', 'user', 'notification', 'role', 'permission',
-                'group', 'circle', 'message', 'post', 'repost'],
+            enum: ['db', 'user', 'app', 'notification', 'role', 'permission',
+                'group', 'circle', 'message', 'post', 'repost', 'setting'],
             required: true
         },
         // action_types map the operations of each sub-module
