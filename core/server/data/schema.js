@@ -38,6 +38,7 @@ var db = {
         website: {type: String, trim: true, default: 'http://blog.icollege.com'},
         location: [{type: Number, index: '2dsphere', default: 0.0}],
         location_info: {type: String, trim: true},
+        profile_visibility: {type: String, enum: ['private, public, friends_only'], default: 'friends_only'},
         tags: [{type: String, trim: true}], // 用户个性标签
         status: {type: String, enum: ['online', 'invisible', 'offline'], default: 'offline', required: true}, // online offline or ...
         language: {type: String, enum: ['zh_CN', 'en_US'], default: 'zh_CN'},
@@ -85,6 +86,7 @@ var db = {
         permissions: [{
             permission_id: {type: Schema.Types.ObjectId, required: true},
             permission_scope: {type: String, enum: ['all', 'related', 'me']} // 最高Scope，无限制，有关联，仅限自己
+            // object_id: {type: Schema.Types.ObjectId} // if the scope is 'related', an object id is not allowed to be optionally provided
         }],
         apps: [{
             app_id: {type: Schema.Types.ObjectId, required: true},
@@ -129,7 +131,7 @@ var db = {
         // app 能够拥有的permission永远是user permission的子集，这点需要验证！！！
         permissions: [{
             permission_id: {type: Schema.Types.ObjectId, required: true},
-            permission_scope: {type: String, enum: ['all', 'related', 'own']} // 最高Scope，无限制，有关联，仅限自己
+            permission_scope: {type: String, enum: ['all', 'related', 'me']} // 最高Scope，无限制，有关联，仅限自己
         }]
     },
 
@@ -153,7 +155,7 @@ var db = {
         name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger'], required: true},
         permissions: [{
             permission_id: {type: Schema.Types.ObjectId, required: true},
-            permission_scope: {type: String, enum: ['all', 'related', 'own']} // 最高Scope，无限制，有关联，仅限自己
+            permission_scope: {type: String, enum: ['all', 'related', 'me']} // 最高Scope，无限制，有关联，仅限自己
         }],
         description: {type: String, trim: true, default: ""},
         created_at: {type: Date, default: Date.now()},
@@ -180,7 +182,6 @@ var db = {
                 'importContent', 'deleteAllContent', 'browse', 'add'],
             required: true
         },
-        object_id: {type: Schema.Types.ObjectId}, // 权限对象？这个字段什么意思
         created_at: {type: Date, default: Date.now()},
         created_by: {type: Schema.Types.ObjectId, required: true},
         updated_at: {type: Date, default: Date.now()},
