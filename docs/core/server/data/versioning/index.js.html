@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>index.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../../doc-style.css" />
+  <script src="../../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../../", thisFile = "core/server/data/versioning/index.js", defaultSidebar = true;
+  </script>
+  <script src="../../../../doc-script.js"></script>
+  <script src="../../../../fileSearch.js"></script>
+  <link rel="stylesheet" href="../../../../fileSearch.css" />
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>index.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Database versioning
+Get Set database version
+Created by Li He on 2014/7/25.</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">errors</span>          <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../errors&#39;</span><span class="p">),</span>
+    <span class="nx">Setting</span>         <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">Setting</span><span class="p">,</span>
+
+    <span class="nx">defaultSettings</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../default-settings&#39;</span><span class="p">),</span>
+    <span class="nx">initialVersion</span>  <span class="o">=</span> <span class="s1">&#39;000&#39;</span><span class="p">,</span>
+
+    <span class="nx">defaultDatabaseVersion</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>Default Database Version
+The migration version number according to the hardcoded default settings
+This is the version the database should be at or migrated to</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">getDefaultDatabaseVersion</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">defaultDatabaseVersion</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>This be the current version according to the software</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">defaultDatabaseVersion</span> <span class="o">=</span> <span class="nx">defaultSettings</span><span class="p">.</span><span class="nx">core</span><span class="p">.</span><span class="nx">databaseVersion</span><span class="p">.</span><span class="nx">defaultValue</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">defaultDatabaseVersion</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>Database Current Version
+The migration version number according to the database
+This is what the database is currently at and may need to be updated</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">getDatabaseVersion</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">return</span> <span class="nx">Setting</span><span class="p">.</span><span class="nx">findOnePromised</span><span class="p">({</span><span class="s1">&#39;key&#39;</span><span class="o">:</span> <span class="s1">&#39;databaseVersion&#39;</span><span class="p">},</span> <span class="s1">&#39;value&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">version</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">databaseVersion</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">version</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">errors</span><span class="p">.</span><span class="nx">throwError</span><span class="p">(</span><span class="s1">&#39;No Database version could be found, settings collection does not exist?&#39;</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isNaN</span><span class="p">(</span><span class="nx">version</span><span class="p">.</span><span class="nx">value</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">errors</span><span class="p">.</span><span class="nx">throwError</span><span class="p">(</span><span class="s1">&#39;Database version is not recognised&#39;</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="nx">databaseVersion</span> <span class="o">=</span> <span class="nx">version</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">databaseVersion</span> <span class="o">||</span> <span class="nx">databaseVersion</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>we didn't get a response we understood, assume initialVersion</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">databaseVersion</span> <span class="o">=</span> <span class="nx">initialVersion</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">databaseVersion</span><span class="p">;</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">setDatabaseVersion</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">return</span> <span class="nx">Setting</span><span class="p">.</span><span class="nx">updatePromised</span><span class="p">({</span><span class="nx">key</span><span class="o">:</span> <span class="s1">&#39;databaseVersion&#39;</span><span class="p">},</span> <span class="p">{</span><span class="nx">value</span><span class="o">:</span> <span class="nx">getDefaultDatabaseVersion</span><span class="p">()});</span>
+
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">getDefaultDatabaseVersion</span><span class="o">:</span> <span class="nx">getDefaultDatabaseVersion</span><span class="p">,</span>
+    <span class="nx">getDatabaseVersion</span><span class="o">:</span> <span class="nx">getDatabaseVersion</span><span class="p">,</span>
+    <span class="nx">setDatabaseVersion</span><span class="o">:</span> <span class="nx">setDatabaseVersion</span>
+<span class="p">};</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

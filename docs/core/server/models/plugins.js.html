@@ -49,10 +49,12 @@
 <div class="pilwrap">
   <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
 </div>
-<p>add last modified field and middleware</p>
+<p>add last modified field and middleware
+Deprecated! we have updateAt and createdAt field with default value options!
+there is no need to use this plugin</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
-    <span class="nx">lastModifiedPlugin</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">schema</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="s1">&#39;lastModifiedPlugin&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">schema</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">schema</span><span class="p">.</span><span class="nx">add</span><span class="p">({</span> <span class="nx">lastMod</span><span class="o">:</span> <span class="nb">Date</span> <span class="p">});</span>
 
         <span class="nx">schema</span><span class="p">.</span><span class="nx">pre</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">next</span><span class="p">)</span> <span class="p">{</span>

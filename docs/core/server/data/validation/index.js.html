@@ -50,6 +50,8 @@ dedicate to some specific functional validations</p>
     <span class="nx">validate</span><span class="p">;</span>
 
 
+<span class="kd">function</span> <span class="nx">init</span><span class="p">()</span> <span class="p">{</span>
+
 </pre></div>
         </td>
       </tr>
@@ -61,13 +63,18 @@ dedicate to some specific functional validations</p>
 <p>Provide a few custom validators</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
-<span class="nx">validator</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="s1">&#39;empty&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">str</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="nx">str</span><span class="p">);</span>
-<span class="p">});</span>
+    <span class="nx">validator</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="s1">&#39;empty&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">str</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="nx">str</span><span class="p">);</span>
+    <span class="p">});</span>
 
-<span class="nx">validator</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="s1">&#39;notContains&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="nx">badString</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="nx">badString</span><span class="p">);</span>
-<span class="p">});</span>
+    <span class="nx">validator</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="s1">&#39;notContains&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="nx">badString</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="nx">badString</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="nx">validator</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="s1">&#39;isNumber&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">str</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">validator</span><span class="p">.</span><span class="nx">isFloat</span><span class="p">(</span><span class="nx">str</span><span class="p">)</span> <span class="o">||</span> <span class="nx">validator</span><span class="p">.</span><span class="nx">isInt</span><span class="p">(</span><span class="nx">str</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">}</span>
 
 
 
@@ -163,6 +170,7 @@ the "good" result is assumed to be true.</p>
 <span class="p">};</span>
 
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">validateSettings</span> <span class="o">=</span> <span class="nx">validateSettings</span><span class="p">;</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">init</span> <span class="o">=</span> <span class="nx">init</span><span class="p">;</span> <span class="c1">// in ./server/index.js we initialize validation expansion</span>
 </pre></div>
         </td>
       </tr>

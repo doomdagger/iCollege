@@ -23,17 +23,26 @@
       <div class="heading h1">
         <a href="#custom%20middleware">Custom Middleware</a>
       </div>
-      <div class="heading h2">
-        <a href="#test%20middleware">Test Middleware</a>
+      <div class="heading h3">
+        <a href="#authenticate%20middleware">Authenticate Middleware</a>
       </div>
       <div class="heading h2">
         <a href="#authapi%20middleware">AuthApi Middleware</a>
+      </div>
+      <div class="heading h2">
+        <a href="#restful%20api%20version-ize">Restful API Version-ize</a>
+      </div>
+      <div class="heading h3">
+        <a href="#decidecontext%20middleware">decideContext Middleware</a>
       </div>
       <div class="heading h3">
         <a href="#cachecontrol%20middleware">CacheControl Middleware</a>
       </div>
       <div class="heading h3">
         <a href="#whenenabled%20middleware">whenEnabled Middleware</a>
+      </div>
+      <div class="heading h3">
+        <a href="#extend%20properties">Extend Properties</a>
       </div>
       <div class="heading h3">
         <a href="#robots%20middleware">Robots Middleware</a>
@@ -62,6 +71,7 @@ middleware_spec.js</p>
     <span class="nx">path</span>        <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">),</span>
     <span class="nx">fs</span>          <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">),</span>
     <span class="nx">busboy</span>      <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./icollege-busboy&#39;</span><span class="p">),</span>
+    <span class="nx">packageInfo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../../package.json&#39;</span><span class="p">),</span>
 
     <span class="nx">expressServer</span><span class="p">,</span>
     <span class="nx">ONE_HOUR_MS</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
@@ -80,16 +90,20 @@ middleware_spec.js</p>
       </tr>
       <tr>
         <td class="docs">
-<div class="pilwrap" id="test%20middleware">
-  <h2>
-    <a href="#test%20middleware" name="test%20middleware" class="pilcrow">&#182;</a>
-    Test Middleware
-  </h2>
+<div class="pilwrap" id="authenticate%20middleware">
+  <h3>
+    <a href="#authenticate%20middleware" name="authenticate%20middleware" class="pilcrow">&#182;</a>
+    Authenticate Middleware
+  </h3>
 </div>
 
+
+<p>authentication has to be done for /api/* routes with
+exceptions for signin, signout, signup, forgotten, reset only
+api and frontend use different authentication mechanisms atm</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
-    <span class="s1">&#39;test&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">authenticate</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
 
 </pre></div>
         </td>
@@ -99,9 +113,58 @@ middleware_spec.js</p>
 <div class="pilwrap">
   <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
 </div>
-<p>console.log("from test middleware:" + req.url);</p>
+<p>all path should be regex</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
+        <span class="kd">var</span> <span class="nx">noAuthNeeded</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sr">/^\/api\/v[0-9]+(\.[0-9]+)?\/signin\//</span><span class="p">,</span>
+                <span class="sr">/^\/api\/v[0-9]+(\.[0-9]+)?\/forgotten\//</span><span class="p">,</span>
+                <span class="sr">/^\/api\/v[0-9]+(\.[0-9]+)?\/signout\//</span><span class="p">,</span>
+                <span class="sr">/^\/api\/v[0-9]+(\.[0-9]+)?\/reset\//</span>
+            <span class="p">],</span>
+            <span class="nx">path</span><span class="p">,</span>
+            <span class="nx">subPath</span><span class="p">,</span>
+            <span class="nx">index</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>SubPath is the url path starting after any default subdirectories
+it is stripped of anything after the three levels <code>/api/v0.1/.*?/</code> as the reset link has an argument</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">path</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">path</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="nx">config</span><span class="p">().</span><span class="nx">paths</span><span class="p">.</span><span class="nx">subdir</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+        <span class="cm">/*jslint regexp:true, unparam:true*/</span>
+        <span class="nx">subPath</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/^(\/.*?\/v[0-9]+(\.[0-9]+)?\/.*?\/)(.*)?/</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">match</span><span class="p">,</span> <span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">a</span><span class="p">;</span>
+        <span class="p">});</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">isRestful</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>if included in the no auth needed</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="k">for</span> <span class="p">(</span><span class="nx">index</span> <span class="k">in</span> <span class="nx">noAuthNeeded</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">noAuthNeeded</span><span class="p">[</span><span class="nx">index</span><span class="p">].</span><span class="nx">test</span><span class="p">(</span><span class="nx">subPath</span><span class="p">))</span> <span class="p">{</span>
+                    <span class="k">return</span> <span class="nx">next</span><span class="p">();</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="nx">middleware</span><span class="p">.</span><span class="nx">authAPI</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">);</span>
+        <span class="p">}</span>
 
         <span class="nx">next</span><span class="p">();</span>
     <span class="p">},</span>
@@ -123,9 +186,21 @@ middleware_spec.js</p>
 <p>Authenticate a request to the API by responding with a 401 and json error details</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
-    <span class="s1">&#39;authAPI&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="mi">401</span><span class="p">,</span> <span class="p">{</span> <span class="nx">error</span><span class="o">:</span> <span class="s1">&#39;Please sign in&#39;</span> <span class="p">});</span>
+    <span class="nx">authAPI</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+</div>
+<p>validate username(id) and dynamic key against server's dynamic</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="mi">401</span><span class="p">,</span> <span class="p">{</span> <span class="nx">success</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">reason</span><span class="o">:</span> <span class="s1">&#39;Please sign in&#39;</span> <span class="p">});</span>
             <span class="k">return</span><span class="p">;</span>
         <span class="p">}</span>
 
@@ -133,6 +208,110 @@ middleware_spec.js</p>
     <span class="p">},</span>
 
 
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="restful%20api%20version-ize">
+  <h2>
+    <a href="#restful%20api%20version-ize" name="restful%20api%20version-ize" class="pilcrow">&#182;</a>
+    Restful API Version-ize
+  </h2>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">versionAPI</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">path</span><span class="p">,</span>
+            <span class="nx">apiIndex</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">isRestful</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">path</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">path</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="nx">config</span><span class="p">().</span><span class="nx">paths</span><span class="p">.</span><span class="nx">subdir</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="sr">/^\/api\/v[0-9]+(\.[0-9]+)?\/(.*)?/</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">path</span><span class="p">))</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+</div>
+<p>api url does not have version</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+                <span class="nx">apiIndex</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;/api/&#39;</span><span class="p">);</span>
+                <span class="nx">req</span><span class="p">.</span><span class="nx">url</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">apiIndex</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;v&quot;</span> <span class="o">+</span> <span class="nx">config</span><span class="p">().</span><span class="nx">api</span><span class="p">.</span><span class="nx">version</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="nx">apiIndex</span> <span class="o">+</span> <span class="mi">5</span><span class="p">);</span>
+                <span class="nx">req</span><span class="p">.</span><span class="nx">originalUrl</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">;</span> <span class="c1">// make the logger log correctly</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="nx">next</span><span class="p">();</span>
+    <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="decidecontext%20middleware">
+  <h3>
+    <a href="#decidecontext%20middleware" name="decidecontext%20middleware" class="pilcrow">&#182;</a>
+    decideContext Middleware
+  </h3>
+</div>
+
+
+<p>Uses the URL to detect whether this response should be an admin response
+This is used to ensure the right content is served, and is not for security purposes</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="s1">&#39;decideContext&#39;</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">isRestful</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">.</span><span class="nx">lastIndexOf</span><span class="p">(</span><span class="nx">config</span><span class="p">().</span><span class="nx">paths</span><span class="p">.</span><span class="nx">subdir</span> <span class="o">+</span> <span class="s1">&#39;/api/&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">===</span> <span class="mi">0</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
+</div>
+
+<div class="highlight"><pre><code>   <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">isRestful</span><span class="p">)</span> <span class="p">{</span>
+       <span class="c1">// if restful request, do something?</span>
+       <span class="c1">//console.log(&quot;is restful!!!&quot;)</span>
+   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+       <span class="c1">// if not restful request, do something?</span>
+
+   <span class="p">}</span>
+</code></pre></div>
+
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
+</div>
+<p>Pass 'secure' flag to the view engine
+so that templates can choose 'url' vs 'urlSSL'</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">.</span><span class="nx">secure</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">secure</span><span class="p">;</span>
+
+        <span class="nx">next</span><span class="p">();</span>
+    <span class="p">},</span>
 
 
 </pre></div>
@@ -186,6 +365,7 @@ middleware_spec.js</p>
 
 
 <p>Selectively use middleware
+when express enables some config, we can use this middleware, auto-config!
 From <a href='https://github.com/senchalabs/connect/issues/676#issuecomment-9569658'>https://github.com/senchalabs/connect/issues/676#issuecomment-9569658</a></p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
@@ -198,7 +378,7 @@ From <a href='https://github.com/senchalabs/connect/issues/676#issuecomment-9569
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
 </div>
 <p>Set from server/middleware/index.js for now</p>
         </td>
@@ -209,6 +389,110 @@ From <a href='https://github.com/senchalabs/connect/issues/676#issuecomment-9569
                 <span class="nx">next</span><span class="p">();</span>
             <span class="p">}</span>
         <span class="p">};</span>
+    <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="extend%20properties">
+  <h3>
+    <a href="#extend%20properties" name="extend%20properties" class="pilcrow">&#182;</a>
+    Extend Properties
+  </h3>
+</div>
+
+
+<p>in Ghost, those properties are saved for template,
+while in iCollege, we save them for api request</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="s1">&#39;icollegeLocals&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-17" id="section-17">&#182;</a>
+</div>
+<p>Make sure we have a locals value.</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span> <span class="o">=</span> <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span> <span class="o">||</span> <span class="p">{};</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">.</span><span class="nx">version</span> <span class="o">=</span> <span class="nx">packageInfo</span><span class="p">.</span><span class="nx">version</span><span class="p">;</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
+</div>
+<p>relative path from the URL, not including subdir</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">.</span><span class="nx">relativeUrl</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">path</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">config</span><span class="p">().</span><span class="nx">paths</span><span class="p">.</span><span class="nx">subdir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">isRestful</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
+</div>
+
+<div class="highlight"><pre><code>       <span class="nx">when</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
+           <span class="c1">// api method needed to initialize any data</span>
+       <span class="p">]).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">values</span><span class="p">)</span> <span class="p">{</span>
+
+           <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">,</span>  <span class="p">{</span>
+               <span class="c1">// object to extend res.locals for successful initial</span>
+           <span class="p">});</span>
+           <span class="nx">next</span><span class="p">();</span>
+       <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+           <span class="c1">// Only show passive notifications</span>
+           <span class="c1">// objects to extend res.locals for passive initial</span>
+           <span class="nx">api</span><span class="p">.</span><span class="nx">notifications</span><span class="p">.</span><span class="nx">browse</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">notifications</span><span class="p">)</span> <span class="p">{</span>
+               <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">,</span> <span class="p">{</span>
+                   <span class="nx">messages</span><span class="o">:</span> <span class="nx">_</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">notifications</span><span class="p">.</span><span class="nx">notifications</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">notification</span><span class="p">)</span> <span class="p">{</span>
+                       <span class="k">return</span> <span class="nx">notification</span><span class="p">.</span><span class="nx">status</span> <span class="o">!==</span> <span class="s1">&#39;passive&#39;</span><span class="p">;</span>
+                   <span class="p">})</span>
+               <span class="p">});</span>
+               <span class="c1">// do not forget next()</span>
+</code></pre></div>
+
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">next</span><span class="p">();</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
+</div>
+
+<div class="highlight"><pre><code>           <span class="p">});</span>
+       <span class="p">});</span>
+</code></pre></div>
+
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">next</span><span class="p">();</span>
+        <span class="p">}</span>
     <span class="p">},</span>
 
 

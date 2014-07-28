@@ -24,6 +24,9 @@
         <a href="#icollege%20data%20api">ICollege Data API</a>
       </div>
       <div class="heading h3">
+        <a href="#init">Init</a>
+      </div>
+      <div class="heading h3">
         <a href="#cache%20invalidation%20header">Cache Invalidation Header</a>
       </div>
       <div class="heading h3">
@@ -87,12 +90,48 @@ from a theme, an app, or from an external app, you'll use the ICollege JSON API 
         </td>
         <td class="code highlight"><div class="highlight"><pre>
     <span class="nx">users</span>         <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./users&#39;</span><span class="p">),</span>
-    <span class="nx">settings</span>      <span class="o">=</span> <span class="p">{},</span>
+    <span class="nx">db</span>            <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./db&#39;</span><span class="p">),</span>
+    <span class="nx">settings</span>       <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./settings&#39;</span><span class="p">),</span>
     <span class="nx">http</span><span class="p">,</span>
     <span class="nx">formatHttpErrors</span><span class="p">,</span>
     <span class="nx">cacheInvalidationHeader</span><span class="p">,</span>
     <span class="nx">locationHeader</span><span class="p">,</span>
-    <span class="nx">contentDispositionHeader</span><span class="p">;</span>
+    <span class="nx">contentDispositionHeader</span><span class="p">,</span>
+    <span class="nx">init</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="init">
+  <h3>
+    <a href="#init" name="init" class="pilcrow">&#182;</a>
+    Init
+  </h3>
+</div>
+
+
+<p>Initialise the API - populate the settings cache</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise(Settings)</span>
+      <span>Resolves to Settings Collection</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">init</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">settings</span><span class="p">.</span><span class="nx">updateSettingsCache</span><span class="p">();</span>
+<span class="p">};</span>
 
 
 
@@ -151,7 +190,7 @@ which invalidates any cached versions of the listed URIs.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
 </div>
 <p>make the url into array, like ['','icollege','api','v0.1','users','id']</p>
         </td>
@@ -174,7 +213,7 @@ which invalidates any cached versions of the listed URIs.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
 </div>
 <p>console.log(require('util').inspect(parsedUrl));</p>
         </td>
@@ -189,7 +228,7 @@ which invalidates any cached versions of the listed URIs.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
 </div>
 <p>如果是这些endpoint，作废全部的cache</p>
         </td>
@@ -203,7 +242,7 @@ which invalidates any cached versions of the listed URIs.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
 </div>
 <p>如果是posts</p>
         </td>
@@ -218,7 +257,7 @@ which invalidates any cached versions of the listed URIs.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
 </div>
 <p>Invalidate cache when post was updated but not when post is draft</p>
         </td>
@@ -232,7 +271,7 @@ which invalidates any cached versions of the listed URIs.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
 </div>
 <p>Remove the statusChanged value from the response</p>
         </td>
@@ -246,7 +285,7 @@ which invalidates any cached versions of the listed URIs.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
 </div>
 <p>Don't set x-cache-invalidate header for drafts</p>
         </td>
@@ -381,7 +420,7 @@ Ideally, both. Examples: <a href='http://tools.ietf.org/html/rfc6266#section-5'>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
 </div>
 <p>replace ':' with '_' for OS that don't support it</p>
         </td>
@@ -450,7 +489,7 @@ Ideally, both. Examples: <a href='http://tools.ietf.org/html/rfc6266#section-5'>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
+  <a class="pilcrow" href="#section-16" id="section-16">&#182;</a>
 </div>
 <p>TODO: add logic to set the correct status code</p>
         </td>
@@ -515,7 +554,7 @@ data from the request and returns a sensible JSON response.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-17" id="section-17">&#182;</a>
+  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
 </div>
 <p>We define 2 properties for using as arguments in API calls:</p>
         </td>
@@ -534,7 +573,7 @@ data from the request and returns a sensible JSON response.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
+  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
 </div>
 <p>If this is a GET, or a DELETE, req.body should be null, so we only have options (route and query params)
 If this is a PUT, POST, or PATCH, req.body is an object</p>
@@ -553,7 +592,7 @@ If this is a PUT, POST, or PATCH, req.body is an object</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
+  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
 </div>
 <p>Handle adding headers</p>
         </td>
@@ -566,7 +605,7 @@ If this is a PUT, POST, or PATCH, req.body is an object</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
+  <a class="pilcrow" href="#section-21" id="section-21">&#182;</a>
 </div>
 <p>Add X-Cache-Invalidate header</p>
         </td>
@@ -584,7 +623,7 @@ If this is a PUT, POST, or PATCH, req.body is an object</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-21" id="section-21">&#182;</a>
+  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
 </div>
 <p>Add Location header</p>
         </td>
@@ -600,7 +639,7 @@ If this is a PUT, POST, or PATCH, req.body is an object</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
+  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
 </div>
 <p>The location header indicates that a new object was created.
 In this case the status code should be 201 Created</p>
@@ -616,7 +655,7 @@ In this case the status code should be 201 Created</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
+  <a class="pilcrow" href="#section-24" id="section-24">&#182;</a>
 </div>
 <p>Add Content-Disposition Header
 if (apiMethod === db.exportContent) {
@@ -670,7 +709,7 @@ if (apiMethod === db.exportContent) {
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-26" id="section-26">&#182;</a>
+  <a class="pilcrow" href="#section-27" id="section-27">&#182;</a>
 </div>
 <p>Send a properly formatted HTTP response containing the errors</p>
         </td>
@@ -709,11 +748,12 @@ if (apiMethod === db.exportContent) {
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-28" id="section-28">&#182;</a>
+  <a class="pilcrow" href="#section-29" id="section-29">&#182;</a>
 </div>
 <p>Extras</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">init</span><span class="o">:</span> <span class="nx">init</span><span class="p">,</span>
     <span class="nx">http</span><span class="o">:</span> <span class="nx">http</span><span class="p">,</span>
 
 </pre></div>
@@ -722,12 +762,13 @@ if (apiMethod === db.exportContent) {
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-29" id="section-29">&#182;</a>
+  <a class="pilcrow" href="#section-30" id="section-30">&#182;</a>
 </div>
 <p>API Endpoints</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
-    <span class="nx">users</span><span class="o">:</span> <span class="nx">users</span>
+    <span class="nx">users</span><span class="o">:</span> <span class="nx">users</span><span class="p">,</span>
+    <span class="nx">db</span><span class="o">:</span> <span class="nx">db</span>
 <span class="p">};</span>
 
 

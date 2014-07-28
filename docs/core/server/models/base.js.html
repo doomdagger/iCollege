@@ -344,6 +344,354 @@
         </td>
         <td class="code highlight"><div class="highlight"><pre>
 
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Find one using Promise/A+</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">conditions</span>
+      <span class="dox_type">Object</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">[fields]</span>
+      <span class="dox_type">Object</span>
+      <span>optional fields to select</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">[options]</span>
+      <span class="dox_type">Object</span>
+      <span>optional</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>when.promise</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="s1">&#39;findOnePromised&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">conditions</span><span class="p">,</span> <span class="nx">fields</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">findOne</span><span class="p">(</span><span class="nx">conditions</span><span class="p">,</span> <span class="nx">fields</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">found</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">deferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">found</span><span class="p">);</span>
+        <span class="p">});</span>
+
+        <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+    <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Find Multi using Promise/A+</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">conditions</span>
+      <span class="dox_type">Object</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">[fields]</span>
+      <span class="dox_type">Object</span>
+      <span>optional fields to select</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">[options]</span>
+      <span class="dox_type">Object</span>
+      <span>optional</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>when.promise</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="s1">&#39;findPromised&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">conditions</span><span class="p">,</span> <span class="nx">fields</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">conditions</span><span class="p">,</span> <span class="nx">fields</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">founds</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">deferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">founds</span><span class="p">);</span>
+        <span class="p">});</span>
+
+        <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+    <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-16" id="section-16">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Find one by id using Promise/A+</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">id</span>
+      <span class="dox_type">ObjectId</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">[fields]</span>
+      <span class="dox_type">Object</span>
+      <span>optional fields to select</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">[options]</span>
+      <span class="dox_type">Object</span>
+      <span>optional</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>when.promise found model</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="s1">&#39;findByIdPromised&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">fields</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">findById</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">fields</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">found</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">deferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">found</span><span class="p">);</span>
+        <span class="p">});</span>
+
+        <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+    <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-17" id="section-17">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>update Multi using Promise/A+</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">conditions</span>
+      <span class="dox_type">Object</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">[update]</span>
+      <span class="dox_type">Object</span>
+      <span>optional fields to update with the given operator</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">[options]</span>
+      <span class="dox_type">Object</span>
+      <span>optional</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>when.promise number of documents affected</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="s1">&#39;updatePromised&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">conditions</span><span class="p">,</span> <span class="nx">update</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">update</span><span class="p">(</span><span class="nx">conditions</span><span class="p">,</span> <span class="nx">update</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">deferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+    <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>update Multi using Promise/A+</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">conditions</span>
+      <span class="dox_type">Object</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>when.promise number of documents affected</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="s1">&#39;removePromised&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">conditions</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">remove</span><span class="p">(</span><span class="nx">conditions</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">deferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+        <span class="p">});</span>
+        <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+    <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Aggregate query</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">array</span>
+      <span class="dox_type">Array</span>
+      <span>containing all the aggregation framework commands for the execution.</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">[options]</span>
+      <span class="dox_type">Object</span>
+      <span>additional options during update.</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">*
+</span>
+      <span>{*}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="s1">&#39;aggregatePromised&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">array</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">aggregate</span><span class="p">(</span><span class="nx">array</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">deferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">res</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+    <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Count entry size with the given conditions</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">conditions</span>
+      <span class="dox_type">Object</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>when.Promise with Number</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="s1">&#39;countPromised&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">conditions</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">count</span><span class="p">(</span><span class="nx">conditions</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">deferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">count</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+    <span class="p">}</span>
+
 <span class="p">});</span>
 
 

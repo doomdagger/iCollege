@@ -66,7 +66,7 @@
 <p>must add trailing slash for each route</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
-    <span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/icollege/api/v0.1/users/&#39;</span><span class="p">,</span> <span class="nx">middleware</span><span class="p">.</span><span class="nx">test</span><span class="p">,</span> <span class="nx">api</span><span class="p">.</span><span class="nx">http</span><span class="p">(</span><span class="nx">api</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">browse</span><span class="p">));</span>
+    <span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/api/v0.1/users/&#39;</span><span class="p">,</span> <span class="nx">middleware</span><span class="p">.</span><span class="nx">busboy</span><span class="p">,</span> <span class="nx">api</span><span class="p">.</span><span class="nx">http</span><span class="p">(</span><span class="nx">api</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">browse</span><span class="p">));</span>
 
 </pre></div>
         </td>
@@ -76,9 +76,10 @@
 <div class="pilwrap">
   <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
 </div>
-<p>router.get('/icollege/api/v0.1/users/:id/', middleware.test, api.http(api.users.read));</p>
+<p>router.get('/api/v0.1/users/:id/', middleware.test, api.http(api.users.read));</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/api/v0.1/db/exportContent/&#39;</span><span class="p">,</span> <span class="nx">api</span><span class="p">.</span><span class="nx">http</span><span class="p">(</span><span class="nx">api</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">exportContent</span><span class="p">));</span>
 
     <span class="k">return</span> <span class="nx">router</span><span class="p">;</span>
 <span class="p">};</span>

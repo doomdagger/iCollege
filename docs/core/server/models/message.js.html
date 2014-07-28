@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>message.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../", thisFile = "core/server/models/message.js", defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+  <script src="../../../fileSearch.js"></script>
+  <link rel="stylesheet" href="../../../fileSearch.css" />
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h2">
+        <a href="#message%20model">Message Model</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="message%20model">
+  <h2>
+    <a href="#message%20model" name="message%20model" class="pilcrow">&#182;</a>
+    Message Model
+  </h2>
+</div>
+
+
+<p>Created by balcat on 7/24/2014.</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">mongoose</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;mongoose&#39;</span><span class="p">),</span>
+    <span class="nx">icollegeSchema</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./base&#39;</span><span class="p">),</span>
+
+    <span class="nx">Messages</span><span class="p">,</span>
+    <span class="nx">Message</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>Schema definition</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">Messages</span> <span class="o">=</span> <span class="nx">icollegeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="s2">&quot;messages&quot;</span><span class="p">,</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>statics here</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+<span class="p">},</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>methods here</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+<span class="p">},</span> <span class="p">[</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>plugins here</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+<span class="p">]);</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+</div>
+<p>Model definition</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">Message</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Message&#39;</span><span class="p">,</span> <span class="nx">Messages</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">Message</span><span class="o">:</span> <span class="nx">Message</span><span class="p">,</span>
+    <span class="nx">Messages</span><span class="o">:</span> <span class="nx">Messages</span>
+<span class="p">};</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

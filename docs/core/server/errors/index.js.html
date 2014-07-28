@@ -268,6 +268,58 @@ Eventually we'll have better logging which will know about envs</p>
         <span class="k">this</span><span class="p">.</span><span class="nx">logError</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">help</span><span class="p">);</span>
 
         <span class="k">this</span><span class="p">.</span><span class="nx">throwError</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">help</span><span class="p">);</span>
+    <span class="p">},</span>
+
+    <span class="nx">error404</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+</div>
+<p>do not cache 404 error</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span><span class="s1">&#39;Cache-Control&#39;</span><span class="o">:</span> <span class="s1">&#39;no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0&#39;</span><span class="p">});</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">isRestful</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="nx">success</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">reason</span><span class="o">:</span> <span class="s2">&quot;No iCollege Found&quot;</span><span class="p">});</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">404</span><span class="p">,</span> <span class="s2">&quot;Page Not Found&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="nx">error500</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
+</div>
+<p>500 errors should never be cached</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span><span class="s1">&#39;Cache-Control&#39;</span><span class="o">:</span> <span class="s1">&#39;no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0&#39;</span><span class="p">});</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="mi">404</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">error404</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">res</span><span class="p">.</span><span class="nx">isRestful</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">||</span> <span class="o">!</span><span class="p">(</span><span class="nx">err</span> <span class="k">instanceof</span> <span class="nb">Error</span><span class="p">))</span> <span class="p">{</span>
+                <span class="nx">next</span><span class="p">();</span>
+            <span class="p">}</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">404</span><span class="p">,</span> <span class="s2">&quot;Page Not Found&quot;</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">status</span> <span class="o">||</span> <span class="mi">500</span><span class="p">,</span> <span class="p">{</span><span class="nx">success</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">reason</span><span class="o">:</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="p">});</span>
+        <span class="p">}</span>
+
     <span class="p">}</span>
 <span class="p">};</span>
 
@@ -278,7 +330,7 @@ Eventually we'll have better logging which will know about envs</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
 </div>
 <p>Ensure our 'this' context for methods and preserve method arity by
 using Function#bind for expressjs</p>

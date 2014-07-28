@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>index.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../../doc-style.css" />
+  <script src="../../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../../", thisFile = "core/server/data/fixtures/index.js", defaultSidebar = true;
+  </script>
+  <script src="../../../../doc-script.js"></script>
+  <script src="../../../../fileSearch.js"></script>
+  <link rel="stylesheet" href="../../../../fileSearch.css" />
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h1">
+        <a href="#database%20fixtures">Database Fixtures</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="database%20fixtures">
+  <h1>
+    <a href="#database%20fixtures" name="database%20fixtures" class="pilcrow">&#182;</a>
+    Database Fixtures
+  </h1>
+</div>
+
+
+<p>Created by Li He on 2014/7/24.
+Use this class to populate or update database data</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">sequence</span>    <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when/sequence&#39;</span><span class="p">),</span>
+    <span class="nx">_</span>           <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">),</span>
+    <span class="nx">node_uuid</span>   <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;node-uuid&#39;</span><span class="p">),</span>
+    <span class="nx">Role</span>        <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models/role&#39;</span><span class="p">).</span><span class="nx">Role</span><span class="p">,</span>
+    <span class="nx">Permission</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models/permission&#39;</span><span class="p">).</span><span class="nx">Permission</span><span class="p">,</span>
+
+    <span class="nx">populateFixtures</span><span class="p">,</span>
+    <span class="nx">updateFixtures</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>before handle, populate demo user or posts or message data
+into database.</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">fixtures</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">users</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="s1">&#39;ffffffff-ffff-ffff-ffff-ffffffffffff&#39;</span><span class="p">,</span>
+            <span class="nx">nickname</span><span class="o">:</span> <span class="s2">&quot;Administrator&quot;</span><span class="p">,</span>
+            <span class="nx">lowercase_username</span><span class="o">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+            <span class="nx">username</span><span class="o">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+            <span class="nx">password</span><span class="o">:</span> <span class="s2">&quot;123456&quot;</span><span class="p">,</span>
+            <span class="nx">email</span><span class="o">:</span> <span class="s2">&quot;admin@icollege.com&quot;</span><span class="p">,</span>
+            <span class="nx">phone</span><span class="o">:</span> <span class="s2">&quot;18877776666&quot;</span><span class="p">,</span>
+            <span class="nx">location</span><span class="o">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">],</span>
+
+    <span class="nx">permissions</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Browse users&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;browse&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Browse apps&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;app&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;browse&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Browse notification&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;notification&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;browse&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Browse groups&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;browse&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Browse circles&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;browse&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Browse messages&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;message&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;browse&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Browse posts&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;browse&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Browse reposts&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;repost&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;browse&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Browse settings&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;setting&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;browse&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Read user&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;read&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Read app&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;app&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;read&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Read notification&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;notification&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;read&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Read group&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;read&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Read circle&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;read&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Read post&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;read&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Edit user&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;edit&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Edit app&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;app&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;edit&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Edit notification&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;notification&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;edit&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Edit group&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;edit&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Edit circle&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;edit&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Edit message&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;message&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;edit&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Edit post&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;edit&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Edit repost&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;repost&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;edit&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Edit setting&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;setting&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;edit&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Add user&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;add&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Add app&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;app&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;add&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Remove user&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;remove&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Remove app&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;app&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;remove&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Remove notification&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;notification&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;remove&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Remove group&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;remove&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Remove circle&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;remove&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Remove message&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;message&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;remove&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Remove post&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;remove&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Remove repost&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;repost&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;remove&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Create notification&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;notification&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;create&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Create group&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;create&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Create circle&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;create&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Create message&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;message&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;create&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Create post&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;create&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Create repost&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;repost&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;create&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Export database&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;db&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;exportContent&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Import database&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;db&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;importContent&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Delete all content&quot;</span><span class="p">,</span>
+            <span class="nx">object_type</span><span class="o">:</span> <span class="s2">&quot;db&quot;</span><span class="p">,</span>
+            <span class="nx">action_type</span><span class="o">:</span> <span class="s2">&quot;deleteAllContent&quot;</span>
+        <span class="p">}</span>
+    <span class="p">],</span>
+
+    <span class="nx">roles</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;SuperAdministrator&#39;</span><span class="p">,</span>
+            <span class="nx">description</span><span class="o">:</span> <span class="s1">&#39;Super Administrator who is in charge of everything&#39;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Administrator&#39;</span><span class="p">,</span>
+            <span class="nx">description</span><span class="o">:</span> <span class="s1">&#39;Administrator who is assigned by Super Administrator&#39;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">uuid</span><span class="o">:</span> <span class="nx">node_uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">(),</span>
+            <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;iColleger&#39;</span><span class="p">,</span>
+            <span class="nx">description</span><span class="o">:</span> <span class="s1">&#39;Normal User of iCollege&#39;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+
+<span class="p">};</span>
+
+<span class="nx">populateFixtures</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">ops</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="nx">relations</span> <span class="o">=</span> <span class="p">[];</span>
+
+
+    <span class="k">return</span> <span class="nx">sequence</span><span class="p">(</span><span class="nx">ops</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nx">sequence</span><span class="p">(</span><span class="nx">relations</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+
+<span class="nx">updateFixtures</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">ops</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="nx">relations</span> <span class="o">=</span> <span class="p">[];</span>
+
+
+    <span class="k">return</span> <span class="nx">sequence</span><span class="p">(</span><span class="nx">ops</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nx">sequence</span><span class="p">(</span><span class="nx">relations</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">populateFixtures</span><span class="o">:</span> <span class="nx">populateFixtures</span><span class="p">,</span>
+    <span class="nx">updateFixtures</span><span class="o">:</span> <span class="nx">updateFixtures</span>
+<span class="p">};</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

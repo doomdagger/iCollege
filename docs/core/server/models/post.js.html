@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>post.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../", thisFile = "core/server/models/post.js", defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+  <script src="../../../fileSearch.js"></script>
+  <link rel="stylesheet" href="../../../fileSearch.css" />
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h2">
+        <a href="#post%20model">Post Model</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="post%20model">
+  <h2>
+    <a href="#post%20model" name="post%20model" class="pilcrow">&#182;</a>
+    Post Model
+  </h2>
+</div>
+
+
+<p>Created by balcat on 7/24/2014.
+Updated by Li He on 7/25/2014.</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">mongoose</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;mongoose&#39;</span><span class="p">),</span>
+    <span class="nx">icollegeSchema</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./base&#39;</span><span class="p">),</span>
+
+    <span class="nx">Posts</span><span class="p">,</span>
+    <span class="nx">Post</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>Schema definition</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">Posts</span> <span class="o">=</span> <span class="nx">icollegeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="s1">&#39;posts&#39;</span><span class="p">,</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>statics here</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="p">},</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>methods here</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="p">},</span> <span class="p">[</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>plugins here</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="p">]);</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+</div>
+<p>Model definition</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">Post</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Post&#39;</span><span class="p">,</span> <span class="nx">Posts</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">Post</span><span class="o">:</span> <span class="nx">Post</span><span class="p">,</span>
+    <span class="nx">Posts</span><span class="o">:</span> <span class="nx">Posts</span>
+<span class="p">};</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>
