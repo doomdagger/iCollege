@@ -48,7 +48,7 @@ var db = {
         updated_at: {type: Date, default: Date.now()},
         updated_by: {type: Schema.Types.ObjectId, required: true},
         groups: [{
-            group_id: {type: Schema.Types.ObjectId},
+            group_id: {type: Schema.Types.ObjectId, ref: 'Group'},
             message_alert: {type: Boolean, default: true},
             location_share: {type: Boolean, default: true},
             profile_visible: {type: Boolean, default: false},
@@ -58,7 +58,7 @@ var db = {
             updated_by: {type: Schema.Types.ObjectId, required: true}
         }],
         circles: [{
-            circle_id: {type: Schema.Types.ObjectId},
+            circle_id: {type: Schema.Types.ObjectId, ref: 'Circle'},
             post_alert: {type: Boolean, default: true},
             location_share: {type: Boolean, default: true},
             profile_visible: {type: Boolean, default: false},
@@ -68,7 +68,7 @@ var db = {
             updated_by: {type: Schema.Types.ObjectId, required: true}
         }],
         friends: [{
-            friend_id: {type: Schema.Types.ObjectId},
+            friend_id: {type: Schema.Types.ObjectId, ref: 'User'},
             remark_name: {type: String, default: '', trim: true}, // 好友备注名称
             friend_group: {type: String, default: 'friends', trim: true}, // 好友所属分组， 这个灵活些~
             esp_care: {type: Boolean, default: false}, // 特别关心此好友吗
@@ -81,15 +81,15 @@ var db = {
         }],
         roles: [{
             type: Schema.Types.ObjectId,
-            required: true
+            ref: 'Role'
         }],
         permissions: [{
-            permission_id: {type: Schema.Types.ObjectId, required: true},
+            permission_id: {type: Schema.Types.ObjectId, required: true, ref: 'Permission'},
             permission_scope: {type: String, enum: ['all', 'related', 'me']}, // 最高Scope，无限制，有关联，仅限自己
             object_id: {type: Schema.Types.ObjectId} // if the scope is 'related', an object id is not allowed to be optionally provided
         }],
         apps: [{
-            app_id: {type: Schema.Types.ObjectId, required: true},
+            app_id: {type: Schema.Types.ObjectId, required: true, ref: 'App'},
             app_fields: [{
                 uuid: {type: String, required: true}, // uuid
                 key: {type: String, required: true},
@@ -130,7 +130,7 @@ var db = {
         // 这个 app 需要哪些permission，安装时需争取到用户同意，方可继续安装
         // app 能够拥有的permission永远是user permission的子集，这点需要验证！！！
         permissions: [{
-            permission_id: {type: Schema.Types.ObjectId, required: true},
+            permission_id: {type: Schema.Types.ObjectId, required: true, ref: 'Permission'},
             permission_scope: {type: String, enum: ['all', 'me']} // 最高Scope，无限制，有关联，仅限自己
         }]
     },
@@ -139,7 +139,7 @@ var db = {
     // 主要是为了应对圈子的回帖以及转发，@等动态的通知
     notifications: {
         uuid: {type: String, required: true}, // uuid
-        user_id: {type: Schema.Types.ObjectId, required: true},
+        user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
         note_category: {type: String, enum: ['repost', 'favored', 'forward', 'at'], required: true},  // 这么几种类别: 回复，赞，转发，@ 这四种
         object_id: {type: Schema.Types.ObjectId, required: true}, // 对应着以上通知的类别，跟通知有关的对象ID可能是，repost, post两种
         created_at: {type: Date, default: Date.now()},
@@ -154,7 +154,7 @@ var db = {
         uuid: {type: String, required: true}, // uuid
         name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger'], required: true},
         permissions: [{
-            permission_id: {type: Schema.Types.ObjectId, required: true},
+            permission_id: {type: Schema.Types.ObjectId, required: true, ref: 'Permission'},
             permission_scope: {type: String, enum: ['all', 'me']} // 最高Scope，无限制，有关联，仅限自己
         }],
         description: {type: String, trim: true, default: ""},
