@@ -1,48 +1,57 @@
 var _ = require('lodash'),
     Models = require('../models'),
     errors = require('../errors'),
+    when   = require('when'),
+    Role   = Models.Role,
     User   = Models.User,
     App    = Models.App;
 
 var effective = {
     user: function (id) {
-        return User.findOne({id: id}, { withRelated: ['permissions', 'roles.permissions'] })
+        // find the user and project only permissions and roles fields
+        return User.findOneAndPopulatePromised({_id: id}, 'permissions.permission_id', 'permissions roles')
+            // inner callback for access to returned data
             .then(function (foundUser) {
-                var seenPerms = {},
-                    rolePerms = _.map(foundUser.related('roles').models, function (role) {
-                        return role.related('permissions').models;
-                    }),
-                    allPerms = [];
+                return Role.findAndPopulatePromised({_id: {$in: foundUser.roles}}, 'permissions.permission_id', 'permissions')
+                    .then(function (foundRoles){
 
-                rolePerms.push(foundUser.related('permissions').models);
+                        var seenPerms = {},
+                            rolePerms = _.reduce(foundRoles, function (result, role) {
+                                result.push(role.permissions);
+                                return result;
+                            }, []),
+                            allPerms = [];
 
-                _.each(rolePerms, function (rolePermGroup) {
-                    _.each(rolePermGroup, function (perm) {
-                        var key = perm.get('action_type') + '-' + perm.get('object_type') + '-' + perm.get('object_id');
+                        rolePerms.push(foundUser.permissions);
 
-                        // Only add perms once
-                        if (seenPerms[key]) {
-                            return;
-                        }
+                        _.each(rolePerms, function (perm) {
+                            var key = perm.permission_id.action_type + '-' + perm.permission_id.object_type + '-' + perm.permission_scope + '-' + perm.object_id;
 
-                        allPerms.push(perm);
-                        seenPerms[key] = true;
+                            // Only add perms once
+                            if (seenPerms[key]) {
+                                return;
+                            }
+
+                            // TODO: do not satisfy with the origin perm Object
+                            allPerms.push(perm);
+                            seenPerms[key] = true;
+                        });
+
+                        return allPerms;
                     });
-                });
+            }).catch(errors.logAndThrowError);
 
-                return allPerms;
-            }, errors.logAndThrowError);
     },
 
-    app: function (appName) {
-        return App.findOne({name: appName}, { withRelated: ['permissions'] })
+    app: function (id) {
+        return App.findOneAndPopulatePromised({_id: id}, 'permissions.permission_id', 'permissions')
             .then(function (foundApp) {
                 if (!foundApp) {
                     return [];
                 }
 
-                return foundApp.related('permissions').models;
-            }, errors.logAndThrowError);
+                return foundApp.permissions;
+            }).catch(errors.logAndThrowError);
     }
 };
 

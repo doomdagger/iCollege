@@ -146,6 +146,50 @@ icollegeSchema = new ICollegeSchema({
     },
 
     /**
+     * Find Multi By Selecting some fields using Promise/A+
+     * @param {Object} conditions
+     * @param {String|Object} path populated path
+     * @param {Object} [fields] optional fields to select
+     * @param {Object} [options] optional
+     * @returns {*}
+     */
+    'findAndPopulatePromised': function (conditions, path, fields, options) {
+        var deferred = when.defer();
+        this.find(conditions, fields, options).populate(path).exec(function (err, found) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+
+            deferred.resolve(found);
+        });
+
+        return deferred.promise;
+    },
+
+    /**
+     * Find One By Selecting some fields using Promise/A+
+     * @param {Object} conditions
+     * @param {String|Object} path populated path
+     * @param {Object} [fields] optional fields to select
+     * @param {Object} [options] optional
+     * @returns {*}
+     */
+    'findOneAndPopulatePromised': function (conditions, path, fields, options) {
+        var deferred = when.defer();
+        this.find(conditions, fields, options).populate(path).exec(function (err, found) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+
+            deferred.resolve(found);
+        });
+
+        return deferred.promise;
+    },
+
+    /**
      * Find one by id using Promise/A+
      * @param {ObjectId} id
      * @param {Object} [fields] optional fields to select
