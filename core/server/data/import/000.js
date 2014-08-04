@@ -336,7 +336,6 @@ module.exports = {
     importData: function (data) {
         //clean up db first
         utils.safeDropCollections();
-
         return new Importer000().importData(data)
     }
 };
