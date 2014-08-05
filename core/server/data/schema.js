@@ -86,7 +86,9 @@ var db = {
         permissions: [{
             permission_id: {type: Schema.Types.ObjectId, required: true, ref: 'Permission'},
             permission_scope: {type: String, enum: ['all', 'related', 'me']}, // 最高Scope，无限制，有关联，仅限自己
-            object_id: {type: Schema.Types.ObjectId} // if the scope is 'related', an object id is not allowed to be optionally provided
+            // if the scope is 'related' or 'me', object fields and values are not allowed to be optionally provided
+            object_fields: [{type: String, trim: true, lowercase: true}],
+            object_values: [{type: String, trim: true, lowercase: true}]
         }],
         apps: [{
             app_id: {type: Schema.Types.ObjectId, required: true, ref: 'App'},
@@ -131,7 +133,10 @@ var db = {
         // app 能够拥有的permission永远是user permission的子集，这点需要验证！！！
         permissions: [{
             permission_id: {type: Schema.Types.ObjectId, required: true, ref: 'Permission'},
-            permission_scope: {type: String, enum: ['all', 'me']} // 最高Scope，无限制，有关联，仅限自己
+            permission_scope: {type: String, enum: ['all', 'me']}, // 最高Scope，无限制，有关联，仅限自己
+            // if the scope is 'related' or 'me', object fields and values are not allowed to be optionally provided
+            object_fields: [{type: String, trim: true, lowercase: true}],
+            object_values: [{type: String, trim: true, lowercase: true}]
         }]
     },
 
@@ -155,7 +160,10 @@ var db = {
         name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger'], required: true},
         permissions: [{
             permission_id: {type: Schema.Types.ObjectId, required: true, ref: 'Permission'},
-            permission_scope: {type: String, enum: ['all', 'me']} // 最高Scope，无限制，有关联，仅限自己
+            permission_scope: {type: String, enum: ['all', 'me']}, // 最高Scope，无限制，有关联，仅限自己
+            // if the scope is 'related' or 'me', object fields and values are not allowed to be optionally provided
+            object_fields: [{type: String, trim: true, lowercase: true}],
+            object_values: [{type: String, trim: true, lowercase: true}]
         }],
         description: {type: String, trim: true, default: ""},
         created_at: {type: Date, default: Date.now()},
