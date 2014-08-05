@@ -34,6 +34,7 @@ Importer000 = function () {
 };
 
 Importer000.prototype.canImport = function (data) {
+    data = data.db[0];
     if (data.meta && data.meta.version && this.importFrom[data.meta.version]) {
         return when.resolve(this.importFrom[data.meta.version]);
     }
@@ -66,7 +67,7 @@ function importUsers(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(user) {
-        user.save(function (err, product, numberAffected) {
+        new User(user).save(function (err, product, numberAffected) {
             defered = when.defer();
             if(err) {
                 optPromise.push(defered.reject(err));
@@ -85,7 +86,7 @@ function importApps(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(app) {
-        app.save(function (err, product, numberAffected) {
+        new App(app).save(function (err, product, numberAffected) {
             defered = when.defer();
             if (err) {
                 optPromise.push(defered.reject(err));
@@ -104,7 +105,7 @@ function importNotifications(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(notification) {
-        notification.save(function (err, product, numberAffected) {
+        new Notification(notification).save(function (err, product, numberAffected) {
             defered = when.defer();
             if(err) {
                 optPromise.push(defered.reject(err));
@@ -123,7 +124,7 @@ function importRoles(optPromise, jsonData, strip) {
 
     _.each(jsonData, function(role) {
         var defered = when.defer();
-        role.save(function (err, product, numberAffected) {
+        new Role(role).save(function (err, product, numberAffected) {
             defered = when.defer();
             if (err) {
                 optPromise.push(defered.reject(err));
@@ -143,7 +144,7 @@ function importPermissions(optPromise, jsonData, strip) {
 
     _.each(jsonData, function(permission) {
         var defered = when.defer();
-        permission.save(function (err, product, numberAffected) {
+        new Permission(permission).save(function (err, product, numberAffected) {
             defered = when.defer();
             if (err) {
                 optPromise.push(defered.reject(err));
@@ -163,7 +164,7 @@ function importGroups(optPromise, jsonData, strip) {
 
     _.each(jsonData, function(group) {
         var defered = when.defer();
-        group.save(function (err, product, numberAffected) {
+        new Group(group).save(function (err, product, numberAffected) {
             defered = when.defer();
             if (err) {
                 optPromise.push(defered.reject(err));
@@ -183,7 +184,7 @@ function importCircles(optPromise, jsonData, strip) {
 
     _.each(jsonData, function(circle) {
         var defered = when.defer();
-        circle.save(function (err, product, numberAffected) {
+        new Circle(circle).save(function (err, product, numberAffected) {
             defered = when.defer();
             if (err) {
                 optPromise.push(defered.reject(err));
@@ -203,7 +204,7 @@ function importMessages(optPromise, jsonData, strip) {
 
     _.each(jsonData, function(message) {
         var defered = when.defer();
-        message.save(function (err, product, numberAffected) {
+        new Message(message).save(function (err, product, numberAffected) {
             defered = when.defer();
             if (err) {
                 optPromise.push(defered.reject(err));
@@ -223,7 +224,7 @@ function importPosts(optPromise, jsonData, strip) {
 
     _.each(jsonData, function(post) {
         var defered = when.defer();
-        post.save(function (err, product, numberAffected) {
+        new Post(post).save(function (err, product, numberAffected) {
             defered = when.defer();
             if (err) {
                 optPromise.push(defered.reject(err));
@@ -243,7 +244,7 @@ function importReposts(optPromise, jsonData, strip) {
 
     _.each(jsonData, function(repost) {
         var defered = when.defer();
-        repost.save(function (err, product, numberAffected) {
+        new Repost(repost).save(function (err, product, numberAffected) {
             defered = when.defer();
             if (err) {
                 optPromise.push(defered.reject(err));
@@ -263,15 +264,15 @@ function importSettings(optPromise, jsonData, strip) {
 
     _.each(jsonData, function(setting) {
         var defered = when.defer();
-        setting.save(function (err, product, numberAffected) {
+        new Setting(setting).save(function (err, product, numberAffected) {
             defered = when.defer();
             if (err) {
                 optPromise.push(defered.reject(err));
                 return;
             }
             defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
         });
+        optPromise.push(defered.promise);
     });
     return optPromise;
 }
@@ -335,8 +336,8 @@ module.exports = {
     Importer000: Importer000,
     importData: function (data) {
         //clean up db first
-        utils.safeDropCollections();
-        return new Importer000().importData(data)
+        //utils.safeDropCollections();
+        return new Importer000().importData(data);
     }
 };
 
