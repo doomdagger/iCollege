@@ -104,6 +104,16 @@ icollegeSchema = new ICollegeSchema({
     // static methods definition goes here
 
     /**
+     * Find all documents in a collection
+     * @param {Object} [fields] optional fields to select
+     * @param {Object} [options] optional
+     * @return {Promise} when.promise
+     */
+    'findAllPromised': function (fields, options) {
+        return this.findPromised({}, fields, options);
+    },
+
+    /**
      * Find one using Promise/A+
      * @param {Object} conditions
      * @param {Object} [fields] optional fields to select

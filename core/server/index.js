@@ -8,6 +8,7 @@ var express     = require('express'),
 
     api         = require('./api'),
     migration   = require('./data/migration'),
+    permissions = require('./permissions'),
     config      = require('./config'),
     packageInfo = require('../../package.json'),
     models      = require('./models'),
@@ -104,6 +105,10 @@ function init(server) {
     }).then(function () {
         // Initialize the settings cache
         return api.init();
+
+    }).then(function () {
+        // Initialize the permissions actions and objects
+        return permissions.init();
 
     }).then(function () {
         var deferred = when.defer();

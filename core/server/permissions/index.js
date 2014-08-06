@@ -1,5 +1,5 @@
-// canThis(someUser).edit.posts([id]|[[ids]])
-// canThis(someUser).edit.post(somePost|somePostId)
+// canThis(someUser).edit.post([id]|[[ids]], 'me')
+// canThis(someUser).browse.post(somePost|somePostId, 'related')
 
 var _                   = require('lodash'),
     when                = require('when'),
@@ -13,6 +13,10 @@ var _                   = require('lodash'),
     CanThisResult,
     exported;
 
+/**
+ * Test if we already have a valid action map
+ * @returns {*}
+ */
 function hasActionsMap() {
     // Just need to find one key in the actionsMap
 
@@ -22,7 +26,15 @@ function hasActionsMap() {
     });
 }
 
-// TODO: Move this to its own file so others can use it?
+/**
+ * Context has two scope:
+ * user and app
+ * if it is an user-emitted request, context.user has user id
+ * if it is an app-emitted request, context.app has app id
+ * if it is an internal request and also owns an pre-context - user or app, we assign the context.internal with value 'true'
+ * @param context
+ * @returns {{internal: boolean, user: null, app: null}}
+ */
 function parseContext(context) {
     // Parse what's passed to canThis.beginCheck for standard user and app scopes
     var parsed = {
@@ -58,61 +70,107 @@ CanThisResult.prototype.buildObjectTypeHandlers = function (obj_types, act_type,
         var TargetModel = objectTypeModelMap[obj_type];
 
         // Create the 'handler' for the object type;
-        // the '.post()' in canThis(user).edit.post()
-        obj_type_handlers[obj_type] = function (modelOrId) {
-            var modelId;
+        // the '.post()' in canThis(user).edit.post(modelOrId, scope)
+        obj_type_handlers[obj_type] = function (modelOrId, scope) {
+            var model;
 
             // If it's an internal request, resolve immediately
             if (context.internal) {
                 return when.resolve();
             }
 
+            // check the validity of scope
+            if (!_.contains(['all', 'related', 'me'], scope)) {
+                // if given and invalid, reject it!
+                if (scope) {
+                    return when.reject("Invalid Named Scope: " + scope);
+                } else {
+                    // default to `all`
+                    scope = 'all';
+                }
+            }
+
             if (_.isNumber(modelOrId) || _.isString(modelOrId)) {
-                // It's an id already, do nothing
-                modelId = modelOrId;
+                // It's an id, query the model
+                model = TargetModel.findByIdPromised(modelOrId);
             } else if (modelOrId) {
-                // It's a model, get the id
-                modelId = modelOrId.id;
+                // It's a model, assign the model
+                model = when.resolve(modelOrId);
+            } else {
+                model = when.resolve(null);
             }
             // Wait for the user loading to finish
-            return permissionLoad.then(function (loadedPermissions) {
+            // Permission check in here! Core Logic
+            return when.all([permissionLoad, model]).then(function (result) {
                 // Iterate through the user permissions looking for an affirmation
-                var userPermissions = loadedPermissions.user,
+                var loadedPermissions = result[0],
+                    foundModel = result[1],   // maybe null
+                    userPermissions = loadedPermissions.user,
                     appPermissions = loadedPermissions.app,
                     hasUserPermission,
                     hasAppPermission,
-                    checkPermission = function (perm) {
-                        var permObjId;
+                    checkPermission = function (permissions) {
+                        var index,
+                            perm,
+                            ret;
 
-                        // Look for a matching action type and object type first
-                        if (perm.get('action_type') !== act_type || perm.get('object_type') !== obj_type) {
-                            return false;
+                        for (index = 0; index < permissions.length; index++) {
+                            perm = permissions[index];
+
+                            // Look for a matching action type and object type first
+                            if (perm.action_type !== act_type || perm.object_type !== obj_type || perm.permission_scope !== scope) {
+                                continue;
+                            }
+                            // If action_type, object_type, scope all match,
+                            // check permission according to different scope
+
+                            // `related` need `foundModel` to be not null!!
+                            if (scope === "related" && foundModel) {
+                                // we need a closure to wrap the logic for validating fields and values pair
+                                ret = (function (fields, values){
+                                    // length not match, bad params!
+                                    if (fields.length !== values.length) {
+                                        return false;
+                                    }
+                                    // we need validate all the fields
+                                    for (var i = 0; i < fields.length; i++) {
+                                        // 在foundUser中找到深层字段的具体值与object_value相比较，有一个不同，则该perm与验证的perm不为同一个
+                                        // return false directly
+                                        if (values[i] != _.reduce(fields[i].split(/\./), function (field_value, part) { return field_value[part]; }, foundModel)) {
+                                            return false;
+                                        }
+                                    }
+                                    // all pass, return true
+                                    return true;
+                                })(perm.object_fields, perm.object_values);
+
+                                if (ret) {
+                                    return true;
+                                }
+                            }
+                            // `me` scope, need context.user and foundModel
+                            else if (scope === "me" && context && context.user && foundModel) {
+                                // scope of me: one field only, with no other values to refer
+                                return foundModel[perm.object_fields[0]] == context.user
+                            }
+                            // `all` scope, need no specific fields, pass nothing to this method
+                            else if (scope === "all") {
+                                return true;
+                            }
                         }
 
-                        // Grab the object id (if specified, could be null)
-                        permObjId = perm.get('object_id');
-
-                        // If we didn't specify a model (any thing)
-                        // or the permission didn't have an id scope set
-                        // then the "thing" has permission
-                        if (!modelId || !permObjId) {
-                            return true;
-                        }
-
-                        // Otherwise, check if the id's match
-                        // TODO: String vs Int comparison possibility here?
-                        return modelId === permObjId;
+                        return false;
                     };
 
                 // Check user permissions for matching action, object and id.
                 if (!_.isEmpty(userPermissions)) {
-                    hasUserPermission = _.any(userPermissions, checkPermission);
+                    hasUserPermission = checkPermission(userPermissions);
                 }
 
                 // Check app permissions if they were passed
                 hasAppPermission = true;
                 if (!_.isNull(appPermissions)) {
-                    hasAppPermission = _.any(appPermissions, checkPermission);
+                    hasAppPermission = checkPermission(appPermissions);
                 }
 
                 // Offer a chance for the TargetModel to override the results
@@ -146,6 +204,7 @@ CanThisResult.prototype.beginCheck = function (context) {
 
     // Kick off loading of effective user permissions if necessary
     if (context.user) {
+        // context.user contains user id ?
         userPermissionLoad = effectivePerms.user(context.user);
     } else {
         // Resolve null if no context.user to prevent db call
@@ -155,6 +214,7 @@ CanThisResult.prototype.beginCheck = function (context) {
 
     // Kick off loading of effective app permissions if necessary
     if (context.app) {
+        // context.app contains app id ?
         appPermissionLoad = effectivePerms.app(context.app);
     } else {
         // Resolve null if no context.app
@@ -164,8 +224,8 @@ CanThisResult.prototype.beginCheck = function (context) {
     // Wait for both user and app permissions to load
     permissionsLoad = when.all([userPermissionLoad, appPermissionLoad]).then(function (result) {
         return {
-            user: result[0],
-            app: result[1]
+            user: result[0], // contains user permissions or null
+            app: result[1]   //  contains app permissions or null
         };
     });
 
@@ -197,7 +257,7 @@ canThis = function (context) {
 
 init = refresh = function () {
     // Load all the permissions
-    return PermissionsProvider.findAll().then(function (perms) {
+    return PermissionsProvider.findAllPromised("name object_type action_type").then(function (perms) {
         var seenActions = {};
 
         exported.actionsMap = {};
@@ -210,9 +270,9 @@ init = refresh = function () {
             'create': ['post', 'user', 'page']
         }
         */
-        _.each(perms.models, function (perm) {
-            var action_type = perm.get('action_type'),
-                object_type = perm.get('object_type');
+        _.each(perms, function (perm) {
+            var action_type = perm.action_type,
+                object_type = perm.object_type;
 
             exported.actionsMap[action_type] = exported.actionsMap[action_type] || [];
             seenActions[action_type] = seenActions[action_type] || {};
