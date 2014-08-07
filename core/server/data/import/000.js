@@ -6,17 +6,17 @@
 
 var when         = require('when'),
     _            = require('lodash'),
-    User         = require('../../models').User,
-    App          = require('../../models').App,
-    Notification = require('../../models').Notification,
-    Role         = require('../../models').Role,
-    Permission   = require('../../models').Permission,
-    Group        = require('../../models').Group,
-    Circle       = require('../../models').Circle,
-    Message      = require('../../models').Message,
-    Post         = require('../../models').Post,
-    Repost       = require('../../models').Repost,
-    Setting      = require('../../models').Setting,
+    User         = require('../../models/user').User,
+    App          = require('../../models/app').App,
+    Notification = require('../../models/notification').Notification,
+    Role         = require('../../models/role').Role,
+    Permission   = require('../../models/permission').Permission,
+    Group        = require('../../models/group').Group,
+    Circle       = require('../../models/circle').Circle,
+    Message      = require('../../models/message').Message,
+    Post         = require('../../models/post').Post,
+    Repost       = require('../../models/repost').Repost,
+    Setting      = require('../../models/settings').Setting,
     utils        = require('../utils'),
     mongoose = require('mongoose'),
     Importer000;
@@ -67,15 +67,16 @@ function importUsers(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(user) {
-        new User(user).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if(err) {
-                optPromise.push(defered.reject(err));
-                return;
-            }
-            defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
-        });
+        optPromise.push(new User(user).savePromised());
+//        new User(user).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if(err) {
+//                optPromise.push(defered.reject(err));
+//                return;
+//            }
+//            defered.resolve(numberAffected);
+//            optPromise.push(defered.promise);
+//        });
     });
     return optPromise;
 }
@@ -86,15 +87,16 @@ function importApps(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(app) {
-        new App(app).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if (err) {
-                optPromise.push(defered.reject(err));
-                return;
-            }
-            defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
-        });
+        optPromise.push(new App(app).savePromised);
+//        new App(app).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if (err) {
+//                optPromise.push(defered.reject(err));
+//                return;
+//            }
+//            defered.resolve(numberAffected);
+//            optPromise.push(defered.promise);
+//        });
     });
     return optPromise;
 }
@@ -105,14 +107,15 @@ function importNotifications(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(notification) {
-        new Notification(notification).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if(err) {
-                optPromise.push(defered.reject(err));
-            }
-            defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
-        });
+        optPromise.push(new Notification(notification).savePromised);
+//        new Notification(notification).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if(err) {
+//                optPromise.push(defered.reject(err));
+//            }
+//            defered.resolve(numberAffected);
+//            optPromise.push(defered.promise);
+//        });
     });
     return optPromise;
 }
@@ -123,16 +126,17 @@ function importRoles(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(role) {
-        var defered = when.defer();
-        new Role(role).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if (err) {
-                optPromise.push(defered.reject(err));
-                return;
-            }
-            defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
-        });
+        optPromise.push(new Role(role).savePromised());
+//        var defered = when.defer();
+//        new Role(role).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if (err) {
+//                optPromise.push(defered.reject(err));
+//                return;
+//            }
+//            defered.resolve(numberAffected);
+//            optPromise.push(defered.promise);
+//        });
     });
     return optPromise;
 }
@@ -143,16 +147,17 @@ function importPermissions(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(permission) {
-        var defered = when.defer();
-        new Permission(permission).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if (err) {
-                optPromise.push(defered.reject(err));
-                return;
-            }
-            defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
-        });
+        optPromise.push(new Permission(permission).savePromised());
+//        var defered = when.defer();
+//        new Permission(permission).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if (err) {
+//                optPromise.push(defered.reject(err));
+//                return;
+//            }
+//            defered.resolve(numberAffected);
+//            optPromise.push(defered.promise);
+//        });
     });
     return optPromise;
 }
@@ -163,16 +168,17 @@ function importGroups(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(group) {
-        var defered = when.defer();
-        new Group(group).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if (err) {
-                optPromise.push(defered.reject(err));
-                return;
-            }
-            defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
-        });
+        optPromise.push(new Group(group).savePromised());
+//        var defered = when.defer();
+//        new Group(group).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if (err) {
+//                optPromise.push(defered.reject(err));
+//                return;
+//            }
+//            defered.resolve(numberAffected);
+//            optPromise.push(defered.promise);
+//        });
     });
     return optPromise;
 }
@@ -183,16 +189,17 @@ function importCircles(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(circle) {
-        var defered = when.defer();
-        new Circle(circle).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if (err) {
-                optPromise.push(defered.reject(err));
-                return;
-            }
-            defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
-        });
+        optPromise.push(new Circle(circle).savePromised());
+//        var defered = when.defer();
+//        new Circle(circle).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if (err) {
+//                optPromise.push(defered.reject(err));
+//                return;
+//            }
+//            defered.resolve(numberAffected);
+//            optPromise.push(defered.promise);
+//        });
     });
     return optPromise;
 }
@@ -203,16 +210,17 @@ function importMessages(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(message) {
-        var defered = when.defer();
-        new Message(message).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if (err) {
-                optPromise.push(defered.reject(err));
-                return;
-            }
-            defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
-        });
+        optPromise.push(new Post(post).savePromised());
+//        var defered = when.defer();
+//        new Message(message).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if (err) {
+//                optPromise.push(defered.reject(err));
+//                return;
+//            }
+//            defered.resolve(numberAffected);
+//            optPromise.push(defered.promise);
+//        });
     });
     return optPromise;
 }
@@ -223,16 +231,17 @@ function importPosts(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(post) {
-        var defered = when.defer();
-        new Post(post).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if (err) {
-                optPromise.push(defered.reject(err));
-                return;
-            }
-            defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
-        });
+        optPromise.push(new Post(post).savePromised());
+//        var defered = when.defer();
+//        new Post(post).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if (err) {
+//                optPromise.push(defered.reject(err));
+//                return;
+//            }
+//            defered.resolve(numberAffected);
+//            optPromise.push(defered.promise);
+//        });
     });
     return optPromise;
 }
@@ -243,16 +252,17 @@ function importReposts(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(repost) {
-        var defered = when.defer();
-        new Repost(repost).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if (err) {
-                optPromise.push(defered.reject(err));
-                return;
-            }
-            defered.resolve(numberAffected);
-            optPromise.push(defered.promise);
-        });
+        optPromise.push(new Repost(repost).savePromised());
+//        var defered = when.defer();
+//        new Repost(repost).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if (err) {
+//                optPromise.push(defered.reject(err));
+//                return;
+//            }
+//            defered.resolve(numberAffected);
+//            optPromise.push(defered.promise);
+//        });
     });
     return optPromise;
 }
@@ -263,16 +273,17 @@ function importSettings(optPromise, jsonData, strip) {
     }
 
     _.each(jsonData, function(setting) {
-        var defered = when.defer();
-        new Setting(setting).save(function (err, product, numberAffected) {
-            defered = when.defer();
-            if (err) {
-                optPromise.push(defered.reject(err));
-                return;
-            }
-            defered.resolve(numberAffected);
-        });
-        optPromise.push(defered.promise);
+        optPromise.push(new Setting(setting).savePromised());
+//        var defered = when.defer();
+//        new Setting(setting).save(function (err, product, numberAffected) {
+//            defered = when.defer();
+//            if (err) {
+//                optPromise.push(defered.reject(err));
+//                return;
+//            }
+//            defered.resolve(numberAffected);
+//        });
+//        optPromise.push(defered.promise);
     });
     return optPromise;
 }
@@ -335,9 +346,9 @@ Importer000.prototype.basicImport = function (data) {
 module.exports = {
     Importer000: Importer000,
     importData: function (data) {
-        //clean up db first
-        //utils.safeDropCollections();
-        return new Importer000().importData(data);
+        return utils.safeDropCollections().then(function () {
+            return new Importer000().importData(data);
+        });
     }
 };
 
