@@ -14,15 +14,17 @@ var mongoose   = require('mongoose'),
  * My Schema Class
  * @param {Object} options
  * @param {Object} statics
+ * @param {Object} methods
  * @constructor
  */
-function ICollegeSchema(options, statics) {
+function ICollegeSchema(options, statics, methods) {
     // # options for parent schema, descendants will override these options
     // pay attention to some specific part
     this.options = options;
     // static methods to inherit
     this.statics = statics;
-
+    // methods to inherit
+    this.methods = methods;
 }
 
 /**
@@ -45,7 +47,7 @@ ICollegeSchema.prototype.extend = function (collectionName, statics, methods, pl
     // extend statics for default schema
     _.extend(defaultSchema.statics, this.statics, statics);
     // extend methods for default schema
-    _.extend(defaultSchema.methods, methods);
+    _.extend(defaultSchema.methods, this.methods, methods);
     // apply plugin for the default schema
     _.forEach(plugins, function (plugin) {
         defaultSchema.plugin(plugin);
@@ -101,7 +103,7 @@ icollegeSchema = new ICollegeSchema({
         virtuals: false
     }
 }, {
-    // static methods definition goes here
+    // ## static methods definition goes here, `this` here means model
 
     /**
      * Find all documents in a collection
@@ -292,6 +294,31 @@ icollegeSchema = new ICollegeSchema({
         return deferred.promise;
     }
 
+}, {
+    // ## methods go here, `this` here means document
+    /**
+     * save promised, instance method
+     * @param {Boolean} model return a model or number affected, default number affected
+     * @returns {Promise}
+     */
+    'savePromised': function (model) {
+        var deferred = when.defer(),
+            retModel = model || true;
+
+        this.save(function (err, document, numberAffected) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+            if (retModel) {
+                deferred.resolve(document);
+            } else {
+                deferred.resolve(numberAffected);
+            }
+        });
+
+        return deferred.promise;
+    }
 });
 
 
