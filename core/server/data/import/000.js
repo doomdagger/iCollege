@@ -346,6 +346,9 @@ Importer000.prototype.basicImport = function (data) {
 module.exports = {
     Importer000: Importer000,
     importData: function (data) {
+//        utils.safeDropCollections();
+//        setTimeout(function () {}, 1000000);
+//        return new Importer000.importData(data);
         return utils.safeDropCollections().then(function () {
             return new Importer000().importData(data);
         });
