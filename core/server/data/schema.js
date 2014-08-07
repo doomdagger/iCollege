@@ -160,7 +160,7 @@ var db = {
         name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger'], required: true},
         permissions: [{
             permission_id: {type: Schema.Types.ObjectId, required: true, ref: 'Permission'},
-            permission_scope: {type: String, enum: ['all', 'me']}, // 最高Scope，无限制，有关联，仅限自己
+            permission_scope: {type: String, enum: ['all', 'related', 'me']}, // 最高Scope，无限制，有关联，仅限自己
             // if the scope is 'related' or 'me', object fields and values are not allowed to be optionally provided
             object_fields: [{type: String, trim: true, lowercase: true}],
             object_values: [{type: String, trim: true, lowercase: true}]
