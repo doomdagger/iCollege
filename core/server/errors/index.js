@@ -136,7 +136,7 @@ errors = {
         res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
 
         if (res.isRestful) {
-            res.json(404, {success: false, reason: "No iCollege Found"});
+            res.json(404, {success: false, errors: ["No iCollege Found"]});
         } else {
             res.send(404, "Page Not Found");
         }
@@ -156,7 +156,7 @@ errors = {
             }
             res.send(404, "Page Not Found");
         } else {
-            res.json(err.status || 500, {success: false, reason: err.message});
+            res.json(err.status || 500, {success: false, errors: [err.message]});
         }
 
     }

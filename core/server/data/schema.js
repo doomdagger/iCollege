@@ -92,6 +92,7 @@ var db = {
         }],
         apps: [{
             app_id: {type: Schema.Types.ObjectId, required: true, ref: 'App'},
+            access_token: {type: String, required: true, trim: true},
             app_fields: [{
                 uuid: {type: String, required: true}, // uuid
                 key: {type: String, required: true},
@@ -118,17 +119,20 @@ var db = {
 
     // ### APP
     // 所有开发者注册发布或iCollege维护的apps
+    // OAuth Protocol:
+    // authorizing procedure:
+    // 1. redirect users to permission confirmation page: GET _id   response: code - an unguessable string
+    // 2. user accept your access, then a post request be made: POST _id secret code(response from #1)   response: access_token generated - developer should save it and iCollege also should save it!
+    // 3. user access_token to access api: access_token can be in query param, can also be in "Authorization: token TOKEN_HERE" Header
     apps: {
         uuid: {type: String, required: true},
+        //registered OAuth application, having its unique _ID and Client Secret.
+        secret: {type: String, required: true, trim: true},
         lowercase_name: {type: String, required: true, trim: true, lowercase: true},
         name: {type: String, required: true, trim: true},
         avatar: {type: String}, // be what, for file storage, not sure
         slug: {type: String, required: true, trim: true},
         version: {type: String, required: true, trim: true},
-        created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
-        updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true},
         // 这个 app 需要哪些permission，安装时需争取到用户同意，方可继续安装
         // app 能够拥有的permission永远是user permission的子集，这点需要验证！！！
         permissions: [{
@@ -137,7 +141,11 @@ var db = {
             // if the scope is 'related' or 'me', object fields and values are not allowed to be optionally provided
             object_fields: [{type: String, trim: true, lowercase: true}],
             object_values: [{type: String, trim: true, lowercase: true}]
-        }]
+        }],
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId, required: true},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId, required: true}
     },
 
     // ### 通知

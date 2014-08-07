@@ -46,7 +46,7 @@ var middleware = {
 
         if (res.isRestful) {
             // if included in the no auth needed
-            for (index in noAuthNeeded) {
+            for (index = 0; index < noAuthNeeded.length; index++) {
                 if (noAuthNeeded[index].test(subPath)) {
                     return next();
                 }
@@ -62,7 +62,7 @@ var middleware = {
     authAPI: function (req, res, next) {
         // validate username(id) and dynamic key against server's dynamic
         if (1 !== 1) {
-            res.json(401, { success: false, reason: 'Please sign in' });
+            res.json(401, { success: false, errors: ['Please sign in'] });
             return;
         }
 

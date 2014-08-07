@@ -54,6 +54,7 @@
 
     <span class="nx">api</span>         <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./api&#39;</span><span class="p">),</span>
     <span class="nx">migration</span>   <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./data/migration&#39;</span><span class="p">),</span>
+    <span class="nx">permissions</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./permissions&#39;</span><span class="p">),</span>
     <span class="nx">config</span>      <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./config&#39;</span><span class="p">),</span>
     <span class="nx">packageInfo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../package.json&#39;</span><span class="p">),</span>
     <span class="nx">models</span>      <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./models&#39;</span><span class="p">),</span>
@@ -277,6 +278,21 @@ then create our own</p>
         <span class="k">return</span> <span class="nx">api</span><span class="p">.</span><span class="nx">init</span><span class="p">();</span>
 
     <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+</div>
+<p>Initialize the permissions actions and objects</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="k">return</span> <span class="nx">permissions</span><span class="p">.</span><span class="nx">init</span><span class="p">();</span>
+
+    <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
 
 
@@ -286,7 +302,7 @@ then create our own</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
 </div>
 <p>return the correct mime type for woff filess</p>
         </td>
@@ -300,7 +316,7 @@ then create our own</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
+  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
 </div>
 <p>enabled gzip compression by default</p>
         </td>
@@ -316,7 +332,7 @@ then create our own</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
+  <a class="pilcrow" href="#section-16" id="section-16">&#182;</a>
 </div>
 <p>override with http method having ?_method=DELETE or something else</p>
         </td>

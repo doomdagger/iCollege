@@ -117,7 +117,7 @@ function urlFor(context, data, absolute) {
     knownPaths = {
         'home': '/',
         'rss': '/rss/',
-        'api': '/icollege/api/v0.1'
+        'api': '/api/v' + icollegeConfig.api.version
     };
 
     // Make data properly optional

@@ -39,14 +39,290 @@
 </div>
 <div class="dox">
   <div class="summary"><p>Importer 000
-Created by Li He on 2014/7/25.</p>
+Created by Li He on 2014/7/25.
+Updated by (Lu Wanbo) on 2014/7/30.</p>
   </div>
   <div class="body">
   </div>
 </div>
         </td>
-        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="c1">//when   = require(&#39;when&#39;),</span>
-    <span class="nx">_</span>      <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">),</span>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">when</span>         <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when&#39;</span><span class="p">),</span>
+    <span class="nx">_</span>            <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">),</span>
+    <span class="nx">User</span>         <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">User</span><span class="p">,</span>
+    <span class="nx">App</span>          <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">App</span><span class="p">,</span>
+    <span class="nx">Notification</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">Notification</span><span class="p">,</span>
+    <span class="nx">Role</span>         <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">Role</span><span class="p">,</span>
+    <span class="nx">Permission</span>   <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">Permission</span><span class="p">,</span>
+    <span class="nx">Group</span>        <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">Group</span><span class="p">,</span>
+    <span class="nx">Circle</span>       <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">Circle</span><span class="p">,</span>
+    <span class="nx">Message</span>      <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">Message</span><span class="p">,</span>
+    <span class="nx">Post</span>         <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">Post</span><span class="p">,</span>
+    <span class="nx">Repost</span>       <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">Repost</span><span class="p">,</span>
+    <span class="nx">Setting</span>      <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../models&#39;</span><span class="p">).</span><span class="nx">Setting</span><span class="p">,</span>
+    <span class="nx">utils</span>        <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../utils&#39;</span><span class="p">),</span>
+    <span class="nx">mongoose</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;mongoose&#39;</span><span class="p">),</span>
+    <span class="nx">Importer000</span><span class="p">;</span>
+
+
+<span class="nx">Importer000</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">bindAll</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="s1">&#39;basicImport&#39;</span><span class="p">);</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">version</span> <span class="o">=</span> <span class="s1">&#39;000&#39;</span><span class="p">;</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">importFrom</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;000&#39;</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">basicImport</span>
+    <span class="p">}</span>
+
+<span class="p">};</span>
+
+<span class="nx">Importer000</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">canImport</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">data</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">db</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">meta</span> <span class="o">&amp;&amp;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">version</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">importFrom</span><span class="p">[</span><span class="nx">data</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">version</span><span class="p">])</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">importFrom</span><span class="p">[</span><span class="nx">data</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">version</span><span class="p">]);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="s2">&quot;Unsupported version of data: &quot;</span> <span class="o">+</span> <span class="nx">data</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">version</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="nx">Importer000</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">importData</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">canImport</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">importerFunc</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">importerFunc</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+        <span class="p">},</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">reason</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">reason</span><span class="p">);</span>
+        <span class="p">});</span>
+<span class="p">};</span>
+
+<span class="kd">function</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">properties</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">data</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">properties</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">property</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">delete</span> <span class="nx">obj</span><span class="p">[</span><span class="nx">property</span><span class="p">];</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">data</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importUsers</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">new</span> <span class="nx">User</span><span class="p">(</span><span class="nx">user</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+            <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importApps</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">app</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">new</span> <span class="nx">App</span><span class="p">(</span><span class="nx">app</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+            <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importNotifications</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">notification</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">new</span> <span class="nx">Notification</span><span class="p">(</span><span class="nx">notification</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+            <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importRoles</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">role</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">new</span> <span class="nx">Role</span><span class="p">(</span><span class="nx">role</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+            <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importPermissions</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">permission</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">new</span> <span class="nx">Permission</span><span class="p">(</span><span class="nx">permission</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+            <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importGroups</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">group</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">new</span> <span class="nx">Group</span><span class="p">(</span><span class="nx">group</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+            <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importCircles</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">circle</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">new</span> <span class="nx">Circle</span><span class="p">(</span><span class="nx">circle</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+            <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importMessages</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">new</span> <span class="nx">Message</span><span class="p">(</span><span class="nx">message</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+            <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importPosts</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">post</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">new</span> <span class="nx">Post</span><span class="p">(</span><span class="nx">post</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+            <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importReposts</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">repost</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">new</span> <span class="nx">Repost</span><span class="p">(</span><span class="nx">repost</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+            <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">importSettings</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">,</span> <span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">strip</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">stripProperties</span><span class="p">(</span><span class="nx">strip</span><span class="p">,</span> <span class="nx">jsonData</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">jsonData</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">setting</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+        <span class="k">new</span> <span class="nx">Setting</span><span class="p">(</span><span class="nx">setting</span><span class="p">).</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">product</span><span class="p">,</span> <span class="nx">numberAffected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">numberAffected</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="nx">optPromise</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">defered</span><span class="p">.</span><span class="nx">promise</span><span class="p">);</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">optPromise</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">Importer000</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">basicImport</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">dbData</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">db</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">data</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">optPromise</span> <span class="o">=</span> <span class="p">[];</span>
+
 
 </pre></div>
         </td>
@@ -56,22 +332,10 @@ Created by Li He on 2014/7/25.</p>
 <div class="pilwrap">
   <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
 </div>
-<p>models = require('../../models'),</p>
+<p>pre-processing here</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
-    <span class="nx">Importer000</span><span class="p">;</span>
 
-
-<span class="nx">Importer000</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">_</span><span class="p">.</span><span class="nx">bindAll</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="s1">&#39;basicImport&#39;</span><span class="p">);</span>
-
-    <span class="k">this</span><span class="p">.</span><span class="nx">version</span> <span class="o">=</span> <span class="s1">&#39;000&#39;</span><span class="p">;</span>
-<span class="p">};</span>
-
-
-<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="nx">Importer000</span><span class="o">:</span> <span class="nx">Importer000</span><span class="p">,</span>
-    <span class="nx">importData</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="cm">/*data*/</span><span class="p">)</span> <span class="p">{</span>
 
 </pre></div>
         </td>
@@ -81,10 +345,74 @@ Created by Li He on 2014/7/25.</p>
 <div class="pilwrap">
   <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
 </div>
-<p>TODO: implement this function
-return new Importer000().importData(data);</p>
+<p>import things:</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">users</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">users</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importUsers</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">users</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">apps</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">apps</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importApps</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">apps</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">notifications</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">notifications</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importNotifications</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">notifications</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importRoles</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">permissions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">permissions</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importPermissions</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">permissions</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">groups</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">groups</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importGroups</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">groups</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">circles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">circles</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importCircles</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">circles</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">messages</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">messages</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importMessages</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">messages</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">posts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">posts</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importPosts</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">posts</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">reposts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">reposts</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importReposts</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">reposts</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">dbData</span><span class="p">.</span><span class="nx">settings</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">settings</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">importSettings</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="nx">dbData</span><span class="p">.</span><span class="nx">settings</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span>
+
+    <span class="kd">var</span> <span class="nx">defered</span> <span class="o">=</span> <span class="nx">when</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">optPromise</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">promise</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">promise</span><span class="p">.</span><span class="nx">inspect</span><span class="p">();</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">result</span> <span class="o">===</span> <span class="s1">&#39;rejected&#39;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">defered</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">reason</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nx">count</span> <span class="o">+=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
+    <span class="p">});</span>
+    <span class="nx">defered</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">count</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">defered</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">Importer000</span><span class="o">:</span> <span class="nx">Importer000</span><span class="p">,</span>
+    <span class="nx">importData</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>clean up db first
+utils.safeDropCollections();</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="k">return</span> <span class="k">new</span> <span class="nx">Importer000</span><span class="p">().</span><span class="nx">importData</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">};</span>
 </pre></div>

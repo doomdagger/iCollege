@@ -11,6 +11,7 @@ var _             = require('lodash'),
     users         = require('./users'),
     db            = require('./db'),
     settings       = require('./settings'),
+
     http,
     formatHttpErrors,
     cacheInvalidationHeader,
@@ -21,7 +22,7 @@ var _             = require('lodash'),
 /**
  * ### Init
  * Initialise the API - populate the settings cache
- * @return {Promise(Settings)} Resolves to Settings Collection
+ * @return {Promise} Resolves to Settings Collection
  */
 init = function () {
     return settings.updateSettingsCache();
@@ -37,17 +38,19 @@ init = function () {
  *
  * `/*` is used to mean the entire cache is invalid
  *
+ * 该方法主要是用来处理post被更新时头部信息的cache状态，icollege用此方法来处理post与repost的cache问题
+ *
  * @private
  * @param {express.request} req Original HTTP Request
  * @param {Object} result API method result
  * @return {String} Resolves to header string
  */
 cacheInvalidationHeader = function (req, result) {
-    // make the url into array, like ['','icollege','api','v0.1','users','id']
+    // make the url into array, like ['','api','v0.1','users','id']
     var parsedUrl = req._parsedUrl.pathname.replace(/\/$/, '').split('/'),
         method = req.method,
-        endpoint = parsedUrl[4],// endpoint, like users, groups, posts, etc. just like modules
-        id = parsedUrl[5], //id or any other important unique flag
+        endpoint = parsedUrl[3],// endpoint, like users, groups, posts, etc. just like modules
+        id = parsedUrl[4], //id or any other important unique flag
         cacheInvalidate,
         jsonResult = result.toJSON ? result.toJSON() : result,
         post,
@@ -92,6 +95,8 @@ cacheInvalidationHeader = function (req, result) {
  *
  * If the API request results in the creation of a new object, construct a Location: header which points to the new
  * resource.
+ *
+ * 每当进行post请求时，设置location头部信息，以便进行跳转，如有必要！
  *
  * @private
  * @param {express.request} req Original HTTP Request
@@ -188,7 +193,9 @@ http = function (apiMethod) {
         var object = req.body,
             options = _.extend({}, req.files, req.query, req.params, {
                 context: {
+                    // TODO: user id should be in req.query
                     user: (req.session && req.session.user) ? req.session.user : null
+                    // TODO: add app context someday
                 }
             });
 
@@ -220,11 +227,11 @@ http = function (apiMethod) {
                         }
 
                         // Add Content-Disposition Header
-                        //if (apiMethod === db.exportContent) {
-                        //    res.set({
-                        //        'Content-Disposition': contentDispositionHeader()
-                        //    });
-                        //}
+                        if (apiMethod === db.exportContent) {
+                            res.set({
+                                'Content-Disposition': contentDispositionHeader()
+                            });
+                        }
 
                         // #### Success
                         // Send a properly formatting HTTP response containing the data with correct headers
@@ -234,7 +241,7 @@ http = function (apiMethod) {
                 // #### Error
                 var httpErrors = formatHttpErrors(error);
                 // Send a properly formatted HTTP response containing the errors
-                res.json(httpErrors.statusCode, {errors: httpErrors.errors});
+                res.json(httpErrors.statusCode, {success: false, errors: httpErrors.errors});
             });
     };
 };

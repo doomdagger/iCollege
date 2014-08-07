@@ -42,25 +42,13 @@
         <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">),</span>
     <span class="nx">Models</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../models&#39;</span><span class="p">),</span>
     <span class="nx">errors</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../errors&#39;</span><span class="p">),</span>
+    <span class="nx">when</span>   <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when&#39;</span><span class="p">),</span>
+    <span class="nx">Role</span>   <span class="o">=</span> <span class="nx">Models</span><span class="p">.</span><span class="nx">Role</span><span class="p">,</span>
     <span class="nx">User</span>   <span class="o">=</span> <span class="nx">Models</span><span class="p">.</span><span class="nx">User</span><span class="p">,</span>
     <span class="nx">App</span>    <span class="o">=</span> <span class="nx">Models</span><span class="p">.</span><span class="nx">App</span><span class="p">;</span>
 
 <span class="kd">var</span> <span class="nx">effective</span> <span class="o">=</span> <span class="p">{</span>
     <span class="nx">user</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">User</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">id</span><span class="o">:</span> <span class="nx">id</span><span class="p">},</span> <span class="p">{</span> <span class="nx">withRelated</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;permissions&#39;</span><span class="p">,</span> <span class="s1">&#39;roles.permissions&#39;</span><span class="p">]</span> <span class="p">})</span>
-            <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">foundUser</span><span class="p">)</span> <span class="p">{</span>
-                <span class="kd">var</span> <span class="nx">seenPerms</span> <span class="o">=</span> <span class="p">{},</span>
-                    <span class="nx">rolePerms</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">foundUser</span><span class="p">.</span><span class="nx">related</span><span class="p">(</span><span class="s1">&#39;roles&#39;</span><span class="p">).</span><span class="nx">models</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">role</span><span class="p">)</span> <span class="p">{</span>
-                        <span class="k">return</span> <span class="nx">role</span><span class="p">.</span><span class="nx">related</span><span class="p">(</span><span class="s1">&#39;permissions&#39;</span><span class="p">).</span><span class="nx">models</span><span class="p">;</span>
-                    <span class="p">}),</span>
-                    <span class="nx">allPerms</span> <span class="o">=</span> <span class="p">[];</span>
-
-                <span class="nx">rolePerms</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">foundUser</span><span class="p">.</span><span class="nx">related</span><span class="p">(</span><span class="s1">&#39;permissions&#39;</span><span class="p">).</span><span class="nx">models</span><span class="p">);</span>
-
-                <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">rolePerms</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">rolePermGroup</span><span class="p">)</span> <span class="p">{</span>
-                    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">rolePermGroup</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">perm</span><span class="p">)</span> <span class="p">{</span>
-                        <span class="kd">var</span> <span class="nx">key</span> <span class="o">=</span> <span class="nx">perm</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;action_type&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nx">perm</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;object_type&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nx">perm</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;object_id&#39;</span><span class="p">);</span>
-
 
 </pre></div>
         </td>
@@ -70,31 +58,105 @@
 <div class="pilwrap">
   <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
 </div>
+<p>find the user and project only permissions and roles fields</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="k">return</span> <span class="nx">User</span><span class="p">.</span><span class="nx">findOneAndPopulatePromised</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="nx">id</span><span class="p">},</span> <span class="p">{</span>
+            <span class="nx">path</span><span class="o">:</span> <span class="s1">&#39;permissions.permission_id&#39;</span><span class="p">,</span>
+            <span class="nx">select</span><span class="o">:</span> <span class="s1">&#39;name object_type action_type&#39;</span>
+        <span class="p">},</span> <span class="s1">&#39;permissions roles&#39;</span><span class="p">)</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>inner callback for access to returned data</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">foundUser</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="nx">Role</span><span class="p">.</span><span class="nx">findAndPopulatePromised</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">$in</span><span class="o">:</span> <span class="nx">foundUser</span><span class="p">.</span><span class="nx">roles</span><span class="p">}},</span> <span class="p">{</span>
+                    <span class="nx">path</span><span class="o">:</span> <span class="s1">&#39;permissions.permission_id&#39;</span><span class="p">,</span>
+                    <span class="nx">select</span><span class="o">:</span> <span class="s1">&#39;name object_type action_type&#39;</span>
+                <span class="p">},</span> <span class="s1">&#39;permissions&#39;</span><span class="p">)</span>
+                    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">foundRoles</span><span class="p">){</span>
+
+                        <span class="kd">var</span> <span class="nx">seenPerms</span> <span class="o">=</span> <span class="p">{},</span>
+                            <span class="nx">rolePerms</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">foundRoles</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">role</span><span class="p">)</span> <span class="p">{</span>
+                                <span class="k">return</span> <span class="nx">role</span><span class="p">.</span><span class="nx">permissions</span><span class="p">;</span>
+                            <span class="p">}),</span>
+                            <span class="nx">allPerms</span> <span class="o">=</span> <span class="p">[];</span>
+
+                        <span class="nx">rolePerms</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">foundUser</span><span class="p">.</span><span class="nx">permissions</span><span class="p">);</span>
+
+                        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">rolePerms</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">rolePermGroup</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">rolePermGroup</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">perm</span><span class="p">)</span> <span class="p">{</span>
+                                <span class="kd">var</span> <span class="nx">key</span> <span class="o">=</span> <span class="nx">perm</span><span class="p">.</span><span class="nx">permission_id</span><span class="p">.</span><span class="nx">action_type</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nx">perm</span><span class="p">.</span><span class="nx">permission_id</span><span class="p">.</span><span class="nx">object_type</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nx">perm</span><span class="p">.</span><span class="nx">permission_scope</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nx">perm</span><span class="p">.</span><span class="nx">object_fields</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nx">perm</span><span class="p">.</span><span class="nx">object_values</span><span class="p">,</span>
+                                    <span class="nx">newPerm</span> <span class="o">=</span> <span class="p">{};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
 <p>Only add perms once</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
-                        <span class="k">if</span> <span class="p">(</span><span class="nx">seenPerms</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span> <span class="p">{</span>
-                            <span class="k">return</span><span class="p">;</span>
-                        <span class="p">}</span>
+                                <span class="k">if</span> <span class="p">(</span><span class="nx">seenPerms</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span> <span class="p">{</span>
+                                    <span class="k">return</span><span class="p">;</span>
+                                <span class="p">}</span>
 
-                        <span class="nx">allPerms</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">perm</span><span class="p">);</span>
-                        <span class="nx">seenPerms</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+                                <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">perm</span><span class="p">),</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+                                    <span class="k">if</span> <span class="p">(</span><span class="nx">key</span> <span class="o">===</span> <span class="s2">&quot;permission_id&quot;</span><span class="p">)</span> <span class="p">{</span>
+                                        <span class="nx">_</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span><span class="nx">newPerm</span><span class="p">,</span> <span class="nx">perm</span><span class="p">[</span><span class="nx">key</span><span class="p">]);</span>
+                                    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                                        <span class="nx">newPerm</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">perm</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+                                    <span class="p">}</span>
+                                <span class="p">});</span>
+
+                                <span class="nx">allPerms</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">newPerm</span><span class="p">);</span>
+                                <span class="nx">seenPerms</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+                            <span class="p">});</span>
+                        <span class="p">});</span>
+
+                        <span class="k">return</span> <span class="nx">allPerms</span><span class="p">;</span>
                     <span class="p">});</span>
-                <span class="p">});</span>
+            <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">errors</span><span class="p">.</span><span class="nx">logAndThrowError</span><span class="p">);</span>
 
-                <span class="k">return</span> <span class="nx">allPerms</span><span class="p">;</span>
-            <span class="p">},</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">logAndThrowError</span><span class="p">);</span>
     <span class="p">},</span>
 
-    <span class="nx">app</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">appName</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="nx">appName</span><span class="p">},</span> <span class="p">{</span> <span class="nx">withRelated</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;permissions&#39;</span><span class="p">]</span> <span class="p">})</span>
+    <span class="nx">app</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">findOneAndPopulatePromised</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="nx">id</span><span class="p">},</span> <span class="s1">&#39;permissions.permission_id&#39;</span><span class="p">,</span> <span class="s1">&#39;permissions&#39;</span><span class="p">)</span>
             <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">foundApp</span><span class="p">)</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">allPerms</span> <span class="o">=</span> <span class="p">[];</span>
+
                 <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">foundApp</span><span class="p">)</span> <span class="p">{</span>
                     <span class="k">return</span> <span class="p">[];</span>
                 <span class="p">}</span>
 
-                <span class="k">return</span> <span class="nx">foundApp</span><span class="p">.</span><span class="nx">related</span><span class="p">(</span><span class="s1">&#39;permissions&#39;</span><span class="p">).</span><span class="nx">models</span><span class="p">;</span>
-            <span class="p">},</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">logAndThrowError</span><span class="p">);</span>
+                <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">foundApp</span><span class="p">.</span><span class="nx">permissions</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">perm</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">newPerm</span> <span class="o">=</span> <span class="p">{};</span>
+
+                    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">perm</span><span class="p">),</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="nx">key</span> <span class="o">===</span> <span class="s2">&quot;permission_id&quot;</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="nx">_</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span><span class="nx">newPerm</span><span class="p">,</span> <span class="nx">perm</span><span class="p">[</span><span class="nx">key</span><span class="p">]);</span>
+                        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                            <span class="nx">newPerm</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">perm</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+                        <span class="p">}</span>
+                    <span class="p">});</span>
+
+                    <span class="nx">allPerms</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">newPerm</span><span class="p">);</span>
+                <span class="p">});</span>
+
+                <span class="k">return</span> <span class="nx">allPerms</span><span class="p">;</span>
+            <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">errors</span><span class="p">.</span><span class="nx">logAndThrowError</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">};</span>
 

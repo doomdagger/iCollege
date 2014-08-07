@@ -157,6 +157,7 @@ Schema Type 都有哪些：
         <span class="nx">website</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="s1">&#39;http://blog.icollege.com&#39;</span><span class="p">},</span>
         <span class="nx">location</span><span class="o">:</span> <span class="p">[{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Number</span><span class="p">,</span> <span class="nx">index</span><span class="o">:</span> <span class="s1">&#39;2dsphere&#39;</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">}],</span>
         <span class="nx">location_info</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
+        <span class="nx">profile_visibility</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;private, public, friends_only&#39;</span><span class="p">],</span> <span class="k">default</span><span class="o">:</span> <span class="s1">&#39;friends_only&#39;</span><span class="p">},</span>
         <span class="nx">tags</span><span class="o">:</span> <span class="p">[{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">}],</span> <span class="c1">// 用户个性标签</span>
         <span class="nx">status</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;online&#39;</span><span class="p">,</span> <span class="s1">&#39;invisible&#39;</span><span class="p">,</span> <span class="s1">&#39;offline&#39;</span><span class="p">],</span> <span class="k">default</span><span class="o">:</span> <span class="s1">&#39;offline&#39;</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span> <span class="c1">// online offline or ...</span>
         <span class="nx">language</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;zh_CN&#39;</span><span class="p">,</span> <span class="s1">&#39;en_US&#39;</span><span class="p">],</span> <span class="k">default</span><span class="o">:</span> <span class="s1">&#39;zh_CN&#39;</span><span class="p">},</span>
@@ -166,7 +167,7 @@ Schema Type 都有哪些：
         <span class="nx">updated_at</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Date</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()},</span>
         <span class="nx">updated_by</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
         <span class="nx">groups</span><span class="o">:</span> <span class="p">[{</span>
-            <span class="nx">group_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">},</span>
+            <span class="nx">group_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">ref</span><span class="o">:</span> <span class="s1">&#39;Group&#39;</span><span class="p">},</span>
             <span class="nx">message_alert</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Boolean</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
             <span class="nx">location_share</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Boolean</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
             <span class="nx">profile_visible</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Boolean</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="kc">false</span><span class="p">},</span>
@@ -176,7 +177,7 @@ Schema Type 都有哪些：
             <span class="nx">updated_by</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">}</span>
         <span class="p">}],</span>
         <span class="nx">circles</span><span class="o">:</span> <span class="p">[{</span>
-            <span class="nx">circle_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">},</span>
+            <span class="nx">circle_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">ref</span><span class="o">:</span> <span class="s1">&#39;Circle&#39;</span><span class="p">},</span>
             <span class="nx">post_alert</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Boolean</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
             <span class="nx">location_share</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Boolean</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
             <span class="nx">profile_visible</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Boolean</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="kc">false</span><span class="p">},</span>
@@ -186,7 +187,7 @@ Schema Type 都有哪些：
             <span class="nx">updated_by</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">}</span>
         <span class="p">}],</span>
         <span class="nx">friends</span><span class="o">:</span> <span class="p">[{</span>
-            <span class="nx">friend_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">},</span>
+            <span class="nx">friend_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">ref</span><span class="o">:</span> <span class="s1">&#39;User&#39;</span><span class="p">},</span>
             <span class="nx">remark_name</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span> <span class="c1">// 好友备注名称</span>
             <span class="nx">friend_group</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="s1">&#39;friends&#39;</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span> <span class="c1">// 好友所属分组， 这个灵活些~</span>
             <span class="nx">esp_care</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Boolean</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="kc">false</span><span class="p">},</span> <span class="c1">// 特别关心此好友吗</span>
@@ -199,14 +200,28 @@ Schema Type 都有哪些：
         <span class="p">}],</span>
         <span class="nx">roles</span><span class="o">:</span> <span class="p">[{</span>
             <span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span>
-            <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span>
+            <span class="nx">ref</span><span class="o">:</span> <span class="s1">&#39;Role&#39;</span>
         <span class="p">}],</span>
         <span class="nx">permissions</span><span class="o">:</span> <span class="p">[{</span>
-            <span class="nx">permission_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
-            <span class="nx">permission_scope</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;related&#39;</span><span class="p">,</span> <span class="s1">&#39;me&#39;</span><span class="p">]}</span> <span class="c1">// 最高Scope，无限制，有关联，仅限自己</span>
+            <span class="nx">permission_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">ref</span><span class="o">:</span> <span class="s1">&#39;Permission&#39;</span><span class="p">},</span>
+            <span class="nx">permission_scope</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;related&#39;</span><span class="p">,</span> <span class="s1">&#39;me&#39;</span><span class="p">]},</span> <span class="c1">// 最高Scope，无限制，有关联，仅限自己</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>if the scope is 'related' or 'me', object fields and values are not allowed to be optionally provided</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">object_fields</span><span class="o">:</span> <span class="p">[{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">lowercase</span><span class="o">:</span> <span class="kc">true</span><span class="p">}],</span>
+            <span class="nx">object_values</span><span class="o">:</span> <span class="p">[{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">lowercase</span><span class="o">:</span> <span class="kc">true</span><span class="p">}]</span>
         <span class="p">}],</span>
         <span class="nx">apps</span><span class="o">:</span> <span class="p">[{</span>
-            <span class="nx">app_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
+            <span class="nx">app_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">ref</span><span class="o">:</span> <span class="s1">&#39;App&#39;</span><span class="p">},</span>
             <span class="nx">app_fields</span><span class="o">:</span> <span class="p">[{</span>
                 <span class="nx">uuid</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span> <span class="c1">// uuid</span>
                 <span class="nx">key</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
@@ -266,15 +281,29 @@ Schema Type 都有哪些：
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
 </div>
 <p>这个 app 需要哪些permission，安装时需争取到用户同意，方可继续安装
 app 能够拥有的permission永远是user permission的子集，这点需要验证！！！</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
         <span class="nx">permissions</span><span class="o">:</span> <span class="p">[{</span>
-            <span class="nx">permission_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
-            <span class="nx">permission_scope</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;related&#39;</span><span class="p">,</span> <span class="s1">&#39;own&#39;</span><span class="p">]}</span> <span class="c1">// 最高Scope，无限制，有关联，仅限自己</span>
+            <span class="nx">permission_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">ref</span><span class="o">:</span> <span class="s1">&#39;Permission&#39;</span><span class="p">},</span>
+            <span class="nx">permission_scope</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;me&#39;</span><span class="p">]},</span> <span class="c1">// 最高Scope，无限制，有关联，仅限自己</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+</div>
+<p>if the scope is 'related' or 'me', object fields and values are not allowed to be optionally provided</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">object_fields</span><span class="o">:</span> <span class="p">[{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">lowercase</span><span class="o">:</span> <span class="kc">true</span><span class="p">}],</span>
+            <span class="nx">object_values</span><span class="o">:</span> <span class="p">[{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">lowercase</span><span class="o">:</span> <span class="kc">true</span><span class="p">}]</span>
         <span class="p">}]</span>
     <span class="p">},</span>
 
@@ -297,7 +326,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
         <td class="code highlight"><div class="highlight"><pre>
     <span class="nx">notifications</span><span class="o">:</span> <span class="p">{</span>
         <span class="nx">uuid</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span> <span class="c1">// uuid</span>
-        <span class="nx">user_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
+        <span class="nx">user_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">ref</span><span class="o">:</span> <span class="s1">&#39;User&#39;</span><span class="p">},</span>
         <span class="nx">note_category</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;repost&#39;</span><span class="p">,</span> <span class="s1">&#39;favored&#39;</span><span class="p">,</span> <span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="s1">&#39;at&#39;</span><span class="p">],</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>  <span class="c1">// 这么几种类别: 回复，赞，转发，@ 这四种</span>
         <span class="nx">object_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span> <span class="c1">// 对应着以上通知的类别，跟通知有关的对象ID可能是，repost, post两种</span>
         <span class="nx">created_at</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Date</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()},</span>
@@ -327,8 +356,22 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
         <span class="nx">uuid</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span> <span class="c1">// uuid</span>
         <span class="nx">name</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;SuperAdministrator&#39;</span><span class="p">,</span> <span class="s1">&#39;Administrator&#39;</span><span class="p">,</span> <span class="s1">&#39;iColleger&#39;</span><span class="p">],</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
         <span class="nx">permissions</span><span class="o">:</span> <span class="p">[{</span>
-            <span class="nx">permission_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
-            <span class="nx">permission_scope</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;related&#39;</span><span class="p">,</span> <span class="s1">&#39;own&#39;</span><span class="p">]}</span> <span class="c1">// 最高Scope，无限制，有关联，仅限自己</span>
+            <span class="nx">permission_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">ref</span><span class="o">:</span> <span class="s1">&#39;Permission&#39;</span><span class="p">},</span>
+            <span class="nx">permission_scope</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="kr">enum</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;me&#39;</span><span class="p">]},</span> <span class="c1">// 最高Scope，无限制，有关联，仅限自己</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+</div>
+<p>if the scope is 'related' or 'me', object fields and values are not allowed to be optionally provided</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">object_fields</span><span class="o">:</span> <span class="p">[{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">lowercase</span><span class="o">:</span> <span class="kc">true</span><span class="p">}],</span>
+            <span class="nx">object_values</span><span class="o">:</span> <span class="p">[{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">lowercase</span><span class="o">:</span> <span class="kc">true</span><span class="p">}]</span>
         <span class="p">}],</span>
         <span class="nx">description</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">trim</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="s2">&quot;&quot;</span><span class="p">},</span>
         <span class="nx">created_at</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Date</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()},</span>
@@ -362,7 +405,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
 </div>
 <p>object_types map the sub-modules of api module</p>
         </td>
@@ -380,7 +423,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
 </div>
 <p>action_types map the operations of each sub-module</p>
         </td>
@@ -391,7 +434,6 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
                 <span class="s1">&#39;importContent&#39;</span><span class="p">,</span> <span class="s1">&#39;deleteAllContent&#39;</span><span class="p">,</span> <span class="s1">&#39;browse&#39;</span><span class="p">,</span> <span class="s1">&#39;add&#39;</span><span class="p">],</span>
             <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span>
         <span class="p">},</span>
-        <span class="nx">object_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">},</span> <span class="c1">// 权限对象？这个字段什么意思</span>
         <span class="nx">created_at</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Date</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()},</span>
         <span class="nx">created_by</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">Types</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">},</span>
         <span class="nx">updated_at</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Date</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()},</span>
@@ -426,7 +468,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
+  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
 </div>
 <p>群主</p>
         </td>
@@ -439,7 +481,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+  <a class="pilcrow" href="#section-16" id="section-16">&#182;</a>
 </div>
 
 <div class="highlight"><pre><code>   <span class="err">群组管理员，非！系统管理员</span>
@@ -467,7 +509,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
+  <a class="pilcrow" href="#section-17" id="section-17">&#182;</a>
 </div>
 <p>we have a limited range of categories for user to select, but not listed here as enums
 兴趣爱好：影视，音乐，星座，动漫，运动，读书，摄影，其他
@@ -512,7 +554,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
+  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
 </div>
 <p>---------------------------------------- 扩充以下的实体字段 注:根据mongoose标准添加，如果有default，就无需加上required ------------- //</p>
         </td>
@@ -547,7 +589,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-17" id="section-17">&#182;</a>
+  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
 </div>
 <p>圈主，圈子拥有者</p>
         </td>
@@ -560,7 +602,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
+  <a class="pilcrow" href="#section-21" id="section-21">&#182;</a>
 </div>
 
 <div class="highlight"><pre><code>   <span class="err">圈子管理员，非！系统管理员</span>
@@ -589,7 +631,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
+  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
 </div>
 <p>we have a limited range of categories for user to select, but not listed here as enums
 兴趣爱好：影视，音乐，星座，动漫，运动，读书，摄影，其他
@@ -616,7 +658,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
+  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
 </div>
 <p>添加成员进圈子时的审核策略：不需要审核或需要管理员审核等</p>
         </td>
@@ -692,7 +734,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
+  <a class="pilcrow" href="#section-26" id="section-26">&#182;</a>
 </div>
 <p>帖子的来源，好友圈（默认），或是其他某一个圈子：好友圈这个圈子专属于自己，这个圈子包含了用户的所有好友</p>
         </td>
@@ -706,7 +748,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-24" id="section-24">&#182;</a>
+  <a class="pilcrow" href="#section-27" id="section-27">&#182;</a>
 </div>
 <p>================== 转发信息 ==================</p>
         </td>
@@ -723,7 +765,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-25" id="section-25">&#182;</a>
+  <a class="pilcrow" href="#section-28" id="section-28">&#182;</a>
 </div>
 <p>================== 原创信息 ==================</p>
         </td>
@@ -786,7 +828,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-27" id="section-27">&#182;</a>
+  <a class="pilcrow" href="#section-30" id="section-30">&#182;</a>
 </div>
 <p>================== 回帖内容 ==============</p>
         </td>
@@ -837,7 +879,7 @@ app 能够拥有的permission永远是user permission的子集，这点需要验
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-29" id="section-29">&#182;</a>
+  <a class="pilcrow" href="#section-32" id="section-32">&#182;</a>
 </div>
 <p>TODO: add more setting types for icollege</p>
         </td>
