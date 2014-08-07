@@ -296,14 +296,15 @@ icollegeSchema = new ICollegeSchema({
 
 }, {
     // ## methods go here, `this` here means document
+
     /**
      * save promised, instance method
-     * @param {Boolean} model return a model or number affected, default number affected
+     * @param {Boolean} [model] return a model or number affected, default number affected
      * @returns {Promise}
      */
     'savePromised': function (model) {
         var deferred = when.defer(),
-            retModel = model || true;
+            retModel = model || false;
 
         this.save(function (err, document, numberAffected) {
             if (err) {
