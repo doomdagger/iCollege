@@ -64,8 +64,10 @@ var middleware = {
     // Authenticate a request to the API by responding with a 401 and json error details
     authAPI: function (req, res, next) {
         // validate username(id) and dynamic key against server's dynamic
+        // TODO: give it the correct auth method
+        // insert secret key into OAuth Header
         if (1 !== 1) {
-            res.json(401, { success: false, errors: ['Please sign in'] });
+            res.json(401, { success: false, errors: ['Please Provide your username and password to authenticate yourself.'] });
             return;
         }
 
@@ -104,7 +106,7 @@ var middleware = {
 //            // if not restful request, do something?
 //
 //        }
-
+        // TODO: add logic for being aware of differentiating app operation and user operation
         // Pass 'secure' flag to the view engine
         // so that templates can choose 'url' vs 'urlSSL'
         res.locals.secure = req.secure;
@@ -160,6 +162,7 @@ var middleware = {
         res.locals.relativeUrl = req.path.replace(config().paths.subdir, '');
 
         if (res.isRestful) {
+            // TODO: Am I have some locals to insert into response?
 //            when.all([
 //                // api method needed to initialize any data
 //            ]).then(function (values) {

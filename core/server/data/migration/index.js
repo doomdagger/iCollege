@@ -119,7 +119,7 @@ function backupDatabase() {
 
 // Migrate from a specific version to the latest
 migrateUp = function () {
-
+    // TODO: Too simple logic for migrating up
     return backupDatabase().then(function () {
         return migrateUpFreshDb();
     });

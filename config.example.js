@@ -89,6 +89,7 @@ config = {
     // Uses a different port number
     testing: {
         url: 'http://127.0.0.1:1222',
+        // urlSSL: 'https://127.0.0.1:1443',
         database: {
             // our main database, storage for all important data
             mongodb: {

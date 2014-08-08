@@ -193,7 +193,7 @@ CanThisResult.prototype.buildObjectTypeHandlers = function (obj_types, act_type,
                 }
 
                 if (hasUserPermission && hasAppPermission) {
-                    return when.resolve();
+                    return when.resolve(foundModel);
                 }
                 return when.reject();
             });

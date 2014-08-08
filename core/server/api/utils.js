@@ -13,6 +13,7 @@ utils = {
      * @param {String} docName
      * @returns {Promise(Object)} resolves to the original object if it checks out
      */
+    // TODO: validate request body against json type can be written at here
     checkObject: function (object, docName) {
         if (_.isEmpty(object) || _.isEmpty(object[docName]) || _.isEmpty(object[docName][0])) {
             return when.reject({type: 'BadRequest', message: 'No root key (\'' + docName + '\') provided.'});
