@@ -553,6 +553,11 @@ populateFixtures = function () {
             object_values: values
         };
     }
+    function superadminPermissionAdder(object) {
+        object.permissions.push(permissionAdder(p[43], 'all'));
+        object.permissions.push(permissionAdder(p[44], 'all'));
+        object.permissions.push(permissionAdder(p[45], 'all'));
+    }
     function adminPermissionAdder(object) {
         object.permissions.push(permissionAdder(p[0], 'all'));
         object.permissions.push(permissionAdder(p[7], 'all'));
@@ -569,51 +574,49 @@ populateFixtures = function () {
         object.permissions.push(permissionAdder(p[29], 'all'));
         object.permissions.push(permissionAdder(p[32], 'all'));
         object.permissions.push(permissionAdder(p[35], 'all'));
-        object.permissions.push(permissionAdder(p[43], 'all'));
-        object.permissions.push(permissionAdder(p[44], 'all'));
-        object.permissions.push(permissionAdder(p[45], 'all'));
     }
     function userPermissionAdder(object) {
         object.permissions.push(permissionAdder(p[1], 'all'));
-        object.permissions.push(permissionAdder(p[2], 'me', ['_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[2], 'me', ['user_id'], ['$_id']));
         object.permissions.push(permissionAdder(p[3], 'all'));
         object.permissions.push(permissionAdder(p[4], 'all'));
-        object.permissions.push(permissionAdder(p[6], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[7], 'me', ['_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[5], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[6], 'me', ['user_id'], ['$_id']));
         object.permissions.push(permissionAdder(p[8], 'all'));
         object.permissions.push(permissionAdder(p[9], 'all'));
-        object.permissions.push(permissionAdder(p[10], 'me', ['_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[10], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[11], 'all'));
         object.permissions.push(permissionAdder(p[12], 'all'));
-        object.permissions.push(permissionAdder(p[13], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[14], 'me', ['_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[13], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[14], 'me', ['user_id'], ['$_id']));
         object.permissions.push(permissionAdder(p[16], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[19], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[20], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[22], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[30], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[31], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[33], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[34], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[36], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[37], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[38], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[39], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[40], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[41], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[42], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[46], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[47], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[48], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[49], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[50], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[51], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[52], 'me', ['_id'], ['$_id']));
-        object.permissions.push(permissionAdder(p[53], 'me', ['_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[19], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[20], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[22], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[30], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[31], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[33], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[34], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[36], 'me'));
+        object.permissions.push(permissionAdder(p[37], 'me'));
+        object.permissions.push(permissionAdder(p[38], 'me'));
+        object.permissions.push(permissionAdder(p[39], 'me'));
+        object.permissions.push(permissionAdder(p[40], 'me'));
+        object.permissions.push(permissionAdder(p[41], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[42], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[46], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[47], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[48], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[49], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[50], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[51], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[52], 'me', ['user_id'], ['$_id']));
+        object.permissions.push(permissionAdder(p[53], 'me', ['user_id'], ['$_id']));
     }
     //super administrator role
     r.push(new Role(fixtures.roles[0]));
     sa_id_adder(r[0]);
-    adminPermissionAdder(r[0]);
+    superadminPermissionAdder(r[0]);
 
     //administrator role
     r.push(new Role(fixtures.roles[1]));
@@ -634,12 +637,6 @@ populateFixtures = function () {
     u[1].roles.push(r[2]._id);
     u[2].roles.push(r[2]._id);
 
-    //add permissions to users
-    adminPermissionAdder(u[0]);
-    userPermissionAdder(u[0]);
-    adminPermissionAdder(u[1]);
-    userPermissionAdder(u[1]);
-    userPermissionAdder(u[2]);
 
     _.each(u, function (user) {
         ops.push(function () {
