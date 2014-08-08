@@ -7,7 +7,7 @@ module.exports = {
     'circle':     require('../models/circle').Circle,
     'group':      require('../models/group').Group,
     'message':    require('../models/message').Message,
-    'notification':require('../models/notification').Notification,
+    'notification': require('../models/notification').Notification,
     'post':       require('../models/post').Post,
     'repost':     require('../models/repost').Repost,
     'setting':    require('../models/settings').Setting

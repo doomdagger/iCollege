@@ -18,7 +18,6 @@ var when         = require('when'),
     Repost       = require('../../models/repost').Repost,
     Setting      = require('../../models/settings').Setting,
     utils        = require('../utils'),
-    mongoose = require('mongoose'),
     Importer000;
 
 
@@ -29,7 +28,7 @@ Importer000 = function () {
 
     this.importFrom = {
         '000': this.basicImport
-    }
+    };
 
 };
 
@@ -62,11 +61,11 @@ function stripProperties(properties, data) {
 }
 
 function importUsers(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(user) {
+    _.each(jsonData, function (user) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
         optPromise.push(new User(user).savePromised().catch(function (error) { return when.reject(error); }));
 //        new User(user).save(function (err, product, numberAffected) {
@@ -83,11 +82,11 @@ function importUsers(optPromise, jsonData, strip) {
 }
 
 function importApps(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(app) {
+    _.each(jsonData, function (app) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
         optPromise.push(new App(app).savePromised().catch(function (error) { return when.reject(error); }));
 //        new App(app).save(function (err, product, numberAffected) {
@@ -104,11 +103,11 @@ function importApps(optPromise, jsonData, strip) {
 }
 
 function importNotifications(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(notification) {
+    _.each(jsonData, function (notification) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
         optPromise.push(new Notification(notification).savePromised().catch(function (error) { return when.reject(error); }));
 //        new Notification(notification).save(function (err, product, numberAffected) {
@@ -124,11 +123,11 @@ function importNotifications(optPromise, jsonData, strip) {
 }
 
 function importRoles(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(role) {
+    _.each(jsonData, function (role) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
         optPromise.push(new Role(role).savePromised().catch(function (error) { return when.reject(error); }));
 //        var defered = when.defer();
@@ -146,11 +145,11 @@ function importRoles(optPromise, jsonData, strip) {
 }
 
 function importPermissions(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(permission) {
+    _.each(jsonData, function (permission) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
         optPromise.push(new Permission(permission).savePromised().catch(function (error) { return when.reject(error); }));
 //        var defered = when.defer();
@@ -168,11 +167,11 @@ function importPermissions(optPromise, jsonData, strip) {
 }
 
 function importGroups(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(group) {
+    _.each(jsonData, function (group) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
         optPromise.push(new Group(group).savePromised().catch(function (error) { return when.reject(error); }));
 //        var defered = when.defer();
@@ -190,11 +189,11 @@ function importGroups(optPromise, jsonData, strip) {
 }
 
 function importCircles(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(circle) {
+    _.each(jsonData, function (circle) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
         optPromise.push(new Circle(circle).savePromised().catch(function (error) { return when.reject(error); }));
 //        var defered = when.defer();
@@ -212,13 +211,13 @@ function importCircles(optPromise, jsonData, strip) {
 }
 
 function importMessages(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(message) {
+    _.each(jsonData, function (message) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
-        optPromise.push(new Post(post).savePromised().catch(function (error) { return when.reject(error); }));
+        optPromise.push(new Message(message).savePromised().catch(function (error) { return when.reject(error); }));
 //        var defered = when.defer();
 //        new Message(message).save(function (err, product, numberAffected) {
 //            defered = when.defer();
@@ -234,11 +233,11 @@ function importMessages(optPromise, jsonData, strip) {
 }
 
 function importPosts(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(post) {
+    _.each(jsonData, function (post) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
         optPromise.push(new Post(post).savePromised().catch(function (error) { return when.reject(error); }));
 //        var defered = when.defer();
@@ -256,11 +255,11 @@ function importPosts(optPromise, jsonData, strip) {
 }
 
 function importReposts(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(repost) {
+    _.each(jsonData, function (repost) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
         optPromise.push(new Repost(repost).savePromised().catch(function (error) { return when.reject(error); }));
 //        var defered = when.defer();
@@ -278,11 +277,11 @@ function importReposts(optPromise, jsonData, strip) {
 }
 
 function importSettings(optPromise, jsonData, strip) {
-    if(strip) {
+    if (strip) {
         jsonData = stripProperties(strip, jsonData);
     }
 
-    _.each(jsonData, function(setting) {
+    _.each(jsonData, function (setting) {
         // add pass-through error handling so that bluebird doesn't think we've dropped it
         optPromise.push(new Setting(setting).savePromised().catch(function (error) { return when.reject(error); }));
 //        var defered = when.defer();
@@ -300,58 +299,59 @@ function importSettings(optPromise, jsonData, strip) {
 }
 
 Importer000.prototype.basicImport = function (data) {
-    dbData = data.db[0].data;
-    var optPromise = [];
+    var dbData = data.db[0].data,
+        optPromise = [],
+        deferred = when.defer(),
+        count = 0;
 
     //pre-processing here
 
     //import things:
-    if(dbData.users[1] && dbData.users[1].length) {
+    if (dbData.users[1] && dbData.users[1].length) {
         importUsers(optPromise, dbData.users[1]);
     }
-    if(dbData.apps[1] && dbData.apps[1].length) {
+    if (dbData.apps[1] && dbData.apps[1].length) {
         importApps(optPromise, dbData.apps[1]);
     }
-    if(dbData.notifications[1] && dbData.notifications[1].length) {
+    if (dbData.notifications[1] && dbData.notifications[1].length) {
         importNotifications(optPromise, dbData.notifications[1]);
     }
-    if(dbData.roles[1] && dbData.roles[1].length) {
+    if (dbData.roles[1] && dbData.roles[1].length) {
         importRoles(optPromise, dbData.roles[1]);
     }
-    if(dbData.permissions[1] && dbData.permissions[1].length) {
+    if (dbData.permissions[1] && dbData.permissions[1].length) {
         importPermissions(optPromise, dbData.permissions[1]);
     }
-    if(dbData.groups[1] && dbData.groups[1].length) {
+    if (dbData.groups[1] && dbData.groups[1].length) {
         importGroups(optPromise, dbData.groups[1]);
     }
-    if(dbData.circles[1] && dbData.circles[1].length) {
+    if (dbData.circles[1] && dbData.circles[1].length) {
         importCircles(optPromise, dbData.circles[1]);
     }
-    if(dbData.messages[1] && dbData.messages[1].length) {
+    if (dbData.messages[1] && dbData.messages[1].length) {
         importMessages(optPromise, dbData.messages[1]);
     }
-    if(dbData.posts[1] && dbData.posts[1].length) {
+    if (dbData.posts[1] && dbData.posts[1].length) {
         importPosts(optPromise, dbData.posts[1]);
     }
-    if(dbData.reposts[1] && dbData.reposts[1].length) {
+    if (dbData.reposts[1] && dbData.reposts[1].length) {
         importReposts(optPromise, dbData.reposts[1]);
     }
-    if(dbData.settings[1] && dbData.settings[1].length) {
+    if (dbData.settings[1] && dbData.settings[1].length) {
         importSettings(optPromise, dbData.settings[1]);
     }
 
-    var defered = when.defer();
-    var count = 0;
+
     _.each(optPromise, function (promise) {
         var result = promise.inspect();
-        if(result === 'rejected') {
-            defered.reject(result.reason);
+        if (result === 'rejected') {
+            deferred.reject(result.reason);
             return;
         }
         count += result.value;
     });
-    defered.resolve(count);
-    return defered;
+    deferred.resolve(count);
+    return deferred.promise;
 };
 
 module.exports = {

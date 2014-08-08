@@ -513,21 +513,23 @@ var fixtures = {
 };
 
 populateFixtures = function () {
-    var ops = [];
+    var ops = [],
 
-    var u = [],
+        u = [],
         p = [],
-        r = [];
+        r = [],
 
-    var sa_id;
+        sa_id,
+
+        sa_id_adder = function (object) {
+            object.created_by = sa_id;
+            object.updated_by = sa_id;
+        };
 
     //users
     u.push(new User(fixtures.users[0]));
     sa_id = u[0]._id;
-    var sa_id_adder = function (object) {
-        object.created_by = sa_id;
-        object.updated_by = sa_id;
-    };
+
     sa_id_adder(u[0]);
 
     u.push(new User(fixtures.users[1]));
@@ -657,8 +659,8 @@ populateFixtures = function () {
         ops.push(function () {
             role.savePromised().catch(function (error) {
                 when.reject(error);
-            })
-        })
+            });
+        });
     });
     return sequence(ops);
 };

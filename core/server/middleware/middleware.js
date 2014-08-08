@@ -46,9 +46,12 @@ var middleware = {
 
         if (res.isRestful) {
             // if included in the no auth needed
-            for (index = 0; index < noAuthNeeded.length; index++) {
-                if (noAuthNeeded[index].test(subPath)) {
-                    return next();
+            for (index in noAuthNeeded) {
+                if (noAuthNeeded.hasOwnProperty(index)) {
+                    // We are sure that obj[key] belongs to the object and was not inherited.
+                    if (noAuthNeeded[index].test(subPath)) {
+                        return next();
+                    }
                 }
             }
             return middleware.authAPI(req, res, next);

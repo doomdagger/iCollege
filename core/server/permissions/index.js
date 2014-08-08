@@ -109,53 +109,67 @@ CanThisResult.prototype.buildObjectTypeHandlers = function (obj_types, act_type,
                     appPermissions = loadedPermissions.app,
                     hasUserPermission,
                     hasAppPermission,
+                    deepReferProp = function (field_value, part) {
+                        return field_value[part];
+                    },
+                    checkRelatedPerm = function (fields, values) {
+                        var specValue,
+                            i;
+
+                        // length not match, bad params!
+                        if (fields.length !== values.length) {
+                            return false;
+                        }
+
+                        // we need validate all the fields
+                        for (i in fields) {
+                            if (fields.hasOwnProperty(i)) {
+                                // 在foundUser中找到深层字段的具体值与object_value相比较，有一个不同，则该perm与验证的perm不为同一个
+                                // return false directly
+                                specValue = _.reduce(fields[i].split(/\./), deepReferProp, foundModel);
+
+                                if (values[i] !== specValue.toString()) {
+                                    return false;
+                                }
+                            }
+                        }
+                        // all pass, return true
+                        return true;
+                    },
                     checkPermission = function (permissions) {
                         var index,
                             perm,
                             ret;
 
-                        for (index = 0; index < permissions.length; index++) {
-                            perm = permissions[index];
+                        for (index in permissions) {
+                            if (permissions.hasOwnProperty(index)) {
+                                perm = permissions[index];
 
-                            // Look for a matching action type and object type first
-                            if (perm.action_type !== act_type || perm.object_type !== obj_type || perm.permission_scope !== scope) {
-                                continue;
-                            }
-                            // If action_type, object_type, scope all match,
-                            // check permission according to different scope
+                                // Look for a matching action type and object type first
+                                if (perm.action_type !== act_type || perm.object_type !== obj_type || perm.permission_scope !== scope) {
+                                    continue;
+                                }
+                                // If action_type, object_type, scope all match,
+                                // check permission according to different scope
 
-                            // `related` need `foundModel` to be not null!!
-                            if (scope === "related" && foundModel) {
-                                // we need a closure to wrap the logic for validating fields and values pair
-                                ret = (function (fields, values){
-                                    // length not match, bad params!
-                                    if (fields.length !== values.length) {
-                                        return false;
+                                // `related` need `foundModel` to be not null!!
+                                if (scope === "related" && foundModel) {
+                                    // we need a closure to wrap the logic for validating fields and values pair
+                                    ret = checkRelatedPerm(perm.object_fields, perm.object_values);
+
+                                    if (ret) {
+                                        return true;
                                     }
-                                    // we need validate all the fields
-                                    for (var i = 0; i < fields.length; i++) {
-                                        // 在foundUser中找到深层字段的具体值与object_value相比较，有一个不同，则该perm与验证的perm不为同一个
-                                        // return false directly
-                                        if (values[i] != _.reduce(fields[i].split(/\./), function (field_value, part) { return field_value[part]; }, foundModel)) {
-                                            return false;
-                                        }
-                                    }
-                                    // all pass, return true
-                                    return true;
-                                })(perm.object_fields, perm.object_values);
-
-                                if (ret) {
+                                }
+                                // `me` scope, need context.user and foundModel
+                                else if (scope === "me" && context && context.user && foundModel) {
+                                    // scope of me: one field only, with no other values to refer
+                                    return foundModel[perm.object_fields[0]].toString() === context.user;
+                                }
+                                // `all` scope, need no specific fields, pass nothing to this method
+                                else if (scope === "all") {
                                     return true;
                                 }
-                            }
-                            // `me` scope, need context.user and foundModel
-                            else if (scope === "me" && context && context.user && foundModel) {
-                                // scope of me: one field only, with no other values to refer
-                                return foundModel[perm.object_fields[0]] == context.user
-                            }
-                            // `all` scope, need no specific fields, pass nothing to this method
-                            else if (scope === "all") {
-                                return true;
                             }
                         }
 
@@ -175,7 +189,7 @@ CanThisResult.prototype.buildObjectTypeHandlers = function (obj_types, act_type,
 
                 // Offer a chance for the TargetModel to override the results
                 if (TargetModel && _.isFunction(TargetModel.permissable)) {
-                    return TargetModel.permissable(modelId, context, loadedPermissions, hasUserPermission, hasAppPermission);
+                    return TargetModel.permissable(foundModel, context, loadedPermissions, hasUserPermission, hasAppPermission);
                 }
 
                 if (hasUserPermission && hasAppPermission) {

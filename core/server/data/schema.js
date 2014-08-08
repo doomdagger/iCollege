@@ -93,6 +93,7 @@ var db = {
         apps: [{
             app_id: {type: Schema.Types.ObjectId, required: true, ref: 'App'},
             access_token: {type: String, required: true, trim: true},
+            status: {type: String, required: true, enum: ['pending', 'installed'], default: 'pending'},
             app_fields: [{
                 uuid: {type: String, required: true}, // uuid
                 key: {type: String, required: true},

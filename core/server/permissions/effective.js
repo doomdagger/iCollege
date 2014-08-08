@@ -1,7 +1,6 @@
 var _ = require('lodash'),
     Models = require('../models'),
     errors = require('../errors'),
-    when   = require('when'),
     Role   = Models.Role,
     User   = Models.User,
     App    = Models.App;
@@ -19,7 +18,7 @@ var effective = {
                     path: 'permissions.permission_id',
                     select: 'name object_type action_type'
                 }, 'permissions')
-                    .then(function (foundRoles){
+                    .then(function (foundRoles) {
 
                         var seenPerms = {},
                             rolePerms = _.map(foundRoles, function (role) {
