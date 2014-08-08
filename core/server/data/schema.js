@@ -38,7 +38,7 @@ var db = {
         website: {type: String, trim: true, default: 'http://blog.icollege.com'},
         location: [{type: Number, index: '2dsphere', default: 0.0}],
         location_info: {type: String, trim: true},
-        profile_visibility: {type: String, enum: ['private, public, friends_only'], default: 'friends_only'},
+        profile_visibility: {type: String, enum: ['private', 'public', 'friends_only'], default: 'friends_only'},
         tags: [{type: String, trim: true}], // 用户个性标签
         status: {type: String, enum: ['online', 'invisible', 'offline'], default: 'offline', required: true}, // online offline or ...
         language: {type: String, enum: ['zh_CN', 'en_US'], default: 'zh_CN'},
@@ -188,14 +188,14 @@ var db = {
         object_type: {
             type: String,
             enum: ['db', 'user', 'app', 'notification', 'role', 'permission',
-                'group', 'circle', 'message', 'post', 'repost', 'setting'],
+                'group', 'circle', 'message', 'post', 'repost', 'setting', 'group_member', 'circle_member'],
             required: true
         },
         // action_types map the operations of each sub-module
         action_type: {
             type: String,
             enum: ['edit', 'remove', 'create', 'read', 'generate', 'exportContent',
-                'importContent', 'deleteAllContent', 'browse', 'add'],
+                'importContent', 'deleteAllContent', 'browse', 'add', 'favor'],
             required: true
         },
         created_at: {type: Date, default: Date.now()},
