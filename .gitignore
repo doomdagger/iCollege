@@ -26,3 +26,6 @@ coverage.html
 
 # track all markdown #
 !*.md
+
+# ignore css in server foler #
+/core/server/views/*.css
