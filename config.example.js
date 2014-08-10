@@ -20,7 +20,7 @@ config = {
 //                    pass: ''
 //                }
 //            },
-//            mailto: '' // test mail address, only for development
+//            mailto: 'icollege@icollege.com' // test mail address, only for development
 //        },
         // database configs
         database: {
@@ -97,7 +97,7 @@ config = {
                 connection: {
                     host: '127.0.0.1',
                     port: '27017',
-                    database: 'icollege'
+                    database: 'icollege_test'
                 }
             },
             // our big file serialization database, storage for all assets

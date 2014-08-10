@@ -6,7 +6,7 @@ var dataProvider = require('../../server/models'),
     when = require('when'),
     should = require('should'),
     node_uuid = require('node-uuid'),
-    utils = require('../../server/data/utils');
+    testUtils = require('../utils');
 
 
 describe('Models Test for Setting Model', function(){
@@ -25,17 +25,26 @@ describe('Models Test for Setting Model', function(){
 
     // connect to mongodb first!
     before(function (done) {
-        dataProvider.init().then(function () {
-            return done();
-        }).catch(done);
+        sequence([testUtils.openCon, testUtils.clearData])
+            .then(function () {
+                done();
+            }).catch(done);
+    });
+
+    afterEach(function (done) {
+        testUtils.clearData()
+            .then(function () {
+                done();
+            }).catch(done);
     });
 
     // clean up the collection
-//    after(function (done) {
-//        utils.dropCollection('settings').then(function() {
-//            return done();
-//        }).catch(done);
-//    });
+    after(function (done) {
+        testUtils.clearData()
+            .then(function() {
+            done();
+        }).catch(done);
+    });
 
     describe('#methods.validate()', function () {
         it('should fail for the lacking value property', function(done){
@@ -63,15 +72,15 @@ describe('Models Test for Setting Model', function(){
 //        });
 //    });
 
-//    describe('#methods.populateDefaults', function(){
-//        it('populate all keys with default values for database', function(done){
-//            // bind 'this' to dataProvider.Setting
-//            dataProvider.Setting.populateDefaults = dataProvider.Setting.populateDefaults.bind(dataProvider.Setting);
-//
-//            dataProvider.Setting.populateDefaults().then(function () {
-//                return done();
-//            }).catch(done);
-//        });
-//    });
+    describe('#methods.populateDefaults', function(){
+        it('populate all keys with default values for database', function(done){
+            // bind 'this' to dataProvider.Setting
+            dataProvider.Setting.populateDefaults = dataProvider.Setting.populateDefaults.bind(dataProvider.Setting);
+
+            dataProvider.Setting.populateDefaults().then(function () {
+                return done();
+            }).catch(done);
+        });
+    });
 
 });

@@ -19,7 +19,8 @@ var _               = require('lodash'),
     init,
     reset,
     migrateUp,
-    migrateUpFreshDb;
+    migrateUpFreshDb,
+    safeReset;
 
 
 
@@ -80,6 +81,13 @@ reset = function () {
     return sequence(collections);
 };
 
+// ### SafeReset
+// Delete all tables from the database
+// only delete collections exist in the database
+safeReset = function () {
+    return utils.safeDropCollections();
+};
+
 // Only do this if we have no database at all
 // no version, no all; delete all collections in this database
 migrateUpFreshDb = function () {
@@ -128,6 +136,7 @@ migrateUp = function () {
 module.exports = {
     init: init,
     reset: reset,
+    safeReset: safeReset,
     migrateUp: migrateUp,
     migrateUpFreshDb: migrateUpFreshDb
 };
