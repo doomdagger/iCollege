@@ -9,6 +9,7 @@ var express     = require('express'),
     api         = require('./api'),
     migration   = require('./data/migration'),
     permissions = require('./permissions'),
+    mailer      = require('./mail'),
     config      = require('./config'),
     packageInfo = require('../../package.json'),
     models      = require('./models'),
@@ -109,6 +110,17 @@ function init(server) {
     }).then(function () {
         // Initialize the permissions actions and objects
         return permissions.init();
+
+    }).then(function () {
+        // Initialize mail
+        return mailer.init().then(function () {
+            return api.mail.sendTest();
+        }).catch(function (error) {
+            console.log(
+                "Mail Test Faild - ".yellow,
+                error.message.red
+            );
+        });
 
     }).then(function () {
         var deferred = when.defer();

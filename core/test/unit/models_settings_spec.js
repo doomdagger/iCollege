@@ -63,15 +63,15 @@ describe('Models Test for Setting Model', function(){
 //        });
 //    });
 
-    describe('#methods.populateDefaults', function(){
-        it('populate all keys with default values for database', function(done){
-            // bind 'this' to dataProvider.Setting
-            dataProvider.Setting.populateDefaults = dataProvider.Setting.populateDefaults.bind(dataProvider.Setting);
-
-            dataProvider.Setting.populateDefaults().then(function () {
-                return done();
-            }).catch(done);
-        });
-    });
+//    describe('#methods.populateDefaults', function(){
+//        it('populate all keys with default values for database', function(done){
+//            // bind 'this' to dataProvider.Setting
+//            dataProvider.Setting.populateDefaults = dataProvider.Setting.populateDefaults.bind(dataProvider.Setting);
+//
+//            dataProvider.Setting.populateDefaults().then(function () {
+//                return done();
+//            }).catch(done);
+//        });
+//    });
 
 });

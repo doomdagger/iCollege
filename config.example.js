@@ -16,10 +16,11 @@ config = {
 //            options: {
 //                service: 'gmail',
 //                auth: {
-//                    user: 'jet.in.brain@gmail.com',
-//                    pass: 'Ldz660802'
+//                    user: 'icollege@gmail.com',
+//                    pass: ''
 //                }
-//            }
+//            },
+//            mailto: '' // test mail address, only for development
 //        },
         // database configs
         database: {

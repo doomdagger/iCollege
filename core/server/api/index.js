@@ -7,10 +7,12 @@
 var _             = require('lodash'),
     when          = require('when'),
     config        = require('../config'),
-// Include Endpoints
+
+    // Include Endpoints
     users         = require('./users'),
     db            = require('./db'),
-    settings       = require('./settings'),
+    settings      = require('./settings'),
+    mail          = require('./mail'),
 
     http,
     formatHttpErrors,
@@ -256,7 +258,8 @@ module.exports = {
     http: http,
     // API Endpoints
     users: users,
-    db: db
+    db: db,
+    mail: mail
 };
 
 /**
