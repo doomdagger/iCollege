@@ -20,6 +20,7 @@ config = {
 //                    pass: ''
 //                }
 //            },
+//            mailfrom: 'icollege@icollege.com', // mail from address, QQ service demand this value to be same with auth.user
 //            mailto: 'icollege@icollege.com' // test mail address, only for development
 //        },
         // database configs

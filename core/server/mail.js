@@ -60,7 +60,7 @@ ICollegeMailer.prototype.createTransport = function () {
 
 
 ICollegeMailer.prototype.fromAddress = function () {
-    var from = config().mail && config().mail.fromaddress,
+    var from = config().mail && config().mail.mailfrom,
         domain;
 
     if (!from) {
