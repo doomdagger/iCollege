@@ -3,6 +3,9 @@
 var when       = require("when"),
     config     = require('../config'),
     errors     = require('../errors'),
+    path           = require('path'),
+    templatesDir   = path.resolve(__dirname, '..', 'views'),
+    emailTemplates = require('email-templates'),
     mail;
 
 /**
@@ -46,7 +49,7 @@ mail = {
      * @public
      * @returns {Promise}
      */
-    sendTest: function () {
+    'sendTest': function () {
         var html = '<p><strong>Hello there!</strong></p>' +
                 '<p>Excellent!' +
                 ' You\'ve successfully setup your email config for your iCollege blog over on ' + config().url + '</p>' +
@@ -64,6 +67,62 @@ mail = {
             }]};
 
         return mail.send(payload);
+    },
+
+    /**
+     * ### Generate Mail Object based on template
+     * @param {String} templateName
+     * @param {Object} [locals]
+     * @return {Object} Mail Object
+     */
+    generateMailTemplate: function (templateName, locals) {
+        var generated = when.defer();
+
+        emailTemplates(templatesDir, function(err, template) {
+
+            if (err) {
+                generated.reject(err);
+            } else {
+                template(templateName, locals, function(err, html, text) {
+                    if (err) {
+                        generated.reject(err);
+                    } else {
+                        generated.resolve({
+                            html: html,
+                            // generateTextFromHTML: true,
+                            text: text
+                        })
+                    }
+                });
+            }
+        });
+
+        return generated.promise;
+    },
+
+    /**
+     * ### SendTemplateTest based on template
+     * Send a test email
+     *
+     * @public
+     * @returns {Promise}
+     */
+    'sendTemplateTest': function () {
+        return mail.generateMailTemplate("mail_test", {
+            email: 'mamma.mia@spaghetti.com',
+            name: {
+                first: 'Mamma',
+                last: 'Mia'
+            }
+        }).then(function (message) {
+            message.subject = 'Test iCollege Email';
+            message.to = config().mail ? config().mail.mailto : 'icollege@icollege.com';
+            var payload = {mail: [{
+                message: message
+            }]};
+
+            return mail.send(payload);
+        });
     }
 };
 module.exports = mail;

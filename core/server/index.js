@@ -114,7 +114,7 @@ function init(server) {
     }).then(function () {
         // Initialize mail
         return mailer.init().then(function () {
-            return api.mail.sendTest();
+            return api.mail.sendTemplateTest();
         }).catch(function (error) {
             console.log(
                 "Mail Test Faild - ".yellow,
