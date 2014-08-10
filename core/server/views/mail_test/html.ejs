@@ -1,1 +1,191 @@
-<h1>Hi there <%= name.first %> <%= name.last %></h1>
+<h1 id="kitchen-sink">Kitchen sink</h1>
+<h3 class="subheader">This page includes every single Foundation element so that we can make sure things work together smoothly.</h3>
+
+<h4 id="alert-boxes">Alert Boxes</h4>
+<div data-alert class="alert-box radius">
+    This is a standard alert (div.alert-box.radius).
+    <a href="" class="close">&times;</a>
+</div>
+
+<div data-alert class="alert-box success">
+    This is a success alert (div.alert-box.success).
+    <a href="" class="close">&times;</a>
+</div>
+
+<div data-alert class="alert-box alert round">
+    This is an alert (div.alert-box.alert.round).
+    <a href="" class="close">&times;</a>
+</div>
+
+<div data-alert class="alert-box secondary">
+    This is a secondary alert (div.alert-box.secondary).
+    <a href="" class="close">&times;</a>
+</div>
+
+
+<hr>
+<h4 id="block-grid">Block Grid</h4>
+<ul class="small-block-grid-2 large-block-grid-4">
+    <li><img class="th" src="../assets/img/examples/comet-th.jpg"></li>
+    <li><img class="th" src="../assets/img/examples/launch-th.jpg"></li>
+    <li><img class="th" src="../assets/img/examples/space-th.jpg"></li>
+    <li><img class="th" src="../assets/img/examples/spacewalk-th.jpg"></li>
+</ul>
+
+<hr>
+<h4 id="breadcrumbs">Breadcrumbs</h4>
+<ul class="breadcrumbs">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">Features</a></li>
+    <li class="unavailable"><a href="#">Gene Splicing</a></li>
+    <li class="current"><a href="#">Cloning</a></li>
+</ul>
+
+<hr>
+<h4 id="buttons">Buttons</h4>
+<div class="row">
+    <div class="small-6 large-6 columns">
+        <a href="#" class="tiny button">.tiny.button</a><br>
+        <a href="#" class="small button">.small.button</a><br>
+        <a href="#" class="button">.button</a><br>
+        <a href="#" class="button expand">.expand</a><br>
+    </div>
+    <div class="small-6 large-6 columns">
+        <a href="#" class="tiny button secondary">.tiny.secondary</a><br>
+        <a href="#" class="small button success radius">.small.success.radius</a><br>
+        <a href="#" class="button alert round disabled">.round.disabled</a><br>
+
+    </div>
+</div>
+
+<hr>
+<h4 id="button-groups">Button Groups</h4>
+<ul class="button-group">
+    <li><a href="#" class="small button">Button 1</a></li>
+    <li><a href="#" class="small button">Button 2</a></li>
+    <li><a href="#" class="small button">Button 3</a></li>
+</ul>
+<ul class="button-group radius">
+    <li><a href="#" class="button secondary">Button 1</a></li>
+    <li><a href="#" class="button secondary">Button 2</a></li>
+    <li><a href="#" class="button secondary">Button 3</a></li>
+    <li><a href="#" class="button secondary">Button 4</a></li>
+</ul>
+<ul class="button-group round even-3">
+    <li><a href="#" class="button alert">Button 1</a></li>
+    <li><a href="#" class="button alert">Button 2</a></li>
+    <li><a href="#" class="button alert">Button 3</a></li>
+</ul>
+<ul class="button-group round even-3">
+    <li><input type="submit" class="button success" value="Button 1"></li>
+    <li><input type="submit" class="button success" value="Button 2"></li>
+    <li><input type="submit" class="button success" value="Button 3"></li>
+</ul>
+
+<hr>
+<h4 id="dropdown-buttons">Dropdown Buttons</h4>
+<ul id="drop" class="f-dropdown content" data-dropdown-content>
+    <li><a href="#">This is a link</a></li>
+    <li><a href="#">This is another</a></li>
+    <li><a href="#">Yet another link</a></li>
+</ul>
+
+<p><a href="#" data-dropdown="drop" class="tiny button dropdown">Tiny Dropdown Button</a><br>
+    <a href="#" data-dropdown="drop" class="small secondary radius button dropdown">Small Secondary Radius Dropdown Button</a><br>
+    <a href="#" data-dropdown="drop" class="button alert round dropdown">Button Alert Round Dropdown Button</a><br>
+    <a href="#" data-dropdown="drop" class="large success button dropdown">Large Success Dropdown Button</a><br>
+    <a href="#" data-dropdown="drop" class="large button dropdown expand">Large Expanded Dropdown Button</a></p>
+<hr>
+<h4 id="split-buttons">Split Buttons</h4>
+<p> <a href="#" class="tiny button split">Tiny Split Button <span data-dropdown="drop"></span></a><br>
+    <a href="#" class="small secondary radius button split">Small Secondary Radius Split Button <span data-dropdown="drop"></span></a><br>
+    <a href="#" class="button alert round split">Round Alert Split Button <span data-dropdown="drop"></span></a><br>
+    <a href="#" class="large success button split">Large Success Split Button <span data-dropdown="drop"></span></a></p>
+<hr>
+<h4 id="clearing">Clearing</h4>
+<div>
+    <ul class="clearing-thumbs" data-clearing>
+        <li><a class="th" href="../assets/img/examples/comet.jpg"><img data-caption="Nulla vitae elit libero, a pharetra augue. Cras mattis consectetur purus sit amet fermentum." src="../assets/img/examples/comet-th-sm.jpg"></a></li>
+
+        <li><a class="th" href="../assets/img/examples/earth.jpg"><img src="../assets/img/examples/earth-th-sm.jpg"></a></li>
+
+        <li><a class="th" href="../assets/img/examples/launch.jpg"><img data-caption="Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus." src="../assets/img/examples/launch-th-sm.jpg"></a></li>
+
+        <li><a class="th" href="../assets/img/examples/satelite.jpg"><img src="../assets/img/examples/satelite-th-sm.jpg"></a></li>
+
+        <li><a class="th" href="../assets/img/examples/space.jpg"><img data-caption="Integer posuere erat a ante venenatis dapibus posuere velit aliquet." src="../assets/img/examples/space-th-sm.jpg"></a></li>
+    </ul>
+</div>
+
+
+<hr>
+<h4 id="forms">Forms</h4>
+<form>
+    <fieldset>
+        <legend>Fieldset</legend>
+
+        <div class="row">
+            <div class="large-12 columns">
+                <label>Input Label</label>
+                <input type="text" placeholder="large-12.columns">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="large-4 columns">
+                <label>Input Label</label>
+                <input type="text" placeholder="large-4.columns">
+            </div>
+            <div class="large-4 columns">
+                <label>Input Label</label>
+                <input type="text" placeholder="large-4.columns">
+            </div>
+            <div class="large-4 columns">
+                <div class="row collapse">
+                    <label>Input Label</label>
+                    <div class="small-9 columns">
+                        <input type="text" placeholder="small-9.columns">
+                    </div>
+                    <div class="small-3 columns">
+                        <span class="postfix">.com</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="large-12 columns">
+                <label>Textarea Label</label>
+                <textarea placeholder="small-12.columns"></textarea>
+            </div>
+        </div>
+
+    </fieldset>
+</form>
+
+<hr>
+<h4 id="dropdowns">Dropdowns</h4>
+<p><a class="button" data-dropdown="tinyDrop" href="#">Link Dropdown &raquo;</a>
+    <a class="button" data-dropdown="contentDrop" href="#">Content Dropdown &raquo;</a>
+    <!-- Dropdowns --></p>
+<ul class="f-dropdown" data-dropdown-content="" id="tinyDrop">
+    <li><a href="#">This is a link</a></li>
+
+    <li><a href="#">This is another</a></li>
+
+    <li><a href="#">Yet another</a></li>
+</ul>
+
+<div class="f-dropdown content medium" data-dropdown-content="" id=
+"contentDrop">
+    <h4>Title</h4>
+
+    <p>Some text that people will think is awesome! Some text that people will
+        think is awesome! Some text that people will think is awesome!</p><img src=
+                                                                               "../assets/img/examples/launch.jpg">
+
+    <p>Launching a Discovery Mission</p><a class="button" href="#">Button</a>
+</div>
+
+
+<hr>
