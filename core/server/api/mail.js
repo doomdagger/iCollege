@@ -4,7 +4,7 @@ var when       = require("when"),
     config     = require('../config'),
     errors     = require('../errors'),
     path           = require('path'),
-    templatesDir   = path.resolve(__dirname, '..', 'views'),
+    templatesDir   = path.resolve(__dirname, '..', 'email-templates'),
     emailTemplates = require('email-templates'),
     mail;
 

@@ -46,6 +46,12 @@ iCollege has two parts of routing policies:
 1. `/app` - the sencha touch app of iCollege
 2. `/api` - the restful API of iCollege
 
+### Other Grunt Tasks
+
+1. `grunt validate`
+1. `grunt test`
+
+
 ### Who are we ?
 
 * CodeHolic Team.

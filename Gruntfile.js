@@ -10,6 +10,8 @@ var path           = require('path'),
 
     fs             = require('fs'),
     _              = require('lodash'),
+    escapeChar     = process.platform.match(/^win/) ? '^' : '\\',
+    cwd            = process.cwd().replace(/( |\(|\))/g, escapeChar + '$1'),
     buildDirectory = path.resolve(process.cwd(), '.build'),
     distDirectory  = path.resolve(process.cwd(), '.dist'),
 
@@ -223,7 +225,7 @@ var path           = require('path'),
                 // Used as part of `grunt init`. See the section on [Building Assets](#building%20assets) for more
                 // information.
                 bower: {
-                    command: path.resolve(__dirname.replace(' ', '\\ ') + '/node_modules/.bin/bower install'),
+                    command: path.resolve(cwd + '/node_modules/.bin/bower --allow-root install'),
                     options: {
                         stdout: true
                     }
@@ -231,12 +233,8 @@ var path           = require('path'),
                 // #### Generate coverage report
                 // See the `grunt test-coverage` task in the section on [Testing](#testing) for more information.
                 coverage: {
-                    command: function () {
-                        // **Note:** will only work on windows if mocha is globally installed
-                        var cmd = !!process.platform.match(/^win/) ? 'mocha' : './node_modules/mocha/bin/mocha';
-                        return cmd +
-                            ' --timeout 15000 --reporter html-cov > coverage.html ./core/test/blanket_coverage.js';
-                    },
+                    command: path.resolve(cwd  + '/node_modules/mocha/bin/mocha  --timeout 15000 --reporter' +
+                        ' html-cov > coverage.html ./core/test/blanket_coverage.js'),
                     execOptions: {
                         env: 'NODE_ENV=' + process.env.NODE_ENV
                     }
@@ -279,8 +277,29 @@ var path           = require('path'),
             // ### grunt-contrib-copy
             // Copy files into their correct locations as part of building assets, or creating release zips
             copy: {
+                dev: {
+                    files: [{
+                        cwd: 'bower_components/jquery/dist/',
+                        src: 'jquery.js',
+                        dest: 'core/built/public/',
+                        expand: true
+                    }]
+                },
+                prod: {
+                    files: [{
+                        cwd: 'bower_components/jquery/dist/',
+                        src: 'jquery.js',
+                        dest: 'core/built/public/',
+                        expand: true
+                    }]
+                },
                 release: {
                     files: [{
+                        cwd: 'bower_components/jquery/dist/',
+                        src: 'jquery.js',
+                        dest: 'core/built/public/',
+                        expand: true
+                    }, {
                         cwd: 'core/client/build/production/ICollege/',
                         src: ['**'],
                         dest: '<%= paths.releaseBuild %>/core/client/',
@@ -310,15 +329,50 @@ var path           = require('path'),
             // concatenate multiple JS files into a single file ready for use
             concat: {
                 dev: {
-                    files: {
-                        'core/built/scripts/vendor.js': [
-                            'bower_components/jquery/dist/jquery.js',
-                            'bower_components/lodash/dist/lodash.underscore.js',
-                            'bower_components/moment/moment.js',
-                            'bower_components/validator-js/validator.js',
-                            'bower_components/Countable/Countable.js',
-                            'bower_components/fastclick/lib/fastclick.js'
-                        ]
+                    nonull: true,
+                    dest: 'core/server/email-templates/mail_test/style.css',
+                    src: [
+                        'bower_components/foundation/css/normalize.css',
+                        'bower_components/foundation/css/foundation.css'
+                    ]
+                },
+                prod: {
+                    nonull: true,
+                    dest: 'core/server/email-templates/mail/style.css',
+                    src: [
+                        'bower_components/foundation/css/normalize.css',
+                        'bower_components/foundation/css/foundation.css'
+                    ]
+                }
+            },
+
+            // ### grunt-bower-concat
+            // concatenate multiple bower components into a single file ready for use
+            bower_concat: {
+                dev: {
+                    dest: 'core/built/scripts/vendor-dev.js',
+                    exclude: [
+                        'jquery',
+                        'jquery.cookie',
+                        'jquery-placeholder',
+                        'modernizr',
+                        'foundation'
+                    ],
+                    bowerOptions: {
+                        relative: false
+                    }
+                },
+                prod: {
+                    dest: 'core/built/scripts/vendor.js',
+                    exclude: [
+                        'jquery',
+                        'jquery.cookie',
+                        'jquery-placeholder',
+                        'modernizr',
+                        'foundation'
+                    ],
+                    bowerOptions: {
+                        relative: false
                     }
                 }
             },
@@ -327,7 +381,20 @@ var path           = require('path'),
             // Minify concatenated javascript files ready for production
             uglify: {
                 prod: {
+                    options: {
+                        sourceMap: true
+                    },
                     files: {
+                        'core/built/public/jquery.min.js': 'core/built/public/jquery.js',
+                        'core/built/scripts/vendor.min.js': 'core/built/scripts/vendor.js'
+                    }
+                },
+                release: {
+                    options: {
+                        sourceMap: true
+                    },
+                    files: {
+                        'core/built/public/jquery.min.js': 'core/built/public/jquery.js',
                         'core/built/scripts/vendor.min.js': 'core/built/scripts/vendor.js'
                     }
                 }
@@ -335,15 +402,13 @@ var path           = require('path'),
 
             // ### grunt-update-submodules
             // Grunt task to update git submodules
-            "update_submodules": {
+            'update_submodules': {
                 default: {
                     options: {
-                        params: false // blanks command-line parameters
+                        params: '--init'
                     }
                 }
             }
-
-
         };
 
 
@@ -462,6 +527,22 @@ var path           = require('path'),
             });
         });
 
+        // #### Reset Database to "New" state *(Utility Task)*
+        // Drops all database tables and then runs the migration process to put the database
+        // in a "new" state.
+        grunt.registerTask('cleanDatabase', function () {
+            var done = this.async(),
+                migration = require('./core/server/data/migration');
+
+            migration.reset().then(function () {
+                return migration.init();
+            }).then(function () {
+                done();
+            }).catch(function (err) {
+                grunt.fail.fatal(err.stack);
+            });
+        });
+
         // ### Validate
         // **Main testing task**
         //
@@ -473,7 +554,18 @@ var path           = require('path'),
         //
         // `grunt validate` is called by `npm test`.
         grunt.registerTask('validate', 'Run tests and lint code',
-            ['jshint', 'test-routes', 'test-unit', 'test-integration', 'test-functional']);
+            ['jshint', 'test']);
+
+        // ### Test
+        // **Main testing task**
+        //
+        // `grunt test` will lint and test your pre-built local Ghost codebase.
+        //
+        // `grunt test` runs jshint as well as the 4 test suites. See the individual sub tasks below for details of
+        // each of the test suites.
+        //
+        grunt.registerTask('test', 'Run tests and lint code',
+            ['test-routes', 'test-unit', 'test-integration', 'test-functional']);
 
         // ### Unit Tests *(sub task)*
         // `grunt test-unit` will run just the unit tests
@@ -559,7 +651,7 @@ var path           = require('path'),
         // The purpose of the functional tests is to ensure that Ghost is working as is expected from a user perspective
         // including buttons and other important interactions in the admin UI.
         grunt.registerTask('test-functional', 'Run functional interface tests (CasperJS)',
-            ['clean:test', 'setTestEnv', 'loadConfig', 'express:test', 'spawnCasperJS', 'express:test:stop']
+            ['clean:test', 'setTestEnv', 'loadConfig', 'cleanDatabase', 'express:test', 'spawnCasperJS', 'express:test:stop']
         );
 
         // ### Coverage
@@ -594,6 +686,19 @@ var path           = require('path'),
         // [grunt dev](#live%20reload) are available.
         //
 
+        // #### Master Warning *(Utility Task)*
+        // Warns git users not ot use the `master` branch in production.
+        // `master` is an unstable branch and shouldn't be used in production as you run the risk of ending up with a
+        // database in an unrecoverable state. Instead there is a branch called `stable` which is the equivalent of the
+        // release zip for git users.
+        grunt.registerTask('master-warn',
+            'Outputs a warning to runners of grunt prod, that master shouldn\'t be used for live blogs',
+            function () {
+                console.log('>', 'Always two there are, no more, no less. A master and a'.red,
+                        'stable'.red.bold + '.'.red);
+                console.log('Use the', 'stable'.bold, 'branch for live blogs.', 'Never'.bold, 'master!');
+            });
+
         // ### Init assets
         // `grunt init` - will run an initial asset build for you
         //
@@ -606,7 +711,15 @@ var path           = require('path'),
         // `bower` does have some quirks, such as not running as root. If you have problems please try running
         // `grunt init --verbose` to see if there are any errors.
         grunt.registerTask('init', 'Prepare the project for development',
-            ['shell:bower', 'update_submodules', 'shell:prepare_touch', 'default']);
+            ['shell:bower', 'shell:prepare_touch', 'update_submodules', 'default']);
+
+        // ### Production assets
+        // `grunt prod` - will build the minified assets used in production.
+        //
+        // It is otherwise the same as running `grunt`, but is only used when running Ghost in the `production` env.
+        grunt.registerTask('prod', 'Build JS & templates for production',
+            ['concat:prod', 'bower_concat:prod', 'copy:prod', 'uglify:prod', 'master-warn']);
+
 
         // ### Default asset build
         // `grunt` - default grunt task
@@ -614,7 +727,7 @@ var path           = require('path'),
         // Compiles handlebars templates, concatenates javascript files for the admin UI into a handful of files instead
         // of many files, and makes sure the bower dependencies are in the right place.
         grunt.registerTask('default', 'Build JS & templates for development',
-            ['concat']);
+            ['concat:dev', 'bower_concat:dev', 'copy:dev']);
 
 
         // ### Live reload
@@ -642,7 +755,7 @@ var path           = require('path'),
                 ' - Copy files to release-folder/#/#{version} directory\n' +
                 ' - Clean out unnecessary files (travis, .git*, etc)\n' +
                 ' - Zip files in release-folder to dist-folder/#{version} directory',
-            ['shell:bower', 'update_submodules', 'concat', 'uglify', 'shell:touch', 'clean:release', 'copy:release', 'compress:release']);
+            ['concat', 'bower_concat', 'copy:prod', 'uglify:release', 'shell:touch', 'clean:release', 'copy:release', 'compress:release']);
 
     };
 

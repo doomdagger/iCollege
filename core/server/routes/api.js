@@ -5,6 +5,8 @@ var express     = require('express'),
 
 apiRoutes = function (middleware) {
     var router = express.Router();
+    // alias delete with del
+    router.del = router.delete;
 
     // ## Users
     // must add trailing slash for each route
