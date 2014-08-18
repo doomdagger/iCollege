@@ -78,12 +78,12 @@ mail = {
     generateMailTemplate: function (templateName, locals) {
         var generated = when.defer();
 
-        emailTemplates(templatesDir, function(err, template) {
+        emailTemplates(templatesDir, function (err, template) {
 
             if (err) {
                 generated.reject(err);
             } else {
-                template(templateName, locals, function(err, html, text) {
+                template(templateName, locals, function (err, html, text) {
                     if (err) {
                         generated.reject(err);
                     } else {
@@ -91,7 +91,7 @@ mail = {
                             html: html,
                             // generateTextFromHTML: true,
                             text: text
-                        })
+                        });
                     }
                 });
             }

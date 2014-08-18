@@ -26,6 +26,16 @@ if (process.env.NODE_ENV === 'development') {
     require('when/monitor/console');
 }
 
+// do first run, send test mail to validate the email service
+//function doFirstRun() {
+//    return api.mail.sendTemplateTest().catch(function (error) {
+//        console.log(
+//            "Mail Test Faild - ".yellow,
+//            error.message.red
+//        );
+//    });
+//}
+
 function icollegeStartMessages() {
     // Tell users if their node version is not supported, and exit
     if (!semver.satisfies(process.versions.node, packageInfo.engines.node)) {
@@ -80,7 +90,26 @@ function icollegeStartMessages() {
     }
 }
 
-
+// This is run after every initialization is done, right before starting server.
+// Its main purpose is to move adding notifications here, so none of the submodules
+// should need to include api, which previously resulted in circular dependencies.
+// This is also a "one central repository" of adding startup notifications in case
+// in the future apps will want to hook into here
+function initNotifications() {
+    if (mailer.state && mailer.state.usingSendmail) {
+        console.log('INFO'.green, [
+            "iCollege is attempting to use your server's <b>sendmail</b> to send e-mail.",
+            "It is recommended that you explicitly configure an e-mail service,",
+            "See <a href=\"http://support.ghost.org/mail\" target=\"_blank\">http://support.ghost.org/mail</a> for instructions"
+        ].join('\n'));
+    }
+    if (mailer.state && mailer.state.emailDisabled) {
+        console.log('WARN'.yellow, [
+            "Ghost is currently unable to send e-mail.",
+            "See <a href=\"http://support.ghost.org/mail\" target=\"_blank\">http://support.ghost.org/mail</a> for instructions"
+        ].join('\n'));
+    }
+}
 
 // ## Initializes the application.
 // Sets up the express server instance.
@@ -99,6 +128,7 @@ function init(server) {
     // initialize validations
     validation.init();
 
+    // connect to mongodb
     return models.init().then(function () {
         // Initialize database
         return migration.init();
@@ -113,17 +143,14 @@ function init(server) {
 
     }).then(function () {
         // Initialize mail
-        return mailer.init().then(function () {
-            return api.mail.sendTemplateTest();
-        }).catch(function (error) {
-            console.log(
-                "Mail Test Faild - ".yellow,
-                error.message.red
-            );
-        });
+        return mailer.init();
 
     }).then(function () {
         var deferred = when.defer();
+
+        // Output necessary notifications on init
+        initNotifications();
+        // ##Configuration
 
         // return the correct mime type for woff filess
         express['static'].mime.define({'application/font-woff': ['woff']});

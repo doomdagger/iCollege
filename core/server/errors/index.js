@@ -1,6 +1,8 @@
 /*jslint regexp: true */
 var _                          = require('lodash'),
     colors                     = require('colors'),
+    when                       = require('when'),
+
     NotFoundError              = require('./notfounderror'),
     BadRequestError            = require('./badrequesterror'),
     InternalServerError        = require('./internalservererror'),
@@ -8,8 +10,9 @@ var _                          = require('lodash'),
     RequestEntityTooLargeError = require('./requesttoolargeerror'),
     UnauthorizedError          = require('./unauthorizederror'),
     ValidationError            = require('./validationerror'),
+    UnsupportedMediaTypeError  = require('./unsupportedmediaerror'),
     EmailError                 = require('./emailerror'),
-    when                       = require('when'),
+    DataImportError            = require('./dataimporterror'),
     errors;
 
 // This is not useful but required for jshint
@@ -35,7 +38,7 @@ errors = {
     // ## Reject Error
     // Used to pass through promise errors when we want to handle them at a later time
     // this can be handled by calling deferred.resolve(rejectError(err))
-    rejectError: function (err) {
+    'rejectError': function (err) {
         return when.reject(err);
     },
 
@@ -58,6 +61,17 @@ errors = {
             msgs.push('\n');
 
             console.log.apply(console, msgs);
+        }
+    },
+
+    'logInfo': function (component, info) {
+        if ((process.env.NODE_ENV === 'development' ||
+            process.env.NODE_ENV === 'staging' ||
+            process.env.NODE_ENV === 'production')) {
+
+            var msg = [component.cyan + ':'.cyan, info.cyan];
+
+            console.info.apply(console, msg);
         }
     },
 
@@ -84,14 +98,23 @@ errors = {
     },
 
     logError: function (err, context, help) {
-        var stack = err ? err.stack : null,
+        var self = this,
+            origArgs = _.toArray(arguments).slice(1),
+            stack,
             msgs;
 
-        if (err) {
-            err = err.message || err || 'An unknown error occurred.';
-        } else {
-            err = 'An unknown error occurred.';
+        if (_.isArray(err)) {
+            _.each(err, function (e) {
+                var newArgs = [e].concat(origArgs);
+                errors.logError.apply(self, newArgs);
+            });
+            return;
         }
+
+        stack = err ? err.stack : null;
+
+        err = _.isString(err) ? err : (_.isObject(err) ? err.message : 'An unknown error occurred.');
+
         // TODO: Logging framework hookup
         // Eventually we'll have better logging which will know about envs
         if ((process.env.NODE_ENV === 'development' ||
@@ -131,14 +154,39 @@ errors = {
         this.throwError(err, context, help);
     },
 
+    'logAndRejectError': function (err, context, help) {
+        this.logError(err, context, help);
+
+        return this.rejectError(err, context, help);
+    },
+
+    handleAPIError: function (error, permsMessage) {
+        if (!error) {
+            return this.rejectError(
+                new this.NoPermissionError(permsMessage || 'You do not have permission to perform this action')
+            );
+        }
+
+        if (_.isString(error)) {
+            return this.rejectError(new this.NoPermissionError(error));
+        }
+
+        if (error.type) {
+            return this.rejectError(error);
+        }
+
+        return this.rejectError(new this.InternalServerError(error));
+    },
+
     error404: function (req, res) {
+        var message = res.isRestful ? 'No iCollege Found' : 'Page Not Found';
+
         // do not cache 404 error
         res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
-
-        if (res.isRestful) {
-            res.json(404, {success: false, errors: ["No iCollege Found"]});
+        if (req.method === 'GET') {
+            res.status(404).json({success: false, errors: [message]});
         } else {
-            res.send(404, "Page Not Found");
+            res.status(404).send(message);
         }
     },
 
@@ -150,22 +198,49 @@ errors = {
             return this.error404(req, res, next);
         }
 
-        if (!res.isRestful) {
+        if (req.method === 'GET') {
             if (!err || !(err instanceof Error)) {
                 next();
             }
-            res.send(404, "Page Not Found");
+            res.status(err.status || 500).json({success: false, errors: [err && err.message]});
         } else {
-            res.json(err.status || 500, {success: false, errors: [err.message]});
-        }
+            var statusCode = 500,
+                returnErrors = [];
 
+            if (!_.isArray(err)) {
+                err = [].concat(err);
+            }
+
+            _.each(err, function (errorItem) {
+                var errorContent = {};
+
+                statusCode = errorItem.code || 500;
+
+                errorContent.message = _.isString(errorItem) ? errorItem :
+                    (_.isObject(errorItem) ? errorItem.message : 'Unknown Error');
+                errorContent.type = errorItem.type || 'InternalServerError';
+                returnErrors.push(errorContent);
+            });
+
+            res.status(statusCode).json({success: false, errors: returnErrors});
+        }
     }
 };
 
 // Ensure our 'this' context for methods and preserve method arity by
 // using Function#bind for expressjs
 _.each([
-    'logAndThrowError'
+    'logWarn',
+    'logInfo',
+    'rejectError',
+    'throwError',
+    'logError',
+    'logAndThrowError',
+    'logAndRejectError',
+    'logErrorAndExit',
+    'handleAPIError',
+    'error404',
+    'error500'
 ], function (funcName) {
     errors[funcName] = errors[funcName].bind(errors);
 });
@@ -178,4 +253,6 @@ module.exports.NoPermissionError          = NoPermissionError;
 module.exports.UnauthorizedError          = UnauthorizedError;
 module.exports.ValidationError            = ValidationError;
 module.exports.RequestEntityTooLargeError = RequestEntityTooLargeError;
+module.exports.UnsupportedMediaTypeError  = UnsupportedMediaTypeError;
 module.exports.EmailError                 = EmailError;
+module.exports.DataImportError            = DataImportError;
