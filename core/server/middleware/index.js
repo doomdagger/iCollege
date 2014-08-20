@@ -19,25 +19,33 @@ var express     = require('express'),
     storage     = require('../storage'),
     _           = require('lodash'),
     errors       = require('../errors'),
+    passport       = require('passport'),
+    oauth          = require('./oauth'),
+    oauth2orize    = require('oauth2orize'),
+    authStrategies = require('./authStrategies'),
+    utils          = require('../utils'),
 
     expressServer,
-    ONE_HOUR_S  = 60 * 60,
-    ONE_YEAR_S  = 365 * 24 * ONE_HOUR_S,
-    ONE_HOUR_MS = ONE_HOUR_S * 1000,
-    ONE_YEAR_MS = 365 * 24 * ONE_HOUR_MS;
+    setupMiddleware;
 
 
 
-module.exports = function (server) {
-    var logging = config().logging, // unresolved logging
-        subdir = config().paths.subdir,
-        corePath = config().paths.corePath,
-        redisInfo = config().database.redis.connection,
+setupMiddleware = function (server) {
+    var logging = config.logging, // unresolved logging
+        subdir = config.paths.subdir,
+        corePath = config.paths.corePath,
+        redisInfo = config.database.redis.connection,
+        oauthServer = oauth2orize.createServer(),
         cookie;
+
+    // make passport use several strategies
+    authStrategies();
 
     // Cache express server instance
     expressServer = server;
     middleware.cacheServer(expressServer);
+    middleware.cacheOauthServer(oauthServer);
+    oauth.init(oauthServer, middleware.resetSpamCounter);
 
     // Make sure 'req.secure' is valid for proxied requests
     // (X-Forwarded-Proto header will be checked, if present)
@@ -59,30 +67,39 @@ module.exports = function (server) {
     expressServer.use(subdir, favicon(corePath + '/client/resources/icons/favicon.ico'));
 
     // Static assets
-    expressServer.use(subdir + '/shared', express['static'](path.join(corePath, '/shared'), {maxAge: ONE_HOUR_MS}));
+    expressServer.use(subdir + '/shared', express['static'](path.join(corePath, '/shared'), {maxAge: utils.ONE_HOUR_MS}));
     expressServer.use(subdir + '/content/images', storage.get_storage().serve());
-    expressServer.use(subdir + '/app', express['static'](path.join(corePath, '/client'), {maxAge: ONE_YEAR_MS}));
+    expressServer.use(subdir + '/app', express['static'](path.join(corePath, '/client'), {maxAge: utils.ONE_YEAR_MS}));
+    expressServer.use(subdir + '/scripts', express['static'](path.join(corePath, '/built/scripts'), {maxAge: utils.ONE_YEAR_MS}));
+    expressServer.use(subdir + '/public', express['static'](path.join(corePath, '/built/public'), {maxAge: utils.ONE_YEAR_MS}));
 
 
     // First determine whether we're serving api or other stuff
     expressServer.use(middleware.decideContext);
     // Version-ize api
     expressServer.use(middleware.versionAPI);
+    // Force SSL
+    // NOTE: Importantly this is _after_ the check above for admin-theme static resources,
+    //       which do not need HTTPS. In fact, if HTTPS is forced on them, then 404 page might
+    //       not display properly when HTTPS is not available!
+    expressServer.use(middleware.checkSSL);
     // Serve robots.txt if not found in theme
     expressServer.use(middleware.robots());
 
     // Add in all trailing slashes, add this middleware after the static middleware
-    expressServer.use(slashes(true, {headers: {'Cache-Control': 'public, max-age=' + ONE_YEAR_S}}));
+    expressServer.use(slashes(true, {headers: {'Cache-Control': 'public, max-age=' + utils.ONE_YEAR_S}}));
 
     // Body parsing
     expressServer.use(bodyParser.json());
-    expressServer.use(bodyParser.urlencoded());
+    expressServer.use(bodyParser.urlencoded({ extended: true }));
+
+    expressServer.use(passport.initialize());
 
     // ### Sessions
     // we need the trailing slash in the cookie path. Session handling *must* be after the slash handling
     cookie = {
         path: subdir + '/',
-        maxAge: 12 * ONE_HOUR_MS
+        maxAge: 12 * utils.ONE_HOUR_MS
     };
 
 
@@ -115,7 +132,7 @@ module.exports = function (server) {
     expressServer.use(subdir, routes.api(middleware));
 
     // Set up User routes
-    expressServer.use(subdir, routes.user(middleware));
+    expressServer.use(subdir, routes.frontend(middleware));
 
 
     // ### Error handling
@@ -126,5 +143,6 @@ module.exports = function (server) {
     expressServer.use(errors.error500);
 };
 
+module.exports = setupMiddleware;
 // Export middleware functions directly
 module.exports.middleware = middleware;

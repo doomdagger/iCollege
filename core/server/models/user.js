@@ -13,6 +13,11 @@ var when    = require('when'),
 Users = icollegeSchema.extend("users", {
     // ### statics
 
+    // check username password
+    check: function (object) {
+        return object;
+    },
+
     // findByName function, with the param name, find users
     'findByName': function (name, cb) {
         // this refers to Model instance

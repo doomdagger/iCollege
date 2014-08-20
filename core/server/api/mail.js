@@ -52,7 +52,7 @@ mail = {
     'sendTest': function () {
         var html = '<p><strong>Hello there!</strong></p>' +
                 '<p>Excellent!' +
-                ' You\'ve successfully setup your email config for your iCollege blog over on ' + config().url + '</p>' +
+                ' You\'ve successfully setup your email config for your iCollege blog over on ' + config.url + '</p>' +
                 '<p>If you hadn\'t, you wouldn\'t be reading this email, but you are, so it looks like all is well :)</p>' +
                 '<p>xoxo</p>' +
                 '<p>Team iCollege<br>' +
@@ -62,7 +62,7 @@ mail = {
                 message: {
                     subject: 'Test iCollege Email',
                     html: html,
-                    to: config().mail ? config().mail.mailto : 'icollege@icollege.com'
+                    to: config.mail ? config.mail.mailto : 'icollege@icollege.com'
                 }
             }]};
 
@@ -116,7 +116,7 @@ mail = {
             }
         }).then(function (message) {
             message.subject = 'Test iCollege Email';
-            message.to = config().mail ? config().mail.mailto : 'icollege@icollege.com';
+            message.to = config.mail ? config.mail.mailto : 'icollege@icollege.com';
             var payload = {mail: [{
                 message: message
             }]};

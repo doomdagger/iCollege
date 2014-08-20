@@ -56,7 +56,7 @@ function icollegeStartMessages() {
         console.log(
             "iCollege is running...".green,
             "\nYour site is now available on",
-            config().url,
+            config.url,
             "\nCtrl+C to shut down".grey
         );
 
@@ -72,9 +72,9 @@ function icollegeStartMessages() {
         console.log(
             ("iCollege is running in " + process.env.NODE_ENV + "...").green,
             "\nListening on",
-                config().server.host.yellow + ':' + config().server.port.yellow,
+                config.server.host.yellow + ':' + config.server.port.yellow,
             "\nUrl configured as:",
-                config().url,
+                config.url,
             "\nCtrl+C to shut down".grey
         );
         // ensure that Ghost exits correctly on Ctrl+C
@@ -156,7 +156,7 @@ function init(server) {
         express['static'].mime.define({'application/font-woff': ['woff']});
 
         // enabled gzip compression by default
-        if (config().server.compress !== false) {
+        if (config.server.compress !== false) {
             server.use(compression());
         }
 
@@ -168,8 +168,8 @@ function init(server) {
         middleware(server);
 
         httpServer = server.listen(
-            config().server.port,
-            config().server.host
+            config.server.port,
+            config.server.host
         );
 
         httpServer.on('listening', function () {

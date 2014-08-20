@@ -23,7 +23,7 @@ var db = {
     users: {
         uuid: {type: String, required: true}, // uuid
         nickname: {type: String, trim: true}, // nickname
-        lowercase_username: {type: String, required: true, lowercase: true, trim: true},
+        slug: {type: String, required: true, lowercase: true, trim: true},
         username: {type: String, required: true, trim: true}, // used for sign in
         password: {type: String, required: true, trim: true},
         email: {type: String, match: /.*?@.*?/, trim: true},
@@ -120,6 +120,7 @@ var db = {
 
     // ### APP
     // 所有开发者注册发布或iCollege维护的apps
+    // TODO registered OAuth application, having its unique _ID and Client Secret.
     // OAuth Protocol:
     // authorizing procedure:
     // 1. redirect users to permission confirmation page: GET _id   response: code - an unguessable string
@@ -127,12 +128,9 @@ var db = {
     // 3. user access_token to access api: access_token can be in query param, can also be in "Authorization: token TOKEN_HERE" Header
     apps: {
         uuid: {type: String, required: true},
-        //registered OAuth application, having its unique _ID and Client Secret.
-        secret: {type: String, required: true, trim: true},
-        lowercase_name: {type: String, required: true, trim: true, lowercase: true},
+        slug: {type: String, required: true, trim: true, lowercase: true},
         name: {type: String, required: true, trim: true},
         avatar: {type: String}, // be what, for file storage, not sure
-        slug: {type: String, required: true, trim: true},
         version: {type: String, required: true, trim: true},
         // 这个 app 需要哪些permission，安装时需争取到用户同意，方可继续安装
         // app 能够拥有的permission永远是user permission的子集，这点需要验证！！！
@@ -153,6 +151,7 @@ var db = {
     // 主要是为了应对圈子的回帖以及转发，@等动态的通知
     notifications: {
         uuid: {type: String, required: true}, // uuid
+        slug: {type: String, required: true, trim: true, lowercase: true},
         user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
         note_category: {type: String, enum: ['repost', 'favored', 'forward', 'at'], required: true},  // 这么几种类别: 回复，赞，转发，@ 这四种
         object_id: {type: Schema.Types.ObjectId, required: true}, // 对应着以上通知的类别，跟通知有关的对象ID可能是，repost, post两种
@@ -209,7 +208,7 @@ var db = {
     groups: {
         uuid: {type: String, required: true}, // uuid
         nickname: {type: String, trim: true}, // group用于显示的名字，可以与其他群组重复的
-        lowercase_group_name: {type: String, required: true, lowercase: true, trim: true}, // 小写形式，方便进行防止群组命名重复测试
+        slug: {type: String, required: true, lowercase: true, trim: true}, // 小写形式，方便进行防止群组命名重复测试
         group_name: {type: String, required: true, trim: true}, // 标记了群组的唯一性
         avatar: {type: String}, // be what, for file storage, not sure
         // 群主
@@ -267,7 +266,7 @@ var db = {
     circles: {
         uuid: {type: String, required: true}, // uuid
         nickname: {type: String, required: true}, // circle用于显示的名字，可以与其他圈子重复
-        lowercase_circle_name: {type: String, required: true, lowercase: true, trim: true}, // 小写形式，方便进行防止圈子命名重复测试
+        slug: {type: String, required: true, lowercase: true, trim: true}, // 小写形式，方便进行防止圈子命名重复测试
         circle_name: {type: String, required: true, trim: true}, // 标记了圈子的唯一性
         // 圈主，圈子拥有者
         user_id: {type: Schema.Types.ObjectId, required: true}, // user object id
@@ -332,7 +331,8 @@ var db = {
     // ### 帖子实体 一定要考虑帖子的共通性，发帖（日志）；存在于圈子里（所以人，都有一个自己的圈子，好友圈，其他圈子都是额外创建的）
     posts: {
         uuid: {type: String, required: true},
-        slug: {type: String, required: true}, // 帖子的标识符，时间与title与作者关联组成，标注了帖子的唯一性
+        // 帖子的标识符，时间与title与作者关联组成，标注了帖子的唯一性
+        slug: {type: String, required: true, trim: true, lowercase: true},
         title: {type: String},
         user_id: {type: Schema.Types.ObjectId, required: true}, // 用户Id，谁发的帖子
         circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，自己专属朋友圈的ID或自己加入的朋友圈的ID
@@ -378,6 +378,7 @@ var db = {
     // ### 回帖实体
     reposts: {
         uuid: {type: String, required: true},
+        slug: {type: String, required: true, trim: true, lowercase: true},
         user_id: {type: Schema.Types.ObjectId, required: true}, // 用户Id，谁发的帖子回复
         circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，回帖回的帖子属于哪个圈子 !!是否应该存在默认值（好友圈），是否必须？
         source_category: {type: String, enum: ['posts, reposts']}, // 是来自于帖子 还是 回帖
@@ -415,6 +416,30 @@ var db = {
         created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
         updated_by: {type: Schema.Types.ObjectId}
+    },
+
+    // ### client, oauth 2.0 client, an app and an user can both become a client
+    clients: {
+        uuid: {type: String, required: true},
+        name: {type: String, required: true, trim: true},
+        slug: {type: String, required: true, trim: true, lowercase: true},
+        secret: {type: String, required: true, trim: true},
+        created_at: {type: Date, default: Date.now()},
+        created_by: {type: Schema.Types.ObjectId},
+        updated_at: {type: Date, default: Date.now()},
+        updated_by: {type: Schema.Types.ObjectId}
+    },
+    accesstokens: {
+        token: {type: String, required: true, unique: true},
+        user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
+        client_id: {type: Schema.Types.ObjectId, required: true, ref: 'Client'},
+        expires: {type: Date, required: true, expires: 60 * 60 * 24}
+    },
+    refreshtokens: {
+        token: {type: String, required: true, unique: true},
+        user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
+        client_id: {type: Schema.Types.ObjectId, required: true, ref: 'Client'},
+        expires: {type: Date, required: true, expires: 60 * 60 * 24}
     }
 
 };

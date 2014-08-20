@@ -12,6 +12,9 @@ module.exports = {
     Repost: require('./repost').Repost,
     // Ghost中是Settings，我们这里是Setting，不一样
     Setting: require('./settings').Setting,
+    Refreshtoken: require('./refreshtoken').Refreshtoken,
+    Accesstoken: require('./accesstoken').Accesstoken,
+    Client: require('./client').Client,
 
     init: require('./base').init
 };

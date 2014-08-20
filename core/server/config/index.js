@@ -16,7 +16,9 @@ var path          = require('path'), // built-in path module
     configUrl     = require('./url'),// url.js in the same folder
     icollegeConfig   = {},
     appRoot, // the root of the project
-    corePath; // the core folder
+    corePath, // the core folder
+    testingEnvs   = ['testing'],
+    defaultConfig = {};
 
 /**
  * 传入一个config对象，用以更新全局的icollegeConfig对象，理论上，该方法不应当被重复
@@ -25,7 +27,7 @@ var path          = require('path'), // built-in path module
  * @returns {{}}
  */
 function updateConfig(config) {
-    var localPath,
+    var localPath = '',
         contentPath,
         subdir;
 
@@ -73,6 +75,7 @@ function updateConfig(config) {
 
             'exportPath':       path.join(corePath, '/server/data/export/'),
             'lang':             path.join(corePath, '/shared/lang/'),
+            'debugPath':        subdir + '/ghost/debug/',
 
             'availableApps':    icollegeConfig.paths.availableApps || [],
             'builtPath':        path.join(corePath, 'built/'),
@@ -106,35 +109,48 @@ function initConfig(rawConfig) {
     return when.resolve(icollegeConfig);
 }
 
-/**
- * initConfig()方法只会在项目初始化时被调用，此方法应该作为唯一对外出口供其他模块
- * 获取到全局的icollegeConfig对象.
- * @returns {{}}
- */
-function config() {
+///**
+// * initConfig()方法只会在项目初始化时被调用，此方法应该作为唯一对外出口供其他模块
+// * 获取到全局的icollegeConfig对象.
+// * @returns {{}}
+// */
+//function config() {
+//
+//    // @TODO: get rid of require statement.
+//    // This is currently needed for tests to load config file
+//    // successfully.  While running application we should never
+//    // have to directly delegate to the config.js file. Just remove
+//    // this block, everything will work fine.
+//    if (_.isEmpty(icollegeConfig)) {
+//        try {
+//            icollegeConfig = require(path.resolve(__dirname, '../../../', 'config.js'))[process.env.NODE_ENV] || {};
+//        } catch (ignore) {/*jslint strict: true */}
+//
+//        icollegeConfig.paths = icollegeConfig.paths || {};
+//        icollegeConfig.paths.appRoot = path.resolve(__dirname, '../../../');//app still not bootstrapped, cannot fetch app root from config module
+//        icollegeConfig.paths.configExample = path.join(icollegeConfig.paths.appRoot, 'config.example.js');
+//
+//        icollegeConfig = updateConfig(icollegeConfig);
+//    }
+//
+//    // expose config object to others, never invoke it before the project get bootstrapped!
+//    return icollegeConfig;
+//}
 
-    // @TODO: get rid of require statement.
-    // This is currently needed for tests to load config file
-    // successfully.  While running application we should never
-    // have to directly delegate to the config.js file. Just remove
-    // this block, everything will work fine.
-    if (_.isEmpty(icollegeConfig)) {
-        try {
-            icollegeConfig = require(path.resolve(__dirname, '../../../', 'config.js'))[process.env.NODE_ENV] || {};
-        } catch (ignore) {/*jslint strict: true */}
+if (testingEnvs.indexOf(process.env.NODE_ENV) > -1) {
+    try {
+        defaultConfig  = require('../../../config')[process.env.NODE_ENV] || {};
+    } catch (ignore) {/*jslint strict: true */}
 
-        icollegeConfig.paths = icollegeConfig.paths || {};
-        icollegeConfig.paths.appRoot = path.resolve(__dirname, '../../../');//app still not bootstrapped, cannot fetch app root from config module
-        icollegeConfig.paths.configExample = path.join(icollegeConfig.paths.appRoot, 'config.example.js');
+    defaultConfig.paths = defaultConfig.paths || {};
+    defaultConfig.paths.appRoot = path.resolve(__dirname, '../../../');//app still not bootstrapped, cannot fetch app root from config module
+    defaultConfig.paths.configExample = path.join(defaultConfig.paths.appRoot, 'config.example.js');
 
-        icollegeConfig = updateConfig(icollegeConfig);
-    }
-
-    // expose config object to others, never invoke it before the project get bootstrapped!
-    return icollegeConfig;
+    icollegeConfig = updateConfig(defaultConfig);
 }
 
-module.exports = config;
+
+module.exports = icollegeConfig;
 module.exports.init = initConfig;
 module.exports.urlFor = configUrl.urlFor;
 module.exports.urlForPost = configUrl.urlForPost;

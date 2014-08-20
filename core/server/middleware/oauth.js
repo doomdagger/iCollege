@@ -21,13 +21,13 @@ oauth = {
         // application issues an access token on behalf of the user who authorized the code.
         oauthServer.exchange(oauth2orize.exchange.password(function (client, username, password, scope, done) {
             // Validate the client
-            models.Client.forge({slug: client.slug})
-                .fetch()
+            models.Client.findOnePromised({slug: client.slug})
                 .then(function (client) {
                     if (!client) {
                         return done(null, false);
                     }
                     // Validate the user
+                    // TODO we check user against email, slug, username, uuid or id
                     return models.User.check({email: username, password: password}).then(function (user) {
 
                         //Everything validated, return the access- and refreshtoken
@@ -36,8 +36,8 @@ oauth = {
                             accessExpires = Date.now() + utils.ONE_HOUR_MS,
                             refreshExpires = Date.now() + utils.ONE_DAY_MS;
 
-                        return models.Accesstoken.add({token: accessToken, user_id: user.id, client_id: client.id, expires: accessExpires}).then(function () {
-                            return models.Refreshtoken.add({token: refreshToken, user_id: user.id, client_id: client.id, expires: refreshExpires});
+                        return models.Accesstoken.createPromised({token: accessToken, user_id: user.id, client_id: client.id, expires: accessExpires}).then(function () {
+                            return models.Refreshtoken.createPromised({token: refreshToken, user_id: user.id, client_id: client.id, expires: refreshExpires});
                         }).then(function () {
                             resetSpamCounter(username);
                             return done(null, accessToken, refreshToken, {expires_in: utils.ONE_HOUR_S});
@@ -55,8 +55,7 @@ oauth = {
         // for verification. If these values are validated, the application issues an 
         // access token on behalf of the user who authorized the code.
         oauthServer.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken, scope, done) {
-            models.Refreshtoken.forge({token: refreshToken})
-                .fetch()
+            models.Refreshtoken.findOnePromised({token: refreshToken})
                 .then(function (model) {
                     if (!model) {
                         return done(null, false);
@@ -67,13 +66,13 @@ oauth = {
                             refreshExpires = Date.now() + utils.ONE_DAY_MS;
 
                         if (token.expires > Date.now()) {
-                            models.Accesstoken.add({
+                            models.Accesstoken.createPromised({
                                 token: accessToken,
                                 user_id: token.user_id,
                                 client_id: token.client_id,
                                 expires: accessExpires
                             }).then(function () {
-                                return models.Refreshtoken.edit({expires: refreshExpires}, {id: token.id});
+                                return models.Refreshtoken.updatePromised({id: token.id}, {expires: refreshExpires});
                             }).then(function () {
                                 return done(null, accessToken, {expires_in: utils.ONE_HOUR_S});
                             }).catch(function () {

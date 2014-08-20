@@ -126,17 +126,17 @@ describe('Local File System Storage', function () {
     });
 
     describe('when a custom content path is used', function () {
-        var origContentPath = config().paths.contentPath;
-        var origImagesPath = config().paths.imagesPath;
+        var origContentPath = config.paths.contentPath;
+        var origImagesPath = config.paths.imagesPath;
 
         beforeEach(function () {
-            config().paths.contentPath = config().paths.appRoot + '/var/ghostcms';
-            config().paths.imagesPath = config().paths.appRoot + '/var/ghostcms/' + config().paths.imagesRelPath;
+            config.paths.contentPath = config.paths.appRoot + '/var/ghostcms';
+            config.paths.imagesPath = config.paths.appRoot + '/var/ghostcms/' + config.paths.imagesRelPath;
         });
 
         afterEach(function () {
-            config().paths.contentPath = origContentPath;
-            config().paths.imagesPath = origImagesPath;
+            config.paths.contentPath = origContentPath;
+            config.paths.imagesPath = origImagesPath;
         });
 
         it('should send the correct path to image', function (done) {

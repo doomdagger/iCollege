@@ -8,8 +8,8 @@ var errors          = require('../../errors'),
     Setting         = require('../../models').Setting,
 
     defaultSettings = require('../default-settings'),
-    initialVersion  = '000',
 
+    initialVersion  = '000',
     defaultDatabaseVersion;
 
 // Default Database Version

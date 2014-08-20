@@ -119,7 +119,7 @@ migrateUpFreshDb = function () {
 function backupDatabase() {
     return dataExport().then(function (exportedData) {
         // Save the exported data to the file system for download
-        var fileName = path.resolve(config().paths.contentPath + '/data/exported-' + (new Date().getTime()) + '.json');
+        var fileName = path.resolve(config.paths.contentPath + '/data/exported-' + (new Date().getTime()) + '.json');
 
         return nodefn.call(fs.writeFile, fileName, JSON.stringify(exportedData));
     });

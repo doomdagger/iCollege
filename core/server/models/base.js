@@ -63,9 +63,9 @@ ICollegeSchema.prototype.extend = function (collectionName, statics, methods, pl
  * @returns {Object} connection object
  */
 function init() {
-    var connectionInfo = config().database.mongodb.connection,
+    var connectionInfo = config.database.mongodb.connection,
         connected = when.defer(),
-        options = config().database.mongodb.options || {};
+        options = config.database.mongodb.options || {};
 
 
     mongoose.connect(connectionInfo.host,
@@ -104,6 +104,23 @@ icollegeSchema = new ICollegeSchema({
     }
 }, {
     // ## static methods definition goes here, `this` here means model
+
+    /**
+     * create docs in
+     * @param docs
+     * @returns {*}
+     */
+    'createPromised': function (docs) {
+        var created = when.defer();
+        this.create(docs, function (err, docs) {
+            if (err) {
+                created.reject(err);
+                return;
+            }
+            created.resolve(docs);
+        });
+        return created.promise;
+    },
 
     /**
      * Find all documents in a collection

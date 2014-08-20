@@ -25,7 +25,7 @@ _.extend(LocalFileStore.prototype, BaseStore.prototype);
  */
 LocalFileStore.prototype.save = function (image) {
     var saved = when.defer(),
-        targetDir = this.getTargetDir(config().paths.imagesPath),
+        targetDir = this.getTargetDir(config.paths.imagesPath),
         targetFilename;
 
     this.getUniqueFileName(this, image, targetDir).then(function (filename) {
@@ -38,7 +38,7 @@ LocalFileStore.prototype.save = function (image) {
     }).then(function () {
         // The src for the image must be in URI format, not a file system path, which in Windows uses \
         // For local file system storage can use relative path so add a slash
-        var fullUrl = (config().paths.subdir + '/' + config().paths.imagesRelPath + '/' + path.relative(config().paths.imagesPath, targetFilename)).replace(new RegExp('\\' + path.sep, 'g'), '/');
+        var fullUrl = (config.paths.subdir + '/' + config.paths.imagesRelPath + '/' + path.relative(config.paths.imagesPath, targetFilename)).replace(new RegExp('\\' + path.sep, 'g'), '/');
         return saved.resolve(fullUrl);
     }).catch(function (e) {
         errors.logError(e);
@@ -68,7 +68,7 @@ LocalFileStore.prototype.serve = function () {
         ONE_YEAR_MS = 365 * 24 * ONE_HOUR_MS;
 
     // For some reason send divides the max age number by 1000
-    return express['static'](config().paths.imagesPath, {maxAge: ONE_YEAR_MS});
+    return express['static'](config.paths.imagesPath, {maxAge: ONE_YEAR_MS});
 };
 
 

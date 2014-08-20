@@ -17,7 +17,7 @@ function ICollegeMailer(opts) {
 ICollegeMailer.prototype.init = function () {
     var self = this;
     self.state = {};
-    if (config().mail && config().mail.transport) {
+    if (config.mail && config.mail.transport) {
         this.createTransport();
         return when.resolve();
     }
@@ -55,17 +55,17 @@ ICollegeMailer.prototype.detectSendmail = function () {
 };
 
 ICollegeMailer.prototype.createTransport = function () {
-    this.transport = nodemailer.createTransport(config().mail.transport, _.clone(config().mail.options) || {});
+    this.transport = nodemailer.createTransport(config.mail.transport, _.clone(config.mail.options) || {});
 };
 
 
 ICollegeMailer.prototype.fromAddress = function () {
-    var from = config().mail && config().mail.mailfrom,
+    var from = config.mail && config.mail.mailfrom,
         domain;
 
     if (!from) {
         // Extract the domain name from url set in config.js
-        domain = config().url.match(new RegExp("^https?://([^/:?#]+)(?:[/:?#]|$)", "i"));
+        domain = config.url.match(new RegExp("^https?://([^/:?#]+)(?:[/:?#]|$)", "i"));
         domain = domain && domain[1];
 
         // Default to icollege@[blog.url]
