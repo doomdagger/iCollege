@@ -19,6 +19,7 @@ module.exports = function () {
             models.Client.findOnePromised({slug: clientId})
                 .then(function (model) {
                     if (model) {
+                        // TODO: implement all the toJSON method for models, striping out any private properties
                         var client = model.toJSON();
                         if (client.secret === clientSecret) {
                             return done(null, client);

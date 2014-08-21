@@ -113,6 +113,7 @@ function initNotifications() {
 
 // ## Initializes the application.
 // Sets up the express server instance.
+// Instantiates the ghost singleton, helpers, routes, middleware, and apps.
 // Finally it starts the http server.
 function init(server) {
 
@@ -128,7 +129,7 @@ function init(server) {
     // initialize validations
     validation.init();
 
-    // connect to mongodb
+    // connect to mongodb, render mongoose.connection
     return models.init().then(function () {
         // Initialize database
         return migration.init();

@@ -33,6 +33,8 @@ config = {
                     database: 'icollege'
                 },
                 options: {
+//                    user: 'myUserName',
+//                    pass: 'myPassword',
                     db: {
                         ative_parser: true
                     },
@@ -41,9 +43,7 @@ config = {
                     },
                     replset: {
                         rs_name: 'myReplicaSetName'
-                    },
-                    user: 'myUserName',
-                    pass: 'myPassword'
+                    }
                 }
             },
             // our big file serialization database, storage for all assets

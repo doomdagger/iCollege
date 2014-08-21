@@ -151,10 +151,17 @@ var db = {
     // 主要是为了应对圈子的回帖以及转发，@等动态的通知
     notifications: {
         uuid: {type: String, required: true}, // uuid
-        slug: {type: String, required: true, trim: true, lowercase: true},
         user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
-        note_category: {type: String, enum: ['repost', 'favored', 'forward', 'at'], required: true},  // 这么几种类别: 回复，赞，转发，@ 这四种
-        object_id: {type: Schema.Types.ObjectId, required: true}, // 对应着以上通知的类别，跟通知有关的对象ID可能是，repost, post两种
+        from_user: {
+            user_id: {type: Schema.Types.ObjectId, required: true},
+            remark_name: {type: String, default: '', trim: true} // 最佳选择备注名称，还可以其他名称
+        },
+        note_act: {
+            category: {type: String, enum: ['repost', 'favored', 'forward', 'at'], required: true},  // 这么几种类别: 回复，赞，转发，@ 这四种
+            content: {type: String}, // 内容可选
+            timestamp: {type: Date, required: true} // 行为是一定要有时间的
+        },
+        object_id: {type: Schema.Types.ObjectId, required: true}, // 对应着以上通知的类别，跟通知有关的对象ID可能是，repost, post两种，记住，是原有对象，不是行为产生后的对象
         created_at: {type: Date, default: Date.now()},
         created_by: {type: Schema.Types.ObjectId, required: true},
         updated_at: {type: Date, default: Date.now()},
@@ -213,11 +220,6 @@ var db = {
         avatar: {type: String}, // be what, for file storage, not sure
         // 群主
         user_id: {type: Schema.Types.ObjectId, required: true}, // user object id, who owns the group
-//        群组管理员，非！系统管理员
-//        related_ids: [{
-//            type: Schema.Types.ObjectId,
-//            required: true
-//        }],
         // user list, 全部的用户列表，包含群主和管理员
         members: [{
             member_id: {type: Schema.Types.ObjectId, required: true},
@@ -237,6 +239,7 @@ var db = {
         // 同事*同学*朋友：亲友，同学，同事
         category: {type: String, required: true, trim: true}, // 群组类型
         description: {type: String, trim: true, default: "A Group of iCollege"}, // 群组介绍
+        statement: {type: String, trim: true, default: "New Group~ Say Something to Your Members"}, //群公告
         location: [{type: Number, index: '2dsphere', default: 0.0}],// longitude latitude
         location_info: {type: String, trim: true},// location name
         permission_on_add: {type: String, enum: ['not_allowed', 'need_permission', 'need_nothing'], default: 'need_permission'}, // 添加成员进群组时的审核策略：不需要审核或需要管理员审核等
@@ -270,11 +273,6 @@ var db = {
         circle_name: {type: String, required: true, trim: true}, // 标记了圈子的唯一性
         // 圈主，圈子拥有者
         user_id: {type: Schema.Types.ObjectId, required: true}, // user object id
-//        圈子管理员，非！系统管理员
-//        related_ids: [{
-//            type: Schema.Types.ObjectId,
-//            required: true
-//        }],
         // user list, 全部的用户列表，包含圈主和管理员
         members: [{
             member_id: {type: Schema.Types.ObjectId, required: true},
@@ -294,9 +292,9 @@ var db = {
         // 品牌产品
         // 同事*同学*朋友：亲友，同学，同事
         //
-        // **圈子应该额外加一个category，是系统生成的专属个人朋友圈，还是用户创建的**
-        category: {type: String, required: true, trim: true}, // 圈子类型，参考微群组
+        category: {type: String, required: true, trim: true, default: '朋友'}, // 圈子类型，参考微群组
         description: {type: String}, // 圈子介绍
+        statement: {type: String, trim: true, default: "New Circle~ Say Something to Your Members"}, //圈子公告
         location: [{type: Number, index: '2dsphere'}], // longitude latitude
         location_info: {type: String, trim: true}, // location name
         // 添加成员进圈子时的审核策略：不需要审核或需要管理员审核等
@@ -315,28 +313,27 @@ var db = {
         uuid: {type: String, required: true}, // uuid
         content: {type: String, required: true},
         source_category: {type: String, enum: ['friends', 'groups'], required: true}, // 消息来自于个人（好友或系统（系统也是一个人类账号）），还是群组
-        group_id: {type: Schema.Types.ObjectId}, // 仅有在消息来源于groups时此字段才有值
         content_category: {type: String, enum: ['media', 'text', 'system'], default: 'text'}, // 消息类型：多媒体消息（视频，纯图片，音频），富文本消息(html，谨防js注入)，其他类型的系统消息（好友请求，其他由系统relay的具有特殊格式的消息），
         message_from: {type: Schema.Types.ObjectId, required: true}, // 从这也能看出来，账户必须有角色，角色具有权限分级，并预留一个账户具备超级管理员角色，可以赋予普通用户管理员角色
-        message_to: [{
-            user_id: {type: Schema.Types.ObjectId},
-            being_pulled: {type: Boolean, default: false} // 前端是否曾经抓取过
-        }], // to的多样性，用户，群组
+        // to的多样性，用户，群组
+        message_to: {type: Schema.Types.ObjectId, required: true},
         created_at: {type: Date, default: Date.now()},
         created_by: {type: Schema.Types.ObjectId, required: true},
         updated_at: {type: Date, default: Date.now()},
         updated_by: {type: Schema.Types.ObjectId, required: true} // 消息的某些状态被改变，改变者为谁
     },
 
-    // ### 帖子实体 一定要考虑帖子的共通性，发帖（日志）；存在于圈子里（所以人，都有一个自己的圈子，好友圈，其他圈子都是额外创建的）
+    // ### 帖子实体 一定要考虑帖子的共通性，发帖（日志）；存在或不存在于圈子里
     posts: {
         uuid: {type: String, required: true},
         // 帖子的标识符，时间与title与作者关联组成，标注了帖子的唯一性
         slug: {type: String, required: true, trim: true, lowercase: true},
         title: {type: String},
         user_id: {type: Schema.Types.ObjectId, required: true}, // 用户Id，谁发的帖子
-        circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，自己专属朋友圈的ID或自己加入的朋友圈的ID
+        // TODO: 考虑一下，circle_id为空可否认为此post发自于用户，并希望朋友看到，而不是发到某个圈子中，让圈友看到
+        circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，自己加入的朋友圈的ID
         // 帖子的来源，好友圈（默认），或是其他某一个圈子：好友圈这个圈子专属于自己，这个圈子包含了用户的所有好友
+        // TODO: 如果circle_id为空是有意义的，此字段是否冗余？
         source_category: {type: String, enum: ['friends', 'circles'], required: true},
 
         // ================== 转发信息 ==================
@@ -361,6 +358,7 @@ var db = {
         status: {type: String, enum: ['draft', 'published'], default: 'draft'}, // 帖子的状态，draft or published
         language: {type: String, enum: ['zh_CN', 'en_US'], default: 'zh_CN'}, // 帖子的语言
 
+        // ================ 转发，原创共享字段 ==============
         at_users: [{type: Schema.Types.ObjectId}], // @user ids
         favored_users: [{ // 点赞的用户
             user_id: {type: Schema.Types.ObjectId, required: true}, // 用户ID
@@ -378,11 +376,13 @@ var db = {
     // ### 回帖实体
     reposts: {
         uuid: {type: String, required: true},
-        slug: {type: String, required: true, trim: true, lowercase: true},
         user_id: {type: Schema.Types.ObjectId, required: true}, // 用户Id，谁发的帖子回复
-        circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，回帖回的帖子属于哪个圈子 !!是否应该存在默认值（好友圈），是否必须？
+        circle_id: {type: Schema.Types.ObjectId}, // 圈子Id，回帖回的帖子属于哪个圈子？ 如果post不属于任何圈子，此字段可为空
         source_category: {type: String, enum: ['posts, reposts']}, // 是来自于帖子 还是 回帖
-        repost_to: {type: Schema.Types.ObjectId, required: true}, // 帖子ID或是回帖ID
+        to_user_id: {type: Schema.Types.ObjectId}, // 回复谁，回复对象为回帖时字段填值才有意义
+        // 帖子ID或是回帖ID，如果此字段指向的对象是回帖，且此回帖指向的对象也是回帖，这是不合法的
+        // 创建repost时考虑一下这点，一定要追溯到最上层的repost，此字段所指向的repost的repost_to字段，一定指向post
+        repost_to: {type: Schema.Types.ObjectId, required: true},
 
         // ================== 回帖内容 ==============
         html: {type: String}, // 帖子内容，谨防js注入
@@ -433,13 +433,13 @@ var db = {
         token: {type: String, required: true, unique: true},
         user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
         client_id: {type: Schema.Types.ObjectId, required: true, ref: 'Client'},
-        expires: {type: Date, required: true, expires: 60 * 60 * 24}
+        expires: {type: Number, required: true, min: 0}
     },
     refreshtokens: {
         token: {type: String, required: true, unique: true},
         user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
         client_id: {type: Schema.Types.ObjectId, required: true, ref: 'Client'},
-        expires: {type: Date, required: true, expires: 60 * 60 * 24}
+        expires: {type: Number, required: true, min: 0}
     }
 
 };

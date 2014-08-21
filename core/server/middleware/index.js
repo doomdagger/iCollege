@@ -4,11 +4,7 @@
 
 var express     = require('express'),
     bodyParser  = require('body-parser'),
-    cookieParser = require('cookie-parser'),
     errorhandler = require('errorhandler'),
-    session     = require('express-session'),
-    redis       = require('redis'),
-    RedisStore  = require('connect-redis')(session),
     logger      = require('morgan'),
     favicon     = require('serve-favicon'),
     config      = require('../config'),
@@ -34,9 +30,7 @@ setupMiddleware = function (server) {
     var logging = config.logging, // unresolved logging
         subdir = config.paths.subdir,
         corePath = config.paths.corePath,
-        redisInfo = config.database.redis.connection,
-        oauthServer = oauth2orize.createServer(),
-        cookie;
+        oauthServer = oauth2orize.createServer();
 
     // make passport use several strategies
     authStrategies();
@@ -95,25 +89,6 @@ setupMiddleware = function (server) {
 
     expressServer.use(passport.initialize());
 
-    // ### Sessions
-    // we need the trailing slash in the cookie path. Session handling *must* be after the slash handling
-    cookie = {
-        path: subdir + '/',
-        maxAge: 12 * utils.ONE_HOUR_MS
-    };
-
-
-    expressServer.use(cookieParser('i love u'));
-    expressServer.use(session({
-        store: new RedisStore(_.merge({
-                client: redis.createClient()
-            }), redisInfo), // redis store
-            proxy: true,
-            secret: 'i love u',
-            cookie: cookie
-        }));
-
-
     // ### Caching
     expressServer.use(middleware.cacheControl('public'));
     // #### API routing has private policy for caching
@@ -129,7 +104,7 @@ setupMiddleware = function (server) {
     
     // ### Routing
     // Set up API routes
-    expressServer.use(subdir, routes.api(middleware));
+    expressServer.use(subdir + routes.apiBaseUri, routes.api(middleware));
 
     // Set up User routes
     expressServer.use(subdir, routes.frontend(middleware));
