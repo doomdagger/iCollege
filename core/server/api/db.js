@@ -3,8 +3,12 @@
 var dataExport       = require('../data/export'),
     when             = require('when'),
     errors           = require('../errors'),
+    canThis          = require('../permissions').canThis,
+
+    api              = {},
     db;
 
+api.settings         = require('./settings');
 
 /**
  * ## DB API Methods
@@ -19,13 +23,18 @@ db = {
      * @public
      * @returns {Promise} Ghost Export JSON format
      */
-    'exportContent': function () {
+    'exportContent': function (options) {
+        options = options || {};
 
         // Export data, otherwise send error 500
-        return dataExport().then(function (exportedData) {
-            return when.resolve({ db: [exportedData] });
-        }).otherwise(function (error) {
-            return when.reject(new errors.InternalServerError(error.message || error));
+        return canThis(options.context).exportContent.db().then(function () {
+            return dataExport().then(function (exportedData) {
+                return when.resolve({ db: [exportedData] });
+            }).otherwise(function (error) {
+                return when.reject(new errors.InternalServerError(error.message || error));
+            });
+        }, function () {
+            return when.reject(new errors.NoPermissionError('You do not have permission to export data. (no rights)'));
         });
     }
 };

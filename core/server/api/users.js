@@ -4,7 +4,6 @@ var when            = require('when'),
     dataProvider    = require('../models'),
 
     //docName         = 'users',
-    //ONE_DAY         = 86400000,
     users;
 
 

@@ -6,7 +6,10 @@
 var _            = require('lodash'),
     dataProvider = require('../models'),
     when         = require('when'),
+    config       = require('../config'),
+    canThis      = require('../permissions').canThis,
     errors       = require('../errors'),
+    utils        = require('./utils'),
 
     //docName      = 'settings',
     settings,
@@ -15,7 +18,9 @@ var _            = require('lodash'),
     settingsFilter,
     readSettingsResult,
     settingsResult,
+    canEditAllSettings,
     populateDefaultSetting,
+    //hasPopulatedDefaults = false,
 
     /**
      * ## Cache
@@ -44,7 +49,7 @@ updateSettingsCache = function (settings) {
         return when(settingsCache);
     }
 
-    return dataProvider.Setting.findPromised({})
+    return dataProvider.Setting.findAllPromised()
         .then(function (result) {
             settingsCache = readSettingsResult(result);
 
@@ -137,6 +142,44 @@ populateDefaultSetting = function (key) {
     });
 };
 
+/**
+ * ### Can Edit All Settings
+ * Check that this edit request is allowed for all settings requested to be updated
+ * @private
+ * @param settingsInfo
+ * @returns {*}
+ * @param options
+ */
+canEditAllSettings = function (settingsInfo, options) {
+    var checkSettingPermissions = function (setting) {
+            if (setting.type === 'core' && !(options.context && options.context.internal)) {
+                return when.reject(
+                    new errors.NoPermissionError('Attempted to access core setting from external request')
+                );
+            }
+
+            // pass key to validate request?
+            return canThis(options.context).edit.setting(setting.key).catch(function () {
+                return when.reject(new errors.NoPermissionError('You do not have permission to edit settings.'));
+            });
+
+        },
+        checks = _.map(settingsInfo, function (settingInfo) {
+            var setting = settingsCache[settingInfo.key];
+
+            if (!setting) {
+                // Try to populate a default setting if not in the cache
+                return populateDefaultSetting(settingInfo.key).then(function (defaultSetting) {
+                    // Get the result from the cache with permission checks
+                    return checkSettingPermissions(defaultSetting);
+                });
+            }
+
+            return checkSettingPermissions(setting);
+        });
+
+    return when.all(checks);
+};
 
 /**
  * ## Settings API Methods
