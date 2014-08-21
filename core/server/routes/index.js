@@ -3,7 +3,7 @@ var frontend     = require('./frontend'),
     config       = require('../config');
 
 module.exports = {
-    apiBaseUri: '/api/v'+config.api.version+'/',
+    apiBaseUri: '/api/v' + config.api.version + '/',
     api: api,
     frontend: frontend
 };
