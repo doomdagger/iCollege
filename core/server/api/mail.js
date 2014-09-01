@@ -76,28 +76,28 @@ mail = {
      * @return {Object} Mail Object
      */
     generateMailTemplate: function (templateName, locals) {
-        var generated = when.defer();
 
-        emailTemplates(templatesDir, function (err, template) {
+        return when.promise(function (resolve, reject) {
+            emailTemplates(templatesDir, function (err, template) {
 
-            if (err) {
-                generated.reject(err);
-            } else {
-                template(templateName, locals, function (err, html, text) {
-                    if (err) {
-                        generated.reject(err);
-                    } else {
-                        generated.resolve({
-                            html: html,
-                            // generateTextFromHTML: true,
-                            text: text
-                        });
-                    }
-                });
-            }
+                if (err) {
+                    reject(err);
+                } else {
+                    template(templateName, locals, function (err, html, text) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve({
+                                html: html,
+                                // generateTextFromHTML: true,
+                                text: text
+                            });
+                        }
+                    });
+                }
+            });
         });
 
-        return generated.promise;
     },
 
     /**
@@ -114,11 +114,14 @@ mail = {
                 first: 'Mamma',
                 last: 'Mia'
             }
-        }).then(function (message) {
-            message.subject = 'Test iCollege Email';
-            message.to = config.mail ? config.mail.mailto : 'icollege@icollege.com';
+        }).then(function (emailContent) {
             var payload = {mail: [{
-                message: message
+                message: {
+                    subject : 'Test iCollege Email',
+                    to : config.mail ? config.mail.mailto : 'icollege@icollege.com',
+                    html: emailContent.html,
+                    text: emailContent.text
+                }
             }]};
 
             return mail.send(payload);

@@ -227,7 +227,8 @@ var path           = require('path'),
                 bower: {
                     command: path.resolve(cwd + '/node_modules/.bin/bower --allow-root install'),
                     options: {
-                        stdout: true
+                        stdout: true,
+                        stdin: false
                     }
                 },
                 // #### Generate coverage report
@@ -534,8 +535,8 @@ var path           = require('path'),
             var done = this.async(),
                 migration = require('./core/server/data/migration');
 
-            migration.reset().then(function () {
-                return migration.init();
+            migration.init().then(function () {
+                return migration.reset();
             }).then(function () {
                 done();
             }).catch(function (err) {

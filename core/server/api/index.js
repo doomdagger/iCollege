@@ -13,6 +13,8 @@ var _             = require('lodash'),
     db            = require('./db'),
     settings      = require('./settings'),
     mail          = require('./mail'),
+    authentication = require('./authentication'),
+    uploads        = require('./upload'),
 
     dataExport     = require('../data/export'),
     errors         = require('../errors'),
@@ -285,7 +287,9 @@ module.exports = {
     // API Endpoints
     users: users,
     db: db,
-    mail: mail
+    mail: mail,
+    authentication: authentication,
+    uploads: uploads
 };
 
 /**
