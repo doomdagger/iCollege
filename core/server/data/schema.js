@@ -24,7 +24,7 @@ var db = {
         uuid: {type: String, required: true}, // uuid
         nickname: {type: String, trim: true}, // nickname
         slug: {type: String, required: true, lowercase: true, trim: true},
-        username: {type: String, required: true, trim: true}, // used for sign in
+        username: {type: String, required: true, trim: true}, // used for sign in, 不允许有空格
         password: {type: String, required: true, trim: true},
         email: {type: String, match: /.*?@.*?/, trim: true},
         phone: {type: String, match: /1[0-9]{10}/, trim: true},
