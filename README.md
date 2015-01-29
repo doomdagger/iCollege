@@ -42,16 +42,11 @@ Please do **NOT** use the master branch of iCollege in production.
 
 #### Prerequisite
 
-1. **JRE 7** or greater be installed. 
-1. **Ruby** 2.0 be installed. [How to install it?](http://rubyinstaller.org/downloads/)
-1. **Sencha Cmd** be installed, and included into your System Path. [How to install it?](http://www.sencha.com/products/sencha-cmd/download)
-1. **PhantomJS** 1.8.2 or greater. Installation instructions can be found [here](http://phantomjs.org/download.html)
-1. **Python** 2.6 or greater(Recommend 2.7.* over 3.*), and included into your System Path. [How to install it?](https://www.python.org/download/releases/2.7.7/)
+1. **JRE 7** or greater be installed. (WebStorm need it.)
 
 #### Quickstart:
 
 1. `npm install -g grunt-cli`
-1. `npm install -g casperjs`
 1. `npm install`
 1. `grunt init` (download frontend assets, sencha touch framework and put them in the right place)
 1. `npm start`
@@ -66,15 +61,43 @@ Apps Getting Started for iCollege Devs. Learn more from [Ghost App Architecture]
 
 ### API & Sencha Touch
 
-iCollege has two parts of routing policies:
-1. `/app` - the sencha touch app of iCollege
-2. `/api` - the restful API of iCollege
+iCollege has only one routing policy:
+* `/icollege/api` - the restful API of iCollege
 
 ### Other Grunt Tasks
 
-1. `grunt validate`
-1. `grunt test`
+```bash
+# 获取帮助信息
+grunt help
 
+# 生成iCollege项目文档
+grunt docs
+
+# 验证代码错误，验证代码风格，并执行代码测试：模块测试、单元测试、集成测试
+grunt validate
+
+# 验证代码错误，验证代码风格
+grunt lint
+
+# 仅执行单元测试
+grunt test-unit
+
+# 仅执行集成测试
+grunt test-integration
+
+# 仅执行模块测试
+grunt test-module
+
+# 执行功用性测试
+grunt test-functional
+
+# 生成代码测试覆盖率报告，生成的为html文件，位于项目根目录下
+grunt test-coverage
+
+# 启动开发监听模式
+grunt dev
+
+```
 
 ### Who are we ?
 

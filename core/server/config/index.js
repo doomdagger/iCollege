@@ -5,7 +5,6 @@
 
 var path          = require('path'),
     Promise       = require('bluebird'),
-    crypto        = require('crypto'),
     fs            = require('fs'),
     url           = require('url'),
     _             = require('lodash'),

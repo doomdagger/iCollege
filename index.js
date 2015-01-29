@@ -1,5 +1,5 @@
-// # Ghost bootloader
-// Orchestrates the loading of Ghost
+// # iCollege bootloader
+// Orchestrates the loading of iCollege
 // When run from command line.
 
 var express,

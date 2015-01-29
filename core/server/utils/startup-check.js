@@ -1,3 +1,7 @@
+// # iCollege startup check utility tool
+//
+
+
 var packages = require('../../../package.json'),
     path = require('path'),
     crypto = require('crypto'),
@@ -131,7 +135,7 @@ checks = {
             }
         } catch (e) {
             // If config.js doesn't exist, use the default path
-            dbPath = path.join(appRoot, 'content', 'data', mode === 'production' ? 'ghost.db' : 'ghost-dev.db');
+            dbPath = path.join(appRoot, 'content', 'data', mode === 'production' ? 'icollege.db' : 'icollege-dev.db');
         }
 
         // Check for read/write access on sqlite db file

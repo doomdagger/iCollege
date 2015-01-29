@@ -1,3 +1,6 @@
+// # Bluebird extension
+// Bluebird does not have function sequence promise
+
 var Promise = require('bluebird');
 
 function sequence(tasks) {

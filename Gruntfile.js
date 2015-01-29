@@ -61,7 +61,7 @@ var _              = require('lodash'),
             // See the [grunt dev](#live%20reload) task for how this is used.
             watch: {
                 express: {
-                    files:  ['core/server.js', 'core/server/**/*.js'],
+                    files:  ['core/server/*.js', 'core/server/**/*.js'],
                     tasks:  ['express:dev'],
                     options: {
                         // **Note:** Without this option specified express won't be reloaded
@@ -222,7 +222,7 @@ var _              = require('lodash'),
             // Clean up files as part of other tasks
             clean: {
                 test: {
-                    src: ['content/data/ghost-test.db']
+                    src: ['content/data/icollege-test.db']
                 },
                 tmp: {
                     src: ['.tmp/**']
@@ -333,7 +333,7 @@ var _              = require('lodash'),
         //
         // `grunt validate` is called by `npm test` and is used by Travis.
         grunt.registerTask('validate', 'Run tests and lint code',
-            ['init', 'test']);
+            ['test']);
 
         // ### Test
         // **Main testing task**
@@ -344,7 +344,7 @@ var _              = require('lodash'),
         // details of each of the test suites.
         //
         grunt.registerTask('test', 'Run tests and lint code',
-            ['jshint', 'jscs', 'test-module', 'test-unit', 'test-integration']);
+            ['lint', 'test-module', 'test-unit', 'test-integration']);
 
         // ### Lint
         //
@@ -408,6 +408,24 @@ var _              = require('lodash'),
         grunt.registerTask('test-module', 'Run functional module tests (mocha)',
             ['clean:test', 'setTestEnv', 'ensureConfig', 'mochacli:module']);
 
+        // ### Functional tests *(sub task)*
+        // `grunt test-functional` will run just the functional tests
+        //
+        // You can use the `--target` argument to run any individual test file, or the admin or frontend tests:
+        //
+        // `grunt test-functional --target=admin/editor_test.js` - run just the editor tests
+        //
+        // `grunt test-functional --target=admin/` - run all of the tests in the admin directory
+        //
+        // An express server is started with the testing environment set.
+        //
+        // The purpose of the functional tests is to ensure that iCollege is working as is expected from a user perspective
+        // including buttons and other important interactions in the admin UI.
+        //@TODO write logic supporting functional test
+        grunt.registerTask('test-functional', 'Run functional interface tests (Test RestFul Webservice)',
+            ['clean:test', 'setTestEnv', 'ensureConfig', 'express:test',/* here need logic*/ 'express:test:stop']
+        );
+
         // ### Coverage
         // `grunt test-coverage` will generate a report for the Unit and Integration Tests.
         //
@@ -420,24 +438,6 @@ var _              = require('lodash'),
         grunt.registerTask('test-coverage', 'Generate unit and integration (mocha) tests coverage report',
             ['clean:test', 'setTestEnv', 'ensureConfig', 'shell:coverage']);
 
-        // ## Building assets
-        //
-        // iCollege's GitHub repository contains the un-built source code for iCollege. If you're looking for the already
-        // built release zips, you can get these from the [release page](https://github.com/TryGhost/iCollege/releases) on
-        // GitHub or from https://ghost.org/download. These zip files are created using the [grunt release](#release)
-        // task.
-        //
-        // If you want to work on iCollege core, or you want to use the source files from GitHub, then you have to build
-        // the iCollege assets in order to make them work.
-        //
-        // There are a number of grunt tasks available to help with this. Firstly after fetching an updated version of
-        // the iCollege codebase, after running `npm install`, you will need to run [grunt init](#init%20assets).
-        //
-        // For production blogs you will need to run [grunt prod](#production%20assets).
-        //
-        // For updating assets during development, the tasks [grunt](#default%20asset%20build) and
-        // [grunt dev](#live%20reload) are available.
-        //
 
         // #### Master Warning *(Utility Task)*
         // Warns git users not ot use the `master` branch in production.
@@ -445,19 +445,13 @@ var _              = require('lodash'),
         // database in an unrecoverable state. Instead there is a branch called `stable` which is the equivalent of the
         // release zip for git users.
         grunt.registerTask('master-warn',
-            'Outputs a warning to runners of grunt prod, that master shouldn\'t be used for live blogs',
+            'Outputs a warning to runners of grunt dev, that master shouldn\'t be used for live platform',
             function () {
                 console.log('>', 'Always two there are, no more, no less. A master and a'.red,
                     'stable'.red.bold + '.'.red);
-                console.log('Use the', 'stable'.bold, 'branch for live blogs.', 'Never'.bold, 'master!');
+                console.log('Use the', 'stable'.bold, 'branch for live platform.', 'Never'.bold, 'master!');
             });
 
-        // ### Production assets
-        // `grunt prod` - will build the minified assets used in production.
-        //
-        // It is otherwise the same as running `grunt`, but is only used when running iCollege in the `production` env.
-        grunt.registerTask('prod', 'Build JS & templates for production',
-            ['master-warn']);
 
         // ### Live reload
         // `grunt dev` - build assets on the fly whilst developing

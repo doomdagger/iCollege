@@ -1,3 +1,7 @@
+// # 邮件模块
+// 本模块负责实现邮件发送的底层逻辑，api模块可能会直接调用本模块
+
+
 var _          = require('lodash'),
     Promise    = require('bluebird'),
     nodemailer = require('nodemailer'),

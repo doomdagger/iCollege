@@ -1,3 +1,6 @@
+// # Bluebird extension
+// Bluebird does not have function pipeline promise
+
 var Promise = require('bluebird');
 
 function pipeline(tasks /* initial arguments */) {

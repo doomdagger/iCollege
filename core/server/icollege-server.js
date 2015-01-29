@@ -1,3 +1,6 @@
+// # iCollege Server Object
+// Very Important! 此模块定义Server Object的所有行为，讲Server的行为封装在此类中，操作方便。
+
 var Promise = require('bluebird'),
     fs = require('fs'),
     semver = require('semver'),

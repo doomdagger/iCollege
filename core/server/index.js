@@ -3,7 +3,6 @@ var express     = require('express'),
     compress    = require('compression'),
     methodOver  = require('method-override'),
     fs          = require('fs'),
-    uuid        = require('node-uuid'),
     _           = require('lodash'),
     Promise     = require('bluebird'),
 
@@ -18,12 +17,14 @@ var express     = require('express'),
     Server      = require('./icollege-server');
 
 
+// 初次运行执行的逻辑应置于此
 function doFirstRun() {
     //TODO: 初次运行入口方法
 
 
 
 }
+
 function initDbHashAndFirstRun() {
     //TODO: 我们需要DBHash吗
 
