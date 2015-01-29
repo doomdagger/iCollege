@@ -1,9 +1,7 @@
-var frontend     = require('./frontend'),
-    api          = require('./api'),
+var api          = require('./api'),
     config       = require('../config');
 
 module.exports = {
-    apiBaseUri: '/api/v' + config.api.version + '/',
-    api: api,
-    frontend: frontend
+    apiBaseUri: '/icollege/api/v' + config.api.version + '/',
+    api: api
 };

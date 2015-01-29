@@ -2,119 +2,164 @@
 // The following custom middleware functions cannot yet be unit tested, and as such are kept separate from
 // the testable custom middleware functions in middleware.js
 
-var express     = require('express'),
-    bodyParser  = require('body-parser'),
-    errorhandler = require('errorhandler'),
-    logger      = require('morgan'),
-    favicon     = require('serve-favicon'),
-    config      = require('../config'),
-    middleware  = require('./middleware'),
-    path        = require('path'),
-    routes      = require('../routes'),
-    slashes     = require('connect-slashes'),
-    storage     = require('../storage'),
-    errors       = require('../errors'),
+var api            = require('../api'),
+    bodyParser     = require('body-parser'),
+    config         = require('../config'),
+    crypto         = require('crypto'),
+    errors         = require('../errors'),
+    express        = require('express'),
+    fs             = require('fs'),
+    logger         = require('morgan'),
+    middleware     = require('./middleware'),
+    path           = require('path'),
+    routes         = require('../routes'),
+    slashes        = require('connect-slashes'),
+    storage        = require('../storage'),
+    url            = require('url'),
+    _              = require('lodash'),
     passport       = require('passport'),
     oauth          = require('./oauth'),
     oauth2orize    = require('oauth2orize'),
-    authStrategies = require('./authStrategies'),
+    authStrategies = require('./auth-strategies'),
     utils          = require('../utils'),
 
-    expressServer,
+    app,
     setupMiddleware;
 
+// ##Custom Middleware
+
+// ### iCollegeLocals Middleware
+// Expose the standard locals that every external page should have available,
+// separating between the theme and the admin
+function icollegeLocals(req, res, next) {
+    // Make sure we have a locals value.
+    res.locals = res.locals || {};
+    res.locals.version = config.icollegeVersion;
+    // relative path from the URL
+    res.locals.relativeUrl = req.path;
+
+    next();
+}
+
+// Detect uppercase in req.path
+function uncapitalise(req, res, next) {
+    var pathToTest = req.path,
+        isAPI = req.path.match(/(\/icollege\/api\/v[\d\.]+\/.*?\/)/i);
+
+    // Do not lowercase anything after /icollege/api/v0.1/ to protect :key/:slug
+    if (isAPI) {
+        pathToTest = isAPI[1];
+    }
+
+    if (/[A-Z]/.test(pathToTest)) {
+        res.set('Cache-Control', 'public, max-age=' + utils.ONE_YEAR_S);
+        res.redirect(301, req.url.replace(pathToTest, pathToTest.toLowerCase()));
+    } else {
+        next();
+    }
+}
+
+function isSSLrequired() {
+    var forceSSL = url.parse(config.url).protocol === 'https:';
+    return !!forceSSL;
+}
+
+// Check to see if we should use SSL
+// and redirect if needed: redirect any request which does not use SSL
+function checkSSL(req, res, next) {
+    if (isSSLrequired()) {
+        if (!req.secure) {
+            var redirectUrl;
+
+            redirectUrl = url.parse(config.urlSSL || config.url);
+            return res.redirect(301, url.format({
+                protocol: 'https:',
+                hostname: redirectUrl.hostname,
+                port: redirectUrl.port,
+                pathname: req.path,
+                query: req.query
+            }));
+        }
+    }
+    next();
+}
 
 
-setupMiddleware = function (server) {
-    var logging = config.logging, // unresolved logging
-        subdir = config.paths.subdir,
+setupMiddleware = function (appInstance) {
+    var logging = config.logging,
         corePath = config.paths.corePath,
         oauthServer = oauth2orize.createServer();
 
-    // make passport use several strategies
-    authStrategies();
+    // silence JSHint without disabling unused check for the whole file
+    authStrategies = authStrategies;
 
     // Cache express server instance
-    expressServer = server;
-    middleware.cacheServer(expressServer);
+    app = appInstance;
+    middleware.cacheApp(app);
     middleware.cacheOauthServer(oauthServer);
     oauth.init(oauthServer, middleware.resetSpamCounter);
 
     // Make sure 'req.secure' is valid for proxied requests
     // (X-Forwarded-Proto header will be checked, if present)
-    expressServer.enable('trust proxy');
+    app.enable('trust proxy');
 
-    // development specific configuration
-
+    // Logging configuration
     if (logging !== false) {
-        if (expressServer.get('env') !== 'development') {
-            expressServer.use(logger(logging || {}));
+        if (app.get('env') !== 'development') {
+            app.use(logger('combined', logging));
         } else {
-            expressServer.use(logger(logging || 'dev'));
-            // to handle errors and respond with content negotiation
-            expressServer.use(errorhandler());
+            app.use(logger('dev', logging));
         }
     }
 
-    // Favicon
-    expressServer.use(subdir, favicon(corePath + '/client/resources/icons/favicon.ico'));
-
     // Static assets
-    expressServer.use(subdir + '/shared', express['static'](path.join(corePath, '/shared'), {maxAge: utils.ONE_HOUR_MS}));
-    expressServer.use(subdir + '/content/images', storage.get_storage().serve());
-    expressServer.use(subdir + '/app', express['static'](path.join(corePath, '/client'), {maxAge: utils.ONE_YEAR_MS}));
-    expressServer.use(subdir + '/scripts', express['static'](path.join(corePath, '/built/scripts'), {maxAge: utils.ONE_YEAR_MS}));
-    expressServer.use(subdir + '/public', express['static'](path.join(corePath, '/built/public'), {maxAge: utils.ONE_YEAR_MS}));
+    app.use('/shared', express['static'](path.join(corePath, '/shared'), {maxAge: utils.ONE_HOUR_MS}));
+    app.use('/content/images', storage.getStorage().serve());
 
-
-    // First determine whether we're serving api or other stuff
-    expressServer.use(middleware.decideContext);
-    // Version-ize api
-    expressServer.use(middleware.versionAPI);
     // Force SSL
     // NOTE: Importantly this is _after_ the check above for admin-theme static resources,
     //       which do not need HTTPS. In fact, if HTTPS is forced on them, then 404 page might
     //       not display properly when HTTPS is not available!
-    expressServer.use(middleware.checkSSL);
-    // Serve robots.txt if not found in theme
-    expressServer.use(middleware.robots());
+    app.use(checkSSL);
 
-    // Add in all trailing slashes, add this middleware after the static middleware
-    expressServer.use(slashes(true, {headers: {'Cache-Control': 'public, max-age=' + utils.ONE_YEAR_S}}));
+
+    // Add in all trailing slashes, properly include the subdir path
+    // in the redirect.
+    app.use(slashes(true, {
+        headers: {
+            'Cache-Control': 'public, max-age=' + utils.ONE_YEAR_S
+        },
+        base: config.paths.subdir
+    }));
+    app.use(uncapitalise);
 
     // Body parsing
-    expressServer.use(bodyParser.json());
-    expressServer.use(bodyParser.urlencoded({ extended: true }));
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({extended: true}));
 
-    expressServer.use(passport.initialize());
+    app.use(passport.initialize());
 
     // ### Caching
-    expressServer.use(middleware.cacheControl('public'));
-    // #### API routing has private policy for caching
-    expressServer.use(subdir + '/api/', middleware.cacheControl('private'));
+    app.use(middleware.cacheControl('public'));
+    app.use(routes.apiBaseUri, middleware.cacheControl('private'));
 
-
-    // ### Global authenticating
-    // enable authentication; has to be done before CSRF handling
-    expressServer.use(middleware.authenticate);
+    // enable authentication
+    app.use(middleware.authenticate);
 
     // local data
-    expressServer.use(middleware.icollegeLocals);
-    
+    app.use(icollegeLocals);
+
     // ### Routing
     // Set up API routes
-    expressServer.use(subdir + routes.apiBaseUri, routes.api(middleware));
+    app.use(routes.apiBaseUri, routes.api(middleware));
 
-    // Set up User routes
-    expressServer.use(subdir, routes.frontend(middleware));
-
-
+    //TODO: 我们需要全局的404和500返回结果吗
     // ### Error handling
     // 404 Handler
-    expressServer.use(errors.error404);
+    //app.use(errors.error404);
 
     // 500 Handler
-    expressServer.use(errors.error500);
+    //app.use(errors.error500);
 };
 
 module.exports = setupMiddleware;

@@ -1,93 +1,32 @@
 // Module dependencies
 var express     = require('express'),
-    compression = require('compression'),
-    methodOverride = require('method-override'),
-    Polyglot    = require('node-polyglot'),
-    when        = require('when'),
-    semver      = require('semver'),
+    compress    = require('compression'),
+    methodOver  = require('method-override'),
+    fs          = require('fs'),
+    uuid        = require('node-uuid'),
+    _           = require('lodash'),
+    Promise     = require('bluebird'),
 
     api         = require('./api'),
-    migration   = require('./data/migration'),
-    permissions = require('./permissions'),
-    mailer      = require('./mail'),
     config      = require('./config'),
-    packageInfo = require('../../package.json'),
-    models      = require('./models'),
+    errors      = require('./errors'),
+    mailer      = require('./mail'),
     middleware  = require('./middleware'),
-    validation  = require('./data/validation'),
+    migrations  = require('./data/migration'),
+    models      = require('./models'),
+    permissions = require('./permissions'),
+    Server      = require('./icollege-server');
 
-    httpServer;
+
+function doFirstRun() {
+    //TODO: 初次运行入口方法
 
 
-// If we're in development mode, require "when/console/monitor"
-// for help in seeing swallowed promise errors, and log any
-// stderr messages from bluebird promises.
-if (process.env.NODE_ENV === 'development') {
-    require('when/monitor/console');
+
 }
+function initDbHashAndFirstRun() {
+    //TODO: 我们需要DBHash吗
 
-// do first run, send test mail to validate the email service
-//function doFirstRun() {
-//    return api.mail.sendTemplateTest().catch(function (error) {
-//        console.log(
-//            "Mail Test Faild - ".yellow,
-//            error.message.red
-//        );
-//    });
-//}
-
-function icollegeStartMessages() {
-    // Tell users if their node version is not supported, and exit
-    if (!semver.satisfies(process.versions.node, packageInfo.engines.node)) {
-        console.log(
-            "\nERROR: Unsupported version of Node".red,
-            "\niCollege needs Node version".red,
-            packageInfo.engines.node.yellow,
-            "you are using version".red,
-            process.versions.node.yellow,
-            "\nPlease go to http://nodejs.org to get a supported version".green
-        );
-
-        process.exit(0);
-    }
-
-    // Startup & Shutdown messages
-    if (process.env.NODE_ENV === 'production') {
-        console.log(
-            "iCollege is running...".green,
-            "\nYour site is now available on",
-            config.url,
-            "\nCtrl+C to shut down".grey
-        );
-
-        // ensure that Ghost exits correctly on Ctrl+C
-        process.removeAllListeners('SIGINT').on('SIGINT', function () {
-            console.log(
-                "\niCollege has shut down".red,
-                "\nYour site is now offline"
-            );
-            process.exit(0);
-        });
-    } else {
-        console.log(
-            ("iCollege is running in " + process.env.NODE_ENV + "...").green,
-            "\nListening on",
-                config.server.host.yellow + ':' + config.server.port.yellow,
-            "\nUrl configured as:",
-                config.url,
-            "\nCtrl+C to shut down".grey
-        );
-        // ensure that Ghost exits correctly on Ctrl+C
-        process.removeAllListeners('SIGINT').on('SIGINT', function () {
-            console.log(
-                "\niCollege has shutdown".red,
-                "\niCollege was running for",
-                Math.round(process.uptime()),
-                "seconds"
-            );
-            process.exit(0);
-        });
-    }
 }
 
 // This is run after every initialization is done, right before starting server.
@@ -96,92 +35,67 @@ function icollegeStartMessages() {
 // This is also a "one central repository" of adding startup notifications in case
 // in the future apps will want to hook into here
 function initNotifications() {
-    if (mailer.state && mailer.state.usingSendmail) {
-        console.log('INFO'.green, [
-            "iCollege is attempting to use your server's <b>sendmail</b> to send e-mail.",
-            "It is recommended that you explicitly configure an e-mail service,",
-            "See <a href=\"http://support.ghost.org/mail\" target=\"_blank\">http://support.ghost.org/mail</a> for instructions"
-        ].join('\n'));
-    }
-    if (mailer.state && mailer.state.emailDisabled) {
-        console.log('WARN'.yellow, [
-            "Ghost is currently unable to send e-mail.",
-            "See <a href=\"http://support.ghost.org/mail\" target=\"_blank\">http://support.ghost.org/mail</a> for instructions"
-        ].join('\n'));
-    }
+    //TODO: 邮件系统的设置问题在这里打印出消息，我们打印到控制台
+
 }
 
 // ## Initializes the application.
 // Sets up the express server instance.
-// Instantiates the ghost singleton, helpers, routes, middleware, and apps.
+// Instantiates the icollege singleton, helpers, routes, middleware, and apps.
 // Finally it starts the http server.
-function init(server) {
+function init(options) {
+    // Get reference to an express app instance.
+    var app = express();
 
-    // If no express instance is passed in
-    // then create our own
-    if (!server) {
-        server = express();
-    }
+    // ### Initialisation
+    // The server and its dependencies require a populated config
+    // It returns a promise that is resolved when the application
+    // has finished starting up.
 
-    // Set up Polygot instance on the require module
-    Polyglot.instance = new Polyglot();
-
-    // initialize validations
-    validation.init();
-
-    // connect to mongodb, render mongoose.connection
-    return models.init().then(function () {
-        // Initialize database
-        return migration.init();
-
+    // Load our config.js file from the local file system.
+    return config.load(options.config).then(function () {
+        return config.checkDeprecated();
+    }).then(function () {
+        // Initialise the models
+        return models.init();
+    }).then(function () {
+        // Initialize migrations
+        return migrations.init();
+    }).then(function () {
+        // Populate any missing default settings
+        return models.Settings.populateDefaults();
     }).then(function () {
         // Initialize the settings cache
         return api.init();
-
     }).then(function () {
         // Initialize the permissions actions and objects
+        // NOTE: Must be done before initDbHashAndFirstRun calls
         return permissions.init();
-
     }).then(function () {
-        // Initialize mail
-        return mailer.init();
-
+        return Promise.join(
+            // Check for or initialise a dbHash.
+            initDbHashAndFirstRun(),
+            // Initialize mail
+            mailer.init()
+        );
     }).then(function () {
-        var deferred = when.defer();
-
         // Output necessary notifications on init
         initNotifications();
         // ##Configuration
 
-        // return the correct mime type for woff filess
-        express['static'].mime.define({'application/font-woff': ['woff']});
-
         // enabled gzip compression by default
         if (config.server.compress !== false) {
-            server.use(compression());
+            app.use(compress());
         }
 
         // override with http method having ?_method=DELETE or something else
-        server.use(methodOverride('_method'));
-
+        app.use(methodOver('_method'));
 
         // ## Middleware and Routing
-        middleware(server);
+        middleware(app);
 
-        httpServer = server.listen(
-            config.server.port,
-            config.server.host
-        );
-
-        httpServer.on('listening', function () {
-            icollegeStartMessages();
-            deferred.resolve(httpServer);
-        });
-
-        return deferred.promise;
+        return new Server(app);
     });
-
-
 }
 
 module.exports = init;

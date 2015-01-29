@@ -1,18 +1,19 @@
 /*jslint regexp: true */
 var _                          = require('lodash'),
     colors                     = require('colors'),
-    when                       = require('when'),
-
-    NotFoundError              = require('./notfounderror'),
-    BadRequestError            = require('./badrequesterror'),
-    InternalServerError        = require('./internalservererror'),
-    NoPermissionError          = require('./nopermissionerror'),
-    RequestEntityTooLargeError = require('./requesttoolargeerror'),
-    UnauthorizedError          = require('./unauthorizederror'),
-    ValidationError            = require('./validationerror'),
-    UnsupportedMediaTypeError  = require('./unsupportedmediaerror'),
-    EmailError                 = require('./emailerror'),
-    DataImportError            = require('./dataimporterror'),
+    path                       = require('path'),
+    Promise                    = require('bluebird'),
+    NotFoundError              = require('./not-found-error'),
+    BadRequestError            = require('./bad-request-error'),
+    InternalServerError        = require('./internal-server-error'),
+    NoPermissionError          = require('./no-permission-error'),
+    RequestEntityTooLargeError = require('./request-too-large-error'),
+    UnauthorizedError          = require('./unauthorized-error'),
+    ValidationError            = require('./validation-error'),
+    UnsupportedMediaTypeError  = require('./unsupported-media-type-error'),
+    EmailError                 = require('./email-error'),
+    DataImportError            = require('./data-import-error'),
+    config,
     errors;
 
 // This is not useful but required for jshint
@@ -22,10 +23,9 @@ colors.setTheme({silly: 'rainbow'});
  * Basic error handling helpers
  */
 errors = {
-
     throwError: function (err) {
         if (!err) {
-            err = new Error("An error occurred");
+            err = new Error('An error occurred');
         }
 
         if (_.isString(err)) {
@@ -37,38 +37,14 @@ errors = {
 
     // ## Reject Error
     // Used to pass through promise errors when we want to handle them at a later time
-    // this can be handled by calling deferred.resolve(rejectError(err))
-    'rejectError': function (err) {
-        return when.reject(err);
+    rejectError: function (err) {
+        return Promise.reject(err);
     },
 
-    debug: function (msg, context, help) {
+    logInfo: function (component, info) {
         if ((process.env.NODE_ENV === 'development' ||
             process.env.NODE_ENV === 'staging' ||
             process.env.NODE_ENV === 'production')) {
-
-            var msgs = ['\nDebugging:'.yellow, msg.yellow, '\n'];
-
-            if (context) {
-                msgs.push(context.white, '\n');
-            }
-
-            if (help) {
-                msgs.push(help.green);
-            }
-
-            // add a new line
-            msgs.push('\n');
-
-            console.log.apply(console, msgs);
-        }
-    },
-
-    'logInfo': function (component, info) {
-        if ((process.env.NODE_ENV === 'development' ||
-            process.env.NODE_ENV === 'staging' ||
-            process.env.NODE_ENV === 'production')) {
-
             var msg = [component.cyan + ':'.cyan, info.cyan];
 
             console.info.apply(console, msg);
@@ -79,7 +55,7 @@ errors = {
         if ((process.env.NODE_ENV === 'development' ||
             process.env.NODE_ENV === 'staging' ||
             process.env.NODE_ENV === 'production')) {
-
+            warn = warn || 'no message supplied';
             var msgs = ['\nWarning:'.yellow, warn.yellow, '\n'];
 
             if (context) {
@@ -113,14 +89,25 @@ errors = {
 
         stack = err ? err.stack : null;
 
-        err = _.isString(err) ? err : (_.isObject(err) ? err.message : 'An unknown error occurred.');
+        if (!_.isString(err)) {
+            if (_.isObject(err) && _.isString(err.message)) {
+                err = err.message;
+            } else {
+                err = 'An unknown error occurred.';
+            }
+        }
 
+        // Overwrite error to provide information that this is probably a permission problem
+        // TODO: https://github.com/TryGhost/Ghost/issues/3687
+        if (err.indexOf('SQLITE_READONLY') !== -1) {
+            context = 'Your database is in read only mode. Visitors can read your blog, but you can\'t log in or add posts.';
+            help = 'Check your database file and make sure that file owner and permissions are correct.';
+        }
         // TODO: Logging framework hookup
         // Eventually we'll have better logging which will know about envs
         if ((process.env.NODE_ENV === 'development' ||
             process.env.NODE_ENV === 'staging' ||
             process.env.NODE_ENV === 'production')) {
-
             msgs = ['\nERROR:'.red, err.red, '\n'];
 
             if (context) {
@@ -154,10 +141,23 @@ errors = {
         this.throwError(err, context, help);
     },
 
-    'logAndRejectError': function (err, context, help) {
+    logAndRejectError: function (err, context, help) {
         this.logError(err, context, help);
 
         return this.rejectError(err, context, help);
+    },
+
+    logErrorWithRedirect: function (msg, context, help, redirectTo, req, res) {
+        /*jshint unused:false*/
+        var self = this;
+
+        return function () {
+            self.logError(msg, context, help);
+
+            if (_.isFunction(res.redirect)) {
+                res.redirect(redirectTo);
+            }
+        };
     },
 
     handleAPIError: function (error, permsMessage) {
@@ -176,50 +176,6 @@ errors = {
         }
 
         return this.rejectError(new this.InternalServerError(error));
-    },
-
-    error404: function (req, res) {
-        var message = res.isRestful ? 'No iCollege Found' : 'Page Not Found';
-
-        // do not cache 404 error
-        res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
-        res.status(404).json({success: false, errors: [message]});
-    },
-
-    error500: function (err, req, res, next) {
-        // 500 errors should never be cached
-        res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
-
-        if (err.status === 404) {
-            return this.error404(req, res, next);
-        }
-
-        if (req.method === 'GET') {
-            if (!err || !(err instanceof Error)) {
-                next();
-            }
-            res.status(err.status || 500).json({success: false, errors: [err && err.message]});
-        } else {
-            var statusCode = 500,
-                returnErrors = [];
-
-            if (!_.isArray(err)) {
-                err = [].concat(err);
-            }
-
-            _.each(err, function (errorItem) {
-                var errorContent = {};
-
-                statusCode = errorItem.code || 500;
-
-                errorContent.message = _.isString(errorItem) ? errorItem :
-                    (_.isObject(errorItem) ? errorItem.message : 'Unknown Error');
-                errorContent.type = errorItem.type || 'InternalServerError';
-                returnErrors.push(errorContent);
-            });
-
-            res.status(statusCode).json({success: false, errors: returnErrors});
-        }
     }
 };
 
@@ -234,9 +190,8 @@ _.each([
     'logAndThrowError',
     'logAndRejectError',
     'logErrorAndExit',
-    'handleAPIError',
-    'error404',
-    'error500'
+    'logErrorWithRedirect',
+    'handleAPIError'
 ], function (funcName) {
     errors[funcName] = errors[funcName].bind(errors);
 });

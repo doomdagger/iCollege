@@ -5,73 +5,61 @@
 // **Usage instructions:** can be found in the [Custom Tasks](#custom%20tasks) section or by running `grunt --help`.
 //
 // **Debug tip:** If you have any problems with any Grunt tasks, try running them with the `--verbose` command
-var path           = require('path'),
+var _              = require('lodash'),
     colors         = require('colors'),
+    fs             = require('fs-extra'),
+    path           = require('path'),
+    Promise        = require('bluebird'),
+    request        = require('request'),
 
-    fs             = require('fs'),
-    _              = require('lodash'),
     escapeChar     = process.platform.match(/^win/) ? '^' : '\\',
     cwd            = process.cwd().replace(/( |\(|\))/g, escapeChar + '$1'),
-    buildDirectory = path.resolve(process.cwd(), '.build'),
-    distDirectory  = path.resolve(process.cwd(), '.dist'),
 
-    bootstrap      = require('./core/bootstrap'),
 
-    // ## Build File Patterns
-    // A list of files and patterns to include when creating a release zip.
-    // This is read from the `.npmignore` file and all patterns are inverted as the `.npmignore`
-    // file defines what to ignore, whereas we want to define what to include.
-    buildGlob = (function () {
-        var splitter = process.platform.match(/^win/) ? '\r\n' : '\n';
-        /*jslint stupid:true */
-        return fs.readFileSync('.npmignore', {encoding: 'utf8'}).split(splitter).map(function (pattern) {
-            if (pattern[0] === '!') {
-                return pattern.substr(1);
+// ## List of files we want to lint through jshint and jscs to make sure
+// they conform to our desired code styles.
+    lintFiles = {
+        // Linting files for server side or shared javascript code.
+        server: {
+            files: {
+                src: [
+                    '*.js',
+                    '!config*.js', // note: i added this, do we want this linted?
+                    'core/*.js',
+                    'core/server/**/*.js'
+                ]
             }
-            return '!' + pattern;
-        });
-
-    }()),
+        },
+        // Linting files for test code.
+        test: {
+            files: {
+                src: [
+                    'core/test/**/*.js'
+                ]
+            }
+        }
+    },
 
     // ## Grunt configuration
-    
     configureGrunt = function (grunt) {
-
         // *This is not useful but required for jshint*
         colors.setTheme({silly: 'rainbow'});
 
         // #### Load all grunt tasks
-        // 加载任务，通过匹配加载
+        //
         // Find all of the task which start with `grunt-` and load them, rather than explicitly declaring them all
         require('matchdep').filterDev(['grunt-*', '!grunt-cli']).forEach(grunt.loadNpmTasks);
 
-
         var cfg = {
-            // #### Common paths used by tasks
-            paths: {
-                build: buildDirectory,
-                releaseBuild: path.join(buildDirectory, 'release'),
-                dist: distDirectory,
-                releaseDist: path.join(distDirectory, 'release')
-            },
             // Standard build type, for when we have nightlies again.
             buildType: 'Build',
             // Load package.json so that we can create correctly versioned releases.
             pkg: grunt.file.readJSON('package.json'),
 
             // ### grunt-contrib-watch
+            // Watch files and livereload in the browser during development.
             // See the [grunt dev](#live%20reload) task for how this is used.
             watch: {
-                livereload: {
-                    files: [
-                        'core/client/*.js',
-                        'core/client/app/**/*.js',
-                        'core/built/scripts/*.js'
-                    ],
-                    options: {
-                        livereload: true
-                    }
-                },
                 express: {
                     files:  ['core/server.js', 'core/server/**/*.js'],
                     tasks:  ['express:dev'],
@@ -91,9 +79,7 @@ var path           = require('path'),
                 },
 
                 dev: {
-                    options: {
-                        node_env: 'development'
-                    }
+                    options: {}
                 },
                 test: {
                     options: {
@@ -105,40 +91,38 @@ var path           = require('path'),
             // ### grunt-contrib-jshint
             // Linting rules, run as part of `grunt validate`. See [grunt validate](#validate) and its subtasks for
             // more information.
-            jshint: {
-                // Linting rules for server side or shared javascript code
-                server: {
-                    options: {
-                        jshintrc: '.jshintrc'
+            jshint: (function () {
+                return _.merge({
+                    server: {
+                        options: {
+                            jshintrc: '.jshintrc'
+                        }
                     },
-                    files: {
-                        src: [
-                            '*.js',
-                            'core/*.js',
-                            'core/server/**/*.js',
-                            'core/shared/**/*.js',
-                            '!core/shared/vendor/**/*.js',
-                            '!core/shared/lib/**/*.js'
-                        ]
+                    test: {
+                        options: {
+                            jshintrc: 'core/test/.jshintrc'
+                        }
                     }
-                },
-                // Linting rules for client side javascript code
-                client: {
-                    options: {
-                        jshintrc: 'core/client/.jshintrc'
+                }, lintFiles);
+            })(),
+
+            // ### grunt-jscs
+            // Code style rules, run as part of `grunt validate`. See [grunt validate](#validate) and its subtasks for
+            // more information.
+            jscs: (function () {
+                return _.merge({
+                    server: {
+                        options: {
+                            config: '.jscsrc'
+                        }
                     },
-                    files: {
-                        src: [
-                            'core/client/*.js',
-                            'core/client/**/*.js',
-                            '!core/client/.sencha/**/*.js',
-                            '!core/client/build/**/*.js',
-                            '!core/client/touch/*.js',
-                            '!core/client/touch/**/*.js'
-                        ]
+                    test: {
+                        options: {
+                            config: '.jscsrc'
+                        }
                     }
-                }
-            },
+                }, lintFiles);
+            })(),
 
             // ### grunt-mocha-cli
             // Configuration for the mocha test runner, used to run unit, integration and route tests as part of
@@ -146,13 +130,16 @@ var path           = require('path'),
             mochacli: {
                 options: {
                     ui: 'bdd',
-                    reporter: 'spec',
-                    timeout: '15000'
+                    reporter: grunt.option('reporter') || 'spec',
+                    timeout: '15000',
+                    save: grunt.option('reporter-output')
                 },
 
                 // #### All Unit tests
                 unit: {
-                    src: ['core/test/unit/**/*_spec.js']
+                    src: [
+                        'core/test/unit/**/*_spec.js'
+                    ]
                 },
 
                 // ##### Groups of unit tests
@@ -194,54 +181,27 @@ var path           = require('path'),
                     src: ['core/test/integration/**/api*_spec.js']
                 },
 
-                // #### All Route tests
-                routes: {
-                    src: ['core/test/functional/routes/**/*_test.js']
+                // #### All Module tests
+                module: {
+                    src: [
+                        'core/test/functional/module/**/*_test.js'
+                    ]
                 }
             },
-
 
             // ### grunt-shell
             // Command line tools where it's easier to run a command directly than configure a grunt plugin
             shell: {
-                prepare_touch: {
-                    command: "git clone http://git.candylee.cn/doomdagger/touch.git ./core/client/touch",
-                    options: {
-                        stdout: true
-                    }
-                },
-                // #### Run Sencha Touch Build
-                // See the `grunt init`. See the section on [Building Assets](#building%20assets) for more
-                touch: {
-                    command: [
-                        'cd ./core/client/',
-                        'sencha app build'
-                    ].join('&&'),
-                    options: {
-                        stdout: true
-                    }
-                },
-                // #### Run bower install
-                // Used as part of `grunt init`. See the section on [Building Assets](#building%20assets) for more
-                // information.
-                bower: {
-                    command: path.resolve(cwd + '/node_modules/.bin/bower --allow-root install'),
-                    options: {
-                        stdout: true,
-                        stdin: false
-                    }
-                },
                 // #### Generate coverage report
                 // See the `grunt test-coverage` task in the section on [Testing](#testing) for more information.
                 coverage: {
                     command: path.resolve(cwd  + '/node_modules/mocha/bin/mocha  --timeout 15000 --reporter' +
-                        ' html-cov > coverage.html ./core/test/blanket_coverage.js'),
+                    ' html-cov > coverage.html ./core/test/blanket_coverage.js'),
                     execOptions: {
                         env: 'NODE_ENV=' + process.env.NODE_ENV
                     }
                 }
             },
-
 
             // ### grunt-docker
             // Generate documentation from code
@@ -252,7 +212,7 @@ var path           = require('path'),
                     options: {
                         onlyUpdated: true,
                         exclude: 'node_modules,.git,.tmp,bower_components,content,*built,*test,*doc*,*vendor,' +
-                            'config.js,coverage.html,.travis.yml,*.min.css,screen.css,*touch*,*resources*,*.sencha*',
+                        'config.js,coverage.html,.travis.yml,*.min.css,screen.css',
                         extras: ['fileSearch']
                     }
                 }
@@ -261,149 +221,17 @@ var path           = require('path'),
             // ### grunt-contrib-clean
             // Clean up files as part of other tasks
             clean: {
-                built: {
-                    src: ['core/built/**']
-                },
-                release: {
-                    src: ['<%= paths.releaseBuild %>/**']
-                },
                 test: {
-                    src: ['content/data/iCollege-test.db']
+                    src: ['content/data/ghost-test.db']
                 },
                 tmp: {
                     src: ['.tmp/**']
                 }
             },
 
-            // ### grunt-contrib-copy
-            // Copy files into their correct locations as part of building assets, or creating release zips
-            copy: {
-                dev: {
-                    files: [{
-                        cwd: 'bower_components/jquery/dist/',
-                        src: 'jquery.js',
-                        dest: 'core/built/public/',
-                        expand: true
-                    }]
-                },
-                prod: {
-                    files: [{
-                        cwd: 'bower_components/jquery/dist/',
-                        src: 'jquery.js',
-                        dest: 'core/built/public/',
-                        expand: true
-                    }]
-                },
-                release: {
-                    files: [{
-                        cwd: 'bower_components/jquery/dist/',
-                        src: 'jquery.js',
-                        dest: 'core/built/public/',
-                        expand: true
-                    }, {
-                        cwd: 'core/client/build/production/ICollege/',
-                        src: ['**'],
-                        dest: '<%= paths.releaseBuild %>/core/client/',
-                        expand: true
-                    }, {
-                        expand: true,
-                        src: buildGlob,
-                        dest: '<%= paths.releaseBuild %>/'
-                    }]
-                }
-            },
-
-            // ### grunt-contrib-compress
-            // Zip up files for builds / releases
-            compress: {
-                release: {
-                    options: {
-                        archive: '<%= paths.releaseDist %>/iCollege-<%= pkg.version %>.zip'
-                    },
-                    expand: true,
-                    cwd: '<%= paths.releaseBuild %>/',
-                    src: ['**']
-                }
-            },
-
-            // ### grunt-contrib-concat
-            // concatenate multiple JS files into a single file ready for use
-            concat: {
-                dev: {
-                    nonull: true,
-                    dest: 'core/server/email-templates/mail_test/style.css',
-                    src: [
-                        'bower_components/foundation/css/normalize.css',
-                        'bower_components/foundation/css/foundation.css'
-                    ]
-                },
-                prod: {
-                    nonull: true,
-                    dest: 'core/server/email-templates/mail/style.css',
-                    src: [
-                        'bower_components/foundation/css/normalize.css',
-                        'bower_components/foundation/css/foundation.css'
-                    ]
-                }
-            },
-
-            // ### grunt-bower-concat
-            // concatenate multiple bower components into a single file ready for use
-            bower_concat: {
-                dev: {
-                    dest: 'core/built/scripts/vendor-dev.js',
-                    exclude: [
-                        'jquery',
-                        'jquery.cookie',
-                        'jquery-placeholder',
-                        'modernizr',
-                        'foundation'
-                    ],
-                    bowerOptions: {
-                        relative: false
-                    }
-                },
-                prod: {
-                    dest: 'core/built/scripts/vendor.js',
-                    exclude: [
-                        'jquery',
-                        'jquery.cookie',
-                        'jquery-placeholder',
-                        'modernizr',
-                        'foundation'
-                    ],
-                    bowerOptions: {
-                        relative: false
-                    }
-                }
-            },
-
-            // ### grunt-contrib-uglify
-            // Minify concatenated javascript files ready for production
-            uglify: {
-                prod: {
-                    options: {
-                        sourceMap: true
-                    },
-                    files: {
-                        'core/built/public/jquery.min.js': 'core/built/public/jquery.js',
-                        'core/built/scripts/vendor.min.js': 'core/built/scripts/vendor.js'
-                    }
-                },
-                release: {
-                    options: {
-                        sourceMap: true
-                    },
-                    files: {
-                        'core/built/public/jquery.min.js': 'core/built/public/jquery.js',
-                        'core/built/scripts/vendor.min.js': 'core/built/scripts/vendor.js'
-                    }
-                }
-            },
-
             // ### grunt-update-submodules
             // Grunt task to update git submodules
-            'update_submodules': {
+            update_submodules: {
                 default: {
                     options: {
                         params: '--init'
@@ -412,60 +240,11 @@ var path           = require('path'),
             }
         };
 
-
         // Load the configuration
-        // 加载任务配置
         grunt.initConfig(cfg);
 
         // ## Utilities
         //
-        // ### Spawn Casper.js
-        // Custom test runner for our Casper.js functional tests
-        // This really ought to be refactored into a separate grunt task module
-        grunt.registerTask('spawnCasperJS', function (target) {
-
-            target = _.contains(['client'], target) ? target + '/' : undefined;
-
-            var done = this.async(),
-                options = ['host', 'noPort', 'port'],
-                args = ['test']
-                    .concat(grunt.option('target') || target || ['client/'])
-                    .concat(['--includes=base.js', '--log-level=debug', '--port=1222']);
-
-            // Forward parameters from grunt to casperjs
-            _.each(options, function processOption(option) {
-                if (grunt.option(option)) {
-                    args.push('--' + option + '=' + grunt.option(option));
-                }
-            });
-
-            if (grunt.option('fail-fast')) {
-                args.push('--fail-fast');
-            }
-
-            // Show concise logs in Travis as ours are getting too long
-            if (grunt.option('concise')) {
-                args.push('--concise');
-            } else {
-                args.push('--verbose');
-            }
-
-            grunt.util.spawn({
-                cmd: 'casperjs',
-                args: args,
-                opts: {
-                    cwd: path.resolve('core/test/functional'),
-                    stdio: 'inherit'
-                }
-            }, function (error, result/*, code*/) {
-                /*jshint unused:false*/
-                if (error) {
-                    grunt.fail.fatal(result.stdout);
-                }
-                grunt.log.writeln(result.stdout);
-                done();
-            });
-        });
 
         // # Custom Tasks
 
@@ -485,14 +264,13 @@ var path           = require('path'),
         grunt.registerTask('help',
             'Outputs help information if you type `grunt help` instead of `grunt --help`',
             function () {
-                console.log('Type ' + '`grunt --help`'.yellow + ' to get the details of available grunt tasks,\n' +
-                    'or alternatively visit ' + 'https://github.com/TryGhost/iCollege/wiki/Grunt-Toolkit'.yellow);
+                console.log('Type `grunt --help` to get the details of available grunt tasks, ' +
+                'or alternatively visit https://42.96.195.83/guanggu/icollege');
             });
 
         // ### Documentation
         // Run `grunt docs` to generate annotated source code using the documentation described in the code comments.
         grunt.registerTask('docs', 'Generate Docs', ['docker']);
-
 
         // ## Testing
 
@@ -506,22 +284,20 @@ var path           = require('path'),
         // This ensures that the tests get run under the correct environment, using the correct database, and
         // that they work as expected. Trying to run tests with no ENV set will throw an error to do with `client`.
         grunt.registerTask('setTestEnv',
-            'Use "testing" iCollege config',
+            'Use "testing" iCollege config; unless we are running on travis (then show queries for debugging)',
             function () {
-                process.env.NODE_ENV = 'testing';
+                process.env.NODE_ENV = process.env.TRAVIS ? process.env.NODE_ENV : 'testing';
                 cfg.express.test.options.node_env = process.env.NODE_ENV;
             });
 
-        // #### Load Config *(Utility Task)*
+        // #### Ensure Config *(Utility Task)*
         // Make sure that we have a `config.js` file when running tests
         // iCollege requires a `config.js` file to specify the database settings etc. iCollege comes with an example file:
         // `config.example.js` which is copied and renamed to `config.js` by the bootstrap process
-        grunt.registerTask('loadConfig', function () {
-            var done = this.async();
-            bootstrap(
-                // give me your config.js path
-                path.resolve(__dirname, 'config.js')
-            ).then(function () {
+        grunt.registerTask('ensureConfig', function () {
+            var config = require('./core/server/config'),
+                done = this.async();
+            config.load().then(function () {
                 done();
             }).catch(function (err) {
                 grunt.fail.fatal(err.stack);
@@ -533,10 +309,13 @@ var path           = require('path'),
         // in a "new" state.
         grunt.registerTask('cleanDatabase', function () {
             var done = this.async(),
+                models    = require('./core/server/models'),
                 migration = require('./core/server/data/migration');
 
-            migration.init().then(function () {
-                return migration.reset();
+            migration.reset().then(function () {
+                return models.init();
+            }).then(function () {
+                return migration.init();
             }).then(function () {
                 done();
             }).catch(function (err) {
@@ -547,26 +326,30 @@ var path           = require('path'),
         // ### Validate
         // **Main testing task**
         //
-        // `grunt validate` will lint and test your local iCollege codebase.
+        // `grunt validate` will build, lint and test your local iCollege codebase.
         //
         // `grunt validate` is one of the most important and useful grunt tasks that we have available to use. It
-        // manages the setup and running of jshint as well as the 4 test suites. See the individual sub tasks below
-        // for details of each of the test suites.
+        // manages the build of your environment and then calls `grunt test`
         //
-        // `grunt validate` is called by `npm test`.
+        // `grunt validate` is called by `npm test` and is used by Travis.
         grunt.registerTask('validate', 'Run tests and lint code',
-            ['jshint', 'test']);
+            ['init', 'test']);
 
         // ### Test
         // **Main testing task**
         //
-        // `grunt test` will lint and test your pre-built local Ghost codebase.
+        // `grunt test` will lint and test your pre-built local iCollege codebase.
         //
-        // `grunt test` runs jshint as well as the 4 test suites. See the individual sub tasks below for details of
-        // each of the test suites.
+        // `grunt test` runs jshint and jscs as well as the 4 test suites. See the individual sub tasks below for
+        // details of each of the test suites.
         //
         grunt.registerTask('test', 'Run tests and lint code',
-            ['test-routes', 'test-unit', 'test-integration', 'test-functional']);
+            ['jshint', 'jscs', 'test-module', 'test-unit', 'test-integration']);
+
+        // ### Lint
+        //
+        // `grunt lint` will run the linter and the code style checker so you can make sure your code is pretty
+        grunt.registerTask('lint', 'Run the code style checks and linter', ['jshint', 'jscs']);
 
         // ### Unit Tests *(sub task)*
         // `grunt test-unit` will run just the unit tests
@@ -576,17 +359,17 @@ var path           = require('path'),
         //
         // `NODE_ENV=testing grunt mochacli:section`
         //
-        // If you need to run an individual unit test file, you can do so, providing you have mocha installed globally by
-        // using a command in the form:
+        // If you need to run an individual unit test file, you can do so, providing you have mocha installed globally
+        // by using a command in the form:
         //
         // `NODE_ENV=testing mocha --timeout=15000 --ui=bdd --reporter=spec core/test/unit/config_spec.js`
         //
-        // Unit tests are run with [mocha](http://visionmedia.github.io/mocha/) using
+        // Unit tests are run with [mocha](http://mochajs.org/) using
         // [should](https://github.com/visionmedia/should.js) to describe the tests in a highly readable style.
         // Unit tests do **not** touch the database.
         // A coverage report can be generated for these tests using the `grunt test-coverage` task.
         grunt.registerTask('test-unit', 'Run unit tests (mocha)',
-            ['clean:test', 'setTestEnv', 'loadConfig', 'mochacli:unit']);
+            ['clean:test', 'setTestEnv', 'ensureConfig', 'mochacli:unit']);
 
         // ### Integration tests *(sub task)*
         // `grunt test-integration` will run just the integration tests
@@ -599,9 +382,15 @@ var path           = require('path'),
         //
         // `NODE_ENV=testing grunt mochacli:api`
         //
-        // Integration tests are run with [mocha](http://visionmedia.github.io/mocha/) using
+        // Integration tests are run with [mocha](http://mochajs.org/) using
         // [should](https://github.com/visionmedia/should.js) to describe the tests in a highly readable style.
         // Integration tests are different to the unit tests because they make requests to the database.
+        //
+        // If you need to run an individual integration test file you can do so, providing you have mocha installed
+        // globally, by using a command in the form (replace path to api_tags_spec.js with the test file you want to
+        // run):
+        //
+        // `NODE_ENV=testing mocha --timeout=15000 --ui=bdd --reporter=spec core/test/integration/api/api_tags_spec.js`
         //
         // Their purpose is to test that both the api and models behave as expected when the database layer is involved.
         // These tests are run against sqlite3, mysql and pg on travis and ensure that differences between the databases
@@ -609,51 +398,15 @@ var path           = require('path'),
         //
         // A coverage report can be generated for these tests using the `grunt test-coverage` task.
         grunt.registerTask('test-integration', 'Run integration tests (mocha + db access)',
-            ['clean:test', 'setTestEnv', 'loadConfig', 'mochacli:integration']);
+            ['clean:test', 'setTestEnv', 'ensureConfig', 'mochacli:integration']);
 
-        // ### Route tests *(sub task)*
-        // `grunt test-routes` will run just the route tests
+        // ### Module tests *(sub task)*
+        // `grunt test-module` will run just the module tests
         //
-        // If you need to run an individual route test file, you can do so, providing you have a `config.js` file and
-        // mocha installed globally by using a command in the form:
-        //
-        // `NODE_ENV=testing mocha --timeout=15000 --ui=bdd --reporter=spec core/test/functional/routes/admin_test.js`
-        //
-        // Route tests are run with [mocha](http://visionmedia.github.io/mocha/) using
-        // [should](https://github.com/visionmedia/should.js) and [supertest](https://github.com/visionmedia/supertest)
-        // to describe and create the tests.
-        //
-        // Supertest enables us to describe requests that we want to make, and also describe the response we expect to
-        // receive back. It works directly with express, so we don't have to run a server to run the tests.
-        //
-        // The purpose of the route tests is to ensure that all of the routes (pages, and API requests) in iCollege
-        // are working as expected, including checking the headers and status codes received. It is very easy and
-        // quick to test many permutations of routes / urls in the system.
-        grunt.registerTask('test-routes', 'Run functional route tests (mocha)',
-            ['clean:test', 'setTestEnv', 'loadConfig', 'mochacli:routes']);
-
-        // ### Functional tests *(sub task)*
-        //
-        // `grunt test-functional` will run just the functional tests
-        //
-        // You can use the `--target` argument to run any individual test file, or the admin or frontend tests:
-        //
-        // `grunt test-functional --target=admin/editor_test.js` - run just the editor tests
-        //
-        // `grunt test-functional --target=admin/` - run all of the tests in the admin directory
-        //
-        // Functional tests are run with [phantom.js](http://phantomjs.org/) and defined using the testing api from
-        // [casper.js](http://docs.casperjs.org/en/latest/testing.html).
-        //
-        // An express server is started with the testing environment set, and then a headless phantom.js browser is
-        // used to make requests to that server. The Casper.js API then allows us to describe the elements and
-        // interactions we expect to appear on the page.
-        //
-        // The purpose of the functional tests is to ensure that Ghost is working as is expected from a user perspective
-        // including buttons and other important interactions in the admin UI.
-        grunt.registerTask('test-functional', 'Run functional interface tests (CasperJS)',
-            ['clean:test', 'setTestEnv', 'loadConfig', 'cleanDatabase', 'express:test', 'spawnCasperJS', 'express:test:stop']
-        );
+        // The purpose of the module tests is to ensure that iCollege can be used as an npm module and exposes all
+        // required methods to interact with it.
+        grunt.registerTask('test-module', 'Run functional module tests (mocha)',
+            ['clean:test', 'setTestEnv', 'ensureConfig', 'mochacli:module']);
 
         // ### Coverage
         // `grunt test-coverage` will generate a report for the Unit and Integration Tests.
@@ -665,21 +418,20 @@ var path           = require('path'),
         //
         // Key areas for coverage are: helpers and theme elements, apps / GDK, the api and model layers.
         grunt.registerTask('test-coverage', 'Generate unit and integration (mocha) tests coverage report',
-            ['clean:test', 'setTestEnv', 'loadConfig', 'shell:coverage']);
-
+            ['clean:test', 'setTestEnv', 'ensureConfig', 'shell:coverage']);
 
         // ## Building assets
         //
-        // Ghost's GitHub repository contains the un-built source code for Ghost. If you're looking for the already
-        // built release zips, you can get these from the [release page](https://github.com/TryGhost/Ghost/releases) on
+        // iCollege's GitHub repository contains the un-built source code for iCollege. If you're looking for the already
+        // built release zips, you can get these from the [release page](https://github.com/TryGhost/iCollege/releases) on
         // GitHub or from https://ghost.org/download. These zip files are created using the [grunt release](#release)
         // task.
         //
-        // If you want to work on Ghost core, or you want to use the source files from GitHub, then you have to build
-        // the Ghost assets in order to make them work.
+        // If you want to work on iCollege core, or you want to use the source files from GitHub, then you have to build
+        // the iCollege assets in order to make them work.
         //
         // There are a number of grunt tasks available to help with this. Firstly after fetching an updated version of
-        // the Ghost codebase, after running `npm install`, you will need to run [grunt init](#init%20assets).
+        // the iCollege codebase, after running `npm install`, you will need to run [grunt init](#init%20assets).
         //
         // For production blogs you will need to run [grunt prod](#production%20assets).
         //
@@ -696,40 +448,16 @@ var path           = require('path'),
             'Outputs a warning to runners of grunt prod, that master shouldn\'t be used for live blogs',
             function () {
                 console.log('>', 'Always two there are, no more, no less. A master and a'.red,
-                        'stable'.red.bold + '.'.red);
+                    'stable'.red.bold + '.'.red);
                 console.log('Use the', 'stable'.bold, 'branch for live blogs.', 'Never'.bold, 'master!');
             });
-
-        // ### Init assets
-        // `grunt init` - will run an initial asset build for you
-        //
-        // Grunt init runs `bower install` as well as the standard asset build tasks which occur when you run just
-        // `grunt`. This fetches the latest client side dependencies, and moves them into their proper homes.
-        //
-        // This task is very important, and should always be run and when fetching down an updated code base just after
-        // running `npm install`.
-        //
-        // `bower` does have some quirks, such as not running as root. If you have problems please try running
-        // `grunt init --verbose` to see if there are any errors.
-        grunt.registerTask('init', 'Prepare the project for development',
-            ['shell:bower', 'shell:prepare_touch', 'update_submodules', 'default']);
 
         // ### Production assets
         // `grunt prod` - will build the minified assets used in production.
         //
-        // It is otherwise the same as running `grunt`, but is only used when running Ghost in the `production` env.
+        // It is otherwise the same as running `grunt`, but is only used when running iCollege in the `production` env.
         grunt.registerTask('prod', 'Build JS & templates for production',
-            ['concat:prod', 'bower_concat:prod', 'copy:prod', 'uglify:prod', 'master-warn']);
-
-
-        // ### Default asset build
-        // `grunt` - default grunt task
-        //
-        // Compiles handlebars templates, concatenates javascript files for the admin UI into a handful of files instead
-        // of many files, and makes sure the bower dependencies are in the right place.
-        grunt.registerTask('default', 'Build JS & templates for development',
-            ['concat:dev', 'bower_concat:dev', 'copy:dev']);
-
+            ['master-warn']);
 
         // ### Live reload
         // `grunt dev` - build assets on the fly whilst developing
@@ -743,21 +471,7 @@ var path           = require('path'),
         //
         // Note that the current implementation of watch only works with casper, not other themes.
         grunt.registerTask('dev', 'Dev Mode; watch files and restart server on changes',
-            ['default', 'express:dev', 'watch']);
-
-        // ### Release
-        // Run `grunt release` to create a Ghost release zip file.
-        // Uses the files specified by `.npmignore` to know what should and should not be included.
-        // Runs the asset generation tasks for both development and production so that the release can be used in
-        // either environment, and packages all the files up into a zip.
-        grunt.registerTask('release',
-                'Release task - creates a final built zip\n' +
-                ' - Do our standard build steps (handlebars, etc)\n' +
-                ' - Copy files to release-folder/#/#{version} directory\n' +
-                ' - Clean out unnecessary files (travis, .git*, etc)\n' +
-                ' - Zip files in release-folder to dist-folder/#{version} directory',
-            ['concat', 'bower_concat', 'copy:prod', 'uglify:release', 'shell:touch', 'clean:release', 'copy:release', 'compress:release']);
-
+            ['express:dev', 'watch']);
     };
 
 // Export the configuration

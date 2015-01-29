@@ -1,17 +1,12 @@
 var moment  = require('moment'),
-    path    = require('path'),
-    when    = require('when');
+    path    = require('path');
 
+function StorageBase() {
+}
 
-function BaseStore() { }
-
-/**
- * @param {String} baseDir - base directory
- * @returns {String}
- */
-BaseStore.prototype.getTargetDir = function (baseDir) {
+StorageBase.prototype.getTargetDir = function (baseDir) {
     var m = moment(new Date().getTime()),
-        month = m.format('MMM'),
+        month = m.format('MM'),
         year =  m.format('YYYY');
 
     if (baseDir) {
@@ -21,8 +16,7 @@ BaseStore.prototype.getTargetDir = function (baseDir) {
     return path.join(year, month);
 };
 
-
-BaseStore.prototype.generateUnique = function (store, dir, name, ext, i, done) {
+StorageBase.prototype.generateUnique = function (store, dir, name, ext, i) {
     var self = this,
         filename,
         append = '';
@@ -33,27 +27,22 @@ BaseStore.prototype.generateUnique = function (store, dir, name, ext, i, done) {
 
     filename = path.join(dir, name + append + ext);
 
-    store.exists(filename).then(function (exists) {
+    return store.exists(filename).then(function (exists) {
         if (exists) {
-            setImmediate(function () {
-                i = i + 1;
-                self.generateUnique(store, dir, name, ext, i, done);
-            });
+            i = i + 1;
+            return self.generateUnique(store, dir, name, ext, i);
         } else {
-            done.resolve(filename);
+            return filename;
         }
     });
 };
 
-BaseStore.prototype.getUniqueFileName = function (store, image, targetDir) {
-    var done = when.defer(),
-        ext = path.extname(image.name),
-        name = path.basename(image.name, ext).replace(/[\W]/gi, '-');
+StorageBase.prototype.getUniqueFileName = function (store, image, targetDir) {
+    var ext = path.extname(image.name),
+        name = path.basename(image.name, ext).replace(/[\W]/gi, '-'),
+        self = this;
 
-    this.generateUnique(store, targetDir, name, ext, 0, done);
-
-    return done.promise;
+    return self.generateUnique(store, targetDir, name, ext, 0);
 };
 
-
-module.exports.BaseStore = BaseStore;
+module.exports = StorageBase;

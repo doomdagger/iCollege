@@ -1,12 +1,22 @@
-// # Base
+// # Base Model
+// This is the model from which all other iCollege models extend. The model provides
+// several basic behaviours such as UUIDs, as well as a set of Data methods for accessing information from the database.
+//
+// The models are internal to iCollege, only the API and some internal functions such as migration and import/export
+// accesses the models directly. All other parts of iCollege are only
+// allowed to access data via the API.
 
-var mongoose   = require('mongoose'),
-    when       = require('when'),
-    _          = require('lodash'),
+var mongoose = require('mongoose'),
+    Promise = require('bluebird'),
+    _ = require('lodash'),
+    moment = require('moment'),
+    sanitize = require('validator').sanitize,
 
-    config     = require('../config'),
-    errors     = require('../errors'),
-    schema  = require('../data/schema'),
+    config = require('../config'),
+    errors = require('../errors'),
+    schema = require('../data/schema'),
+    utils = require('../utils'),
+    uuid = require('node-uuid'),
 
     icollegeSchema;
 
@@ -41,7 +51,7 @@ ICollegeSchema.prototype.extend = function (collectionName, statics, methods, pl
         // field and type and validations
         schema.collections[collectionName],
         // schema options
-        _.extend({ collection: collectionName }, this.options)
+        _.extend({collection: collectionName}, this.options)
     );
 
     // extend statics for default schema
@@ -55,7 +65,6 @@ ICollegeSchema.prototype.extend = function (collectionName, statics, methods, pl
 
     return defaultSchema;
 };
-
 
 
 /**
@@ -91,8 +100,8 @@ function init() {
 // global base Schema Object
 icollegeSchema = new ICollegeSchema({
 
-    id  : true,
-    _id : true,
+    id: true,
+    _id: true,
     autoIndex: true,
     toJSON: {
         getters: false,

@@ -1,18 +1,23 @@
 // # Mail API
 // API for sending Mail
-var when       = require("when"),
-    config     = require('../config'),
-    errors     = require('../errors'),
-    path           = require('path'),
-    templatesDir   = path.resolve(__dirname, '..', 'email-templates'),
-    emailTemplates = require('email-templates'),
+var _            = require('lodash'),
+    Promise      = require('bluebird'),
+    config       = require('../config'),
+    canThis      = require('../permissions').canThis,
+    errors       = require('../errors'),
+    mailer       = require('../mail'),
+    Models       = require('../models'),
+    path         = require('path'),
+    fs           = require('fs'),
+    templatesDir = path.resolve(__dirname, '..', 'email-templates'),
+    htmlToText   = require('html-to-text'),
     mail;
 
 /**
  * ## Mail API Methods
  *
  * **See:** [API Methods](index.js.html#api%20methods)
- * @typedef Object
+ * @typedef Mail
  * @param mail
  */
 mail = {
@@ -21,111 +26,92 @@ mail = {
      * Send an email
      *
      * @public
-     * @param {Object} object details of the email to send
+     * @param {Mail} object details of the email to send
      * @returns {Promise}
      */
-    send: function (object) {
-        var mailer = require('../mail');
-
-        // TODO: permissions
-        return mailer.send(object.mail[0].message)
-            .then(function (data) {
-                delete object.mail[0].options;
-                // Sendmail returns extra details we don't need and that don't convert to JSON
-                delete object.mail[0].message.transport;
-                object.mail[0].status = {
-                    message: data.message
-                };
-                return object;
-            })
-            .otherwise(function (error) {
-                return when.reject(new errors.EmailError(error.message));
-            });
+    send: function (object, options) {
+        return canThis(options.context).send.mail().then(function () {
+            return mailer.send(object.mail[0].message)
+                .then(function (data) {
+                    delete object.mail[0].options;
+                    // Sendmail returns extra details we don't need and that don't convert to JSON
+                    delete object.mail[0].message.transport;
+                    object.mail[0].status = {
+                        message: data.message
+                    };
+                    return object;
+                })
+                .catch(function (error) {
+                    return Promise.reject(new errors.EmailError(error.message));
+                });
+        }, function () {
+            return Promise.reject(new errors.NoPermissionError('You do not have permission to send mail.'));
+        });
     },
+
     /**
      * ### SendTest
      * Send a test email
      *
      * @public
+     * @param {Object} options required property 'to' which contains the recipient address
      * @returns {Promise}
      */
-    'sendTest': function () {
-        var html = '<p><strong>Hello there!</strong></p>' +
-                '<p>Excellent!' +
-                ' You\'ve successfully setup your email config for your iCollege blog over on ' + config.url + '</p>' +
-                '<p>If you hadn\'t, you wouldn\'t be reading this email, but you are, so it looks like all is well :)</p>' +
-                '<p>xoxo</p>' +
-                '<p>Team iCollege<br>' +
-                '<a href="https://codeholic.org">https://codeholic.org</a></p>',
-
-            payload = {mail: [{
-                message: {
-                    subject: 'Test iCollege Email',
-                    html: html,
-                    to: config.mail ? config.mail.mailto : 'icollege@icollege.com'
-                }
-            }]};
-
-        return mail.send(payload);
+    sendTest: function (options) {
+        return Models.User.findOne({id: options.context.user}).then(function (result) {
+            return mail.generateContent({template: 'test'}).then(function (emailContent) {
+                var payload = {mail: [{
+                    message: {
+                        to: result.get('email'),
+                        subject: 'Test Ghost Email',
+                        html: emailContent.html,
+                        text: emailContent.text
+                    }
+                }]};
+                return mail.send(payload, options);
+            });
+        }, function () {
+            return Promise.reject(new errors.NotFoundError('Could not find the current user'));
+        });
     },
 
     /**
-     * ### Generate Mail Object based on template
-     * @param {String} templateName
-     * @param {Object} [locals]
-     * @return {Object} Mail Object
+     *
+     * @param {Object} options {
+     *              data: JSON object representing the data that will go into the email
+     *              template: which email template to load (files are stored in /core/server/email-templates/)
+     *          }
+     * @returns {*}
      */
-    generateMailTemplate: function (templateName, locals) {
+    generateContent: function (options) {
+        var defaultData = {
+                siteUrl: config.forceAdminSSL ? (config.urlSSL || config.url) : config.url
+            },
+            emailData = _.defaults(defaultData, options.data);
 
-        return when.promise(function (resolve, reject) {
-            emailTemplates(templatesDir, function (err, template) {
+        _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
 
+        // read the proper email body template
+        return new Promise(function (resolve, reject) {
+            fs.readFile(templatesDir + '/' + options.template + '.html', {encoding: 'utf8'}, function (err, fileContent) {
                 if (err) {
                     reject(err);
-                } else {
-                    template(templateName, locals, function (err, html, text) {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve({
-                                html: html,
-                                // generateTextFromHTML: true,
-                                text: text
-                            });
-                        }
-                    });
                 }
+
+                // insert user-specific data into the email
+                var htmlContent = _.template(fileContent, emailData),
+                    textContent;
+
+                // generate a plain-text version of the same email
+                textContent = htmlToText.fromString(htmlContent);
+
+                resolve({
+                    html: htmlContent,
+                    text: textContent
+                });
             });
-        });
-
-    },
-
-    /**
-     * ### SendTemplateTest based on template
-     * Send a test email
-     *
-     * @public
-     * @returns {Promise}
-     */
-    'sendTemplateTest': function () {
-        return mail.generateMailTemplate("mail_test", {
-            email: 'mamma.mia@spaghetti.com',
-            name: {
-                first: 'Mamma',
-                last: 'Mia'
-            }
-        }).then(function (emailContent) {
-            var payload = {mail: [{
-                message: {
-                    subject : 'Test iCollege Email',
-                    to : config.mail ? config.mail.mailto : 'icollege@icollege.com',
-                    html: emailContent.html,
-                    text: emailContent.text
-                }
-            }]};
-
-            return mail.send(payload);
         });
     }
 };
+
 module.exports = mail;

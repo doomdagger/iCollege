@@ -5,7 +5,6 @@ More Wiki on the way...
 
 ### Code status
 
-* ![build status](http://42.96.195.83:8111/httpAuth/app/rest/builds/buildType:\(id:ICollege_Build\)/statusIcon)
 * [![Code Climate](https://codeclimate.com/repos/53eb9190e30ba04f350777c8/badges/9816f1c8e15376c51ecb/gpa.svg)](https://codeclimate.com/repos/53eb9190e30ba04f350777c8/feed)
 
 ### Getting Started Guide for Developers

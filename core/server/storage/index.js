@@ -1,23 +1,26 @@
-var errors = require('../errors'),
-    storage;
+var errors  = require('../errors'),
+    storage = {};
 
-function get_storage() {
+function getStorage(storageChoice) {
     // TODO: this is where the check for storage apps should go
-    // Local file system is the default
-    // can also be sqlite3
-    var storageChoice = 'localfilesystem';
+    // Local file system is the default.  Fow now that is all we support.
+    storageChoice = 'local-file-store';
 
-    if (storage) {
-        return storage;
+    if (storage[storageChoice]) {
+        return storage[storageChoice];
     }
 
     try {
-        // TODO: determine if storage has all the necessary methods
-        storage = new (require('./' + storageChoice).Store)();
+        // TODO: determine if storage has all the necessary methods.
+        storage[storageChoice] = require('./' + storageChoice);
     } catch (e) {
         errors.logError(e);
     }
-    return storage;
+
+    // Instantiate and cache the storage module instance.
+    storage[storageChoice] = new storage[storageChoice]();
+
+    return storage[storageChoice];
 }
 
-module.exports.get_storage = get_storage;
+module.exports.getStorage = getStorage;
