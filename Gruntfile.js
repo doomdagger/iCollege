@@ -181,6 +181,13 @@ var _              = require('lodash'),
                     src: ['core/test/integration/**/api*_spec.js']
                 },
 
+                // #### All Route tests
+                routes: {
+                    src: [
+                        'core/test/functional/routes/**/*_test.js'
+                    ]
+                },
+
                 // #### All Module tests
                 module: {
                     src: [
@@ -323,6 +330,14 @@ var _              = require('lodash'),
             });
         });
 
+        grunt.registerTask('test', function (test) {
+            if (!test) {
+                grunt.log.write('no test provided');
+            }
+
+            grunt.task.run('setTestEnv', 'shell:test:' + test);
+        });
+
         // ### Validate
         // **Main testing task**
         //
@@ -333,7 +348,7 @@ var _              = require('lodash'),
         //
         // `grunt validate` is called by `npm test` and is used by Travis.
         grunt.registerTask('validate', 'Run tests and lint code',
-            ['test']);
+            ['lint', 'test-all']);
 
         // ### Test
         // **Main testing task**
@@ -343,8 +358,8 @@ var _              = require('lodash'),
         // `grunt test` runs jshint and jscs as well as the 4 test suites. See the individual sub tasks below for
         // details of each of the test suites.
         //
-        grunt.registerTask('test', 'Run tests and lint code',
-            ['lint', 'test-module', 'test-unit', 'test-integration']);
+        grunt.registerTask('test-all', 'Run tests and lint code',
+            ['test-routes', 'test-module', 'test-unit', 'test-integration']);
 
         // ### Lint
         //
@@ -408,23 +423,27 @@ var _              = require('lodash'),
         grunt.registerTask('test-module', 'Run functional module tests (mocha)',
             ['clean:test', 'setTestEnv', 'ensureConfig', 'mochacli:module']);
 
-        // ### Functional tests *(sub task)*
-        // `grunt test-functional` will run just the functional tests
+        // ### Route tests *(sub task)*
+        // `grunt test-routes` will run just the route tests
         //
-        // You can use the `--target` argument to run any individual test file, or the admin or frontend tests:
+        // If you need to run an individual route test file, you can do so, providing you have a `config.js` file and
+        // mocha installed globally by using a command in the form:
         //
-        // `grunt test-functional --target=admin/editor_test.js` - run just the editor tests
+        // `NODE_ENV=testing mocha --timeout=15000 --ui=bdd --reporter=spec core/test/functional/routes/admin_test.js`
         //
-        // `grunt test-functional --target=admin/` - run all of the tests in the admin directory
+        // Route tests are run with [mocha](http://mochajs.org/) using
+        // [should](https://github.com/visionmedia/should.js) and [supertest](https://github.com/visionmedia/supertest)
+        // to describe and create the tests.
         //
-        // An express server is started with the testing environment set.
+        // Supertest enables us to describe requests that we want to make, and also describe the response we expect to
+        // receive back. It works directly with express, so we don't have to run a server to run the tests.
         //
-        // The purpose of the functional tests is to ensure that iCollege is working as is expected from a user perspective
-        // including buttons and other important interactions in the admin UI.
-        //@TODO write logic supporting functional test
-        grunt.registerTask('test-functional', 'Run functional interface tests (Test RestFul Webservice)',
-            ['clean:test', 'setTestEnv', 'ensureConfig', 'express:test',/* here need logic*/ 'express:test:stop']
-        );
+        // The purpose of the route tests is to ensure that all of the routes (pages, and API requests) in Ghost
+        // are working as expected, including checking the headers and status codes received. It is very easy and
+        // quick to test many permutations of routes / urls in the system.
+        grunt.registerTask('test-routes', 'Run functional route tests (mocha)',
+            ['clean:test', 'setTestEnv', 'ensureConfig', 'mochacli:routes']);
+
 
         // ### Coverage
         // `grunt test-coverage` will generate a report for the Unit and Integration Tests.

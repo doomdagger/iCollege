@@ -27,6 +27,7 @@ function doFirstRun() {
 
 function initDbHashAndFirstRun() {
     //TODO: 我们需要DBHash吗
+    // put doFirstRun here, it should return a promise
 
 }
 

@@ -8,6 +8,7 @@ var path          = require('path'),
     fs            = require('fs'),
     url           = require('url'),
     _             = require('lodash'),
+    mongoose      = require('mongoose'),
     validator     = require('validator'),
     errors        = require('../errors'),
     //TODO: 我们需要一个工具模块生成url吗
@@ -100,6 +101,16 @@ ConfigManager.prototype.set = function (config) {
     contentPath = this._config.paths.contentPath || path.resolve(appRoot, 'content');
 
     //TODO: mongoose 以及其他数据库的启动代码放置在这里，如果有需要共享的全局变量，请在文件头部声明，例如knexInstance
+    if (this._config.database && this._config.database.mongodb && this._config.database.mongodb.connection) {
+        //configureDriver(this._config.database.client);
+        var connectionInfo = this._config.database.mongodb.connection,
+            options = this._config.database.mongodb.options || {};
+
+        mongoose.connect(connectionInfo.host,
+            connectionInfo.database,
+            connectionInfo.port,
+            options);
+    }
 
     _.merge(this._config, {
         //TODO: 数据库实例对象在这里共享

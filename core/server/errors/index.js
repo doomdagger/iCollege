@@ -176,6 +176,44 @@ errors = {
         }
 
         return this.rejectError(new this.InternalServerError(error));
+    },
+
+    error404: function (req, res) {
+        var message = 'No iCollege Found';
+
+        // do not cache 404 error
+        res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
+
+        res.status(404).json({errors: message});
+    },
+
+    error500: function (err, req, res) {
+        // 500 errors should never be cached
+        res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
+
+        if (err.status === 404) {
+            return this.error404(req, res);
+        }
+
+        var statusCode = 500,
+            returnErrors = [];
+
+        if (!_.isArray(err)) {
+            err = [].concat(err);
+        }
+
+        _.each(err, function (errorItem) {
+            var errorContent = {};
+
+            statusCode = errorItem.code || 500;
+
+            errorContent.message = _.isString(errorItem) ? errorItem :
+                (_.isObject(errorItem) ? errorItem.message : 'Unknown Error');
+            errorContent.type = errorItem.type || 'InternalServerError';
+            returnErrors.push(errorContent);
+        });
+
+        res.status(statusCode).json({errors: returnErrors});
     }
 };
 
@@ -191,7 +229,9 @@ _.each([
     'logAndRejectError',
     'logErrorAndExit',
     'logErrorWithRedirect',
-    'handleAPIError'
+    'handleAPIError',
+    'error404',
+    'error500'
 ], function (funcName) {
     errors[funcName] = errors[funcName].bind(errors);
 });

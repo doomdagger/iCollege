@@ -48,7 +48,6 @@ Please do **NOT** use the master branch of iCollege in production.
 
 1. `npm install -g grunt-cli`
 1. `npm install`
-1. `grunt init` (download frontend assets, sencha touch framework and put them in the right place)
 1. `npm start`
 
 #### Hint for Developers:
@@ -89,7 +88,7 @@ grunt test-integration
 grunt test-module
 
 # 执行功用性测试
-grunt test-functional
+grunt test-routes
 
 # 生成代码测试覆盖率报告，生成的为html文件，位于项目根目录下
 grunt test-coverage
