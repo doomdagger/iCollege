@@ -6,7 +6,7 @@ var _       = require('lodash'),
     models;
 
 models = {
-    excludeFiles: ['_messages', 'basetoken.js', 'base.js', 'index.js'],
+    excludeFiles: ['icollege-model.js', 'basetoken.js', 'base.js', 'index.js'],
 
     // ### init
     // Scan all files in this directory and then require each one and cache
@@ -42,21 +42,21 @@ models = {
         });
     },
     // ### deleteAllContent
-    // Delete all content from the database (posts, tags, tags_posts)
+    // Delete all content(only content, not all the data from database) from the database (posts, tags, tags_posts)
     deleteAllContent: function () {
-        var self = this;
-
-        return self.Post.findAll().then(function (posts) {
-            return Promise.all(_.map(posts.toJSON(), function (post) {
-                return self.Post.destroy({id: post.id});
-            }));
-        }).then(function () {
-            return self.Tag.findAll().then(function (tags) {
-                return Promise.all(_.map(tags.toJSON(), function (tag) {
-                    return self.Tag.destroy({id: tag.id});
-                }));
-            });
-        });
+        //var self = this;
+        //
+        //return self.Post.findAll().then(function (posts) {
+        //    return Promise.all(_.map(posts.toJSON(), function (post) {
+        //        return self.Post.destroy({id: post.id});
+        //    }));
+        //}).then(function () {
+        //    return self.Tag.findAll().then(function (tags) {
+        //        return Promise.all(_.map(tags.toJSON(), function (tag) {
+        //            return self.Tag.destroy({id: tag.id});
+        //        }));
+        //    });
+        //});
     }
 };
 

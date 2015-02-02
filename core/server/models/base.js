@@ -26,9 +26,12 @@ var _          = require('lodash'),
 // Initializes a new Model instance called icollegeModel, for reference elsewhere in iCollege.
 icollegeModel = new Model({
     // #### Model Level methods
+    // Methods on Model Level means model instance can invoke
+
 
 }, {
     // #### Schema Level methods
+    // Methods on Schema Level means Model Class can invoke
 
 });
 

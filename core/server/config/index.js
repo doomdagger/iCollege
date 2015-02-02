@@ -62,7 +62,22 @@ ConfigManager.prototype.init = function (rawConfig) {
 function configureDriver(client) {
 
     //TODO: redis mongodb SQLite 数据库的特定动态设置放在这里
-
+    //var pg;
+    //
+    //if (client === 'pg' || client === 'postgres' || client === 'postgresql') {
+    //    try {
+    //        pg = require('pg');
+    //    } catch (e) {
+    //        pg = require('pg.js');
+    //    }
+    //
+    //    // By default PostgreSQL returns data as strings along with an OID that identifies
+    //    // its type.  We're setting the parser to convert OID 20 (int8) into a javascript
+    //    // integer.
+    //    pg.types.setTypeParser(20, function (val) {
+    //        return val === null ? null : parseInt(val, 10);
+    //    });
+    //}
 }
 
 /**
@@ -101,10 +116,15 @@ ConfigManager.prototype.set = function (config) {
     contentPath = this._config.paths.contentPath || path.resolve(appRoot, 'content');
 
     //TODO: mongoose 以及其他数据库的启动代码放置在这里，如果有需要共享的全局变量，请在文件头部声明，例如knexInstance
-    if (this._config.database && this._config.database.mongodb && this._config.database.mongodb.connection) {
-        //configureDriver(this._config.database.client);
+    if (mongoose.connection &&
+        this._config.database &&
+        this._config.database.mongodb &&
+        this._config.database.mongodb.connection) {
+
         var connectionInfo = this._config.database.mongodb.connection,
             options = this._config.database.mongodb.options || {};
+
+        //configureDriver(...);
 
         mongoose.connect(connectionInfo.host,
             connectionInfo.database,
@@ -115,7 +135,7 @@ ConfigManager.prototype.set = function (config) {
     _.merge(this._config, {
         //TODO: 数据库实例对象在这里共享
         //database: {
-        //    knex: knexInstance
+        //    connection: mongoose.connection
         //},
         icollegeVersion: packageInfo.version,
         paths: {
@@ -133,10 +153,6 @@ ConfigManager.prototype.set = function (config) {
             lang:             path.join(corePath, '/shared/lang/')
         },
         //TODO: 确定slugs的设计思路
-        //theme: {
-        //    // normalise the URL by removing any trailing slash
-        //    url: this._config.url ? this._config.url.replace(/\/$/, '') : ''
-        //},
         //slugs: {
         //    // Used by generateSlug to generate slugs for posts, tags, users, ..
         //    // reserved slugs are reserved but can be extended/removed by apps
