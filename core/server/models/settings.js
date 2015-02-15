@@ -14,12 +14,12 @@ var icollegeModel  = require('./base'),
 // Each setting is saved as a separate row in the database,
 // but the overlying API treats them as a single key:value mapping
 Settings = icollegeModel.schema('settings', {
-    // #### Model Level methods, Methods
+    // #### Model Instance Level methods, Methods
     // Methods on Model Level means model instance can invoke
 
 
 }, {
-    // #### Schema Level methods, Statics
+    // #### Model Level methods, Statics
     // Methods on Schema Level means Model Class can invoke
 
 

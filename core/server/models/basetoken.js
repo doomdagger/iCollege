@@ -8,12 +8,12 @@ var Promise         = require('bluebird'),
     Basetoken;
 
 Basetoken = icollegeModel.extend({
-    // #### Model Level methods, Methods
+    // #### Model Instance Level methods, Methods
     // Methods on Model Level means model instance can invoke
 
 
 }, {
-    // #### Schema Level methods, Statics
+    // #### Model Level methods, Statics
     // Methods on Schema Level means Model Class can invoke
 
 
