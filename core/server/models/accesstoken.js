@@ -1,12 +1,13 @@
+// # Accesstoken Model
 
-var Basetoken       = require('./basetoken'),
+var basetokenShelf  = require('./basetoken'),
 
     Accesstoken,
     Accesstokens;
 
-Accesstokens = Basetoken.schema('accesstokens');
+Accesstokens = basetokenShelf.schema('accesstokens');
 
-Accesstoken = Basetoken.model('Accesstoken', Accesstokens);
+Accesstoken = basetokenShelf.model('Accesstoken', Accesstokens);
 
 module.exports = {
     Accesstoken: Accesstoken,

@@ -1,11 +1,11 @@
-var Basetoken       = require('./basetoken'),
+var basetokenShelf  = require('./basetoken'),
 
     Refreshtoken,
     Refreshtokens;
 
-Refreshtokens = Basetoken.schema('refreshtokens');
+Refreshtokens = basetokenShelf.schema('refreshtokens');
 
-Refreshtoken = Basetoken.model('Refreshtoken', Refreshtokens);
+Refreshtoken = basetokenShelf.model('Refreshtoken', Refreshtokens);
 
 
 module.exports = {

@@ -1,13 +1,13 @@
 // # Base token Object
-// Basetoken其实就是一个Model instance，跟icollegeModel一样，都是instance。
+// Basetoken其实就是一个Shelf instance，跟icollegeShelf一样，都是instance。
 
 var Promise         = require('bluebird'),
-    icollegeModel   = require('./base'),
+    icollegeShelf   = require('./base'),
     errors          = require('../errors'),
 
-    Basetoken;
+    basetokenShelf;
 
-Basetoken = icollegeModel.extend({
+basetokenShelf = icollegeShelf.extend({
     // #### Model Instance Level methods, Methods
     // Methods on Model Level means model instance can invoke
 
@@ -19,4 +19,4 @@ Basetoken = icollegeModel.extend({
 
 });
 
-module.exports = Basetoken;
+module.exports = basetokenShelf;

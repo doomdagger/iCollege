@@ -1,5 +1,5 @@
-// # iCollege Model Object
-// We don't have a common model object like Ghost. Instead, we define one for ourselves. 
+// # iCollege Shelf Object
+// We don't have a common Shelf object like Ghost. Instead, we define one for ourselves.
 
 var _          = require('lodash'),
     schema     = require('../data/schema'),
@@ -7,10 +7,10 @@ var _          = require('lodash'),
 
 
 /**
- * My Model Class
+ * My Shelf Class
  * @constructor
  */
-function Model(methods, statics) {
+function Shelf(methods, statics) {
     // # options for parent schema, descendants will override these options
     // pay attention to some specific part
     this.options = {
@@ -35,16 +35,19 @@ function Model(methods, statics) {
 
     // give me some plugins
     this.plugins = [];
+
+    // add Model to our shelf
+    this.Model = mongoose.Model;
 }
 
 /**
- * extend the base Model object to gain some inherited methods
+ * extend the base Shelf object to gain some inherited methods
  * @param {Object} methods - instance methods definition
  * @param {Object} statics - static methods definition
- * @returns {Model} return a brand new Model object
+ * @returns {Shelf} return a brand new Shelf object
  */
-Model.prototype.extend = function(methods, statics) {
-    var extended = new Model(methods, statics);
+Shelf.prototype.extend = function(methods, statics) {
+    var extended = new Shelf(methods, statics);
     // extend methods for default schema
     _.extend(extended.methods, this.methods);
 
@@ -63,7 +66,7 @@ Model.prototype.extend = function(methods, statics) {
  * @param {Object} statics - static methods definition
  * @returns {Mongoose.Schema} schema object
  */
-Model.prototype.schema = function (collectionName, methods, statics) {
+Shelf.prototype.schema = function (collectionName, methods, statics) {
 
     var defaultSchema = new mongoose.Schema(
         // field and type and validations
@@ -95,15 +98,15 @@ Model.prototype.schema = function (collectionName, methods, statics) {
  * @param schemaObject
  * @returns {*}
  */
-Model.prototype.model = function (modelName, schemaObject) {
+Shelf.prototype.model = function (modelName, schemaObject) {
     return mongoose.model(modelName, schemaObject);
 };
 
 
 /**
- * register plugins for Model Object
+ * register plugins for Shelf Object
  * @param plugin plugin function
  */
-Model.prototype.plugin = function (plugin) {
+Shelf.prototype.plugin = function (plugin) {
     this.plugins.push(plugin);
 };

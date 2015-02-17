@@ -1,32 +1,34 @@
-// Extend validator module
-// also add more validators to the project
-// dedicate to some specific functional validations
-
-var _         = require('lodash'),
+var schema    = require('../schema').collections,
+    _         = require('lodash'),
     validator = require('validator'),
-    when      = require('when'),
+    Promise   = require('bluebird'),
     errors    = require('../../errors'),
+    config    = require('../../config'),
 
+    validateSchema,
     validateSettings,
     validate;
 
+// Provide a few custom validators
+//
+validator.extend('empty', function (str) {
+    return _.isEmpty(str);
+});
 
-function init() {
-    // Provide a few custom validators
-    //
-    validator.extend('empty', function (str) {
-        return _.isEmpty(str);
-    });
+validator.extend('notContains', function (str, badString) {
+    return !_.contains(str, badString);
+});
 
-    validator.extend('notContains', function (str, badString) {
-        return !_.contains(str, badString);
-    });
+validator.extend('isEmptyOrURL', function (str) {
+    return (_.isEmpty(str) || validator.isURL(str, {require_protocol: false}));
+});
 
-    validator.extend('isNumber', function (str) {
-        return validator.isFloat(str) || validator.isInt(str);
-    });
-}
+// Mongoose has its own validation framework
+// We only put registered function here to provide custom schema validation business logic
+validateSchema = {
+    // TODO do we have some custom validation logic against schema structure?
 
+};
 
 // Validation for settings
 // settings are checked against the validation objects
@@ -41,15 +43,18 @@ validateSettings = function (defaultSettings, model) {
     }
 
     if (validationErrors.length !== 0) {
-        return when.reject(validationErrors);
+        return Promise.reject(validationErrors);
     }
+
+    return Promise.resolve();
 };
+
 
 // Validate default settings using the validator module.
 // Each validation's key is a method name and its value is an array of options
 //
 // eg:
-//      validations: { isUrl: true, isLength: [20, 40] }
+//      validations: { isURL: true, isLength: [20, 40] }
 //
 // will validate that a setting's length is a URL between 20 and 40 chars.
 //
@@ -64,6 +69,7 @@ validateSettings = function (defaultSettings, model) {
 // available validators: https://github.com/chriso/validator.js#validators
 validate = function (value, key, validations) {
     var validationErrors = [];
+
     _.each(validations, function (validationOptions, validationName) {
         var goodResult = true;
 
@@ -78,7 +84,7 @@ validate = function (value, key, validations) {
 
         // equivalent of validator.isSomething(option1, option2)
         if (validator[validationName].apply(validator, validationOptions) !== goodResult) {
-            validationErrors.push(new errors.ValidationError('Settings validation (' + validationName + ') failed for ' + key, key));
+            validationErrors.push(new errors.ValidationError('Validation (' + validationName + ') failed for ' + key, key));
         }
 
         validationOptions.shift();
@@ -87,5 +93,8 @@ validate = function (value, key, validations) {
     return validationErrors;
 };
 
-module.exports.validateSettings = validateSettings;
-module.exports.init = init; // in ./server/index.js we initialize validation expansion
+module.exports = {
+    validator: validator,
+    validateSchema: validateSchema,
+    validateSettings: validateSettings
+};
