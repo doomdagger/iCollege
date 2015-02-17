@@ -30,3 +30,6 @@ coverage.html
 
 # ignore css in server foler #
 /core/server/email-templates/**/*.css
+
+# custom folder
+/temp

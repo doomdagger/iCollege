@@ -29,24 +29,33 @@ icollegeModel = new Model({
     // Methods on Model Level means model instance can invoke
 
 
+
 }, {
     // #### Model Level methods, Statics
     // Methods on Schema Level means Model Class can invoke
 
+    // Get permitted attributes from server/data/schema.js, which is where the DB schema is defined
+    permittedAttributes: function () {
+        return _.keys(schema.collections[this.schema.collectionName]);
+    },
+
+    // Return default model instance
+    defaults: function () {
+        return {
+            uuid: uuid.v4()
+        };
+    }
+
+
+
+
+
 });
 
 // ### Register Plugins here, demo
-icollegeModel.plugin('lastModified', function (schema, options) {
-    schema.add({ lastMod: Date });
+icollegeModel.plugin(function (schema, options) {
 
-    schema.pre('save', function (next) {
-        this.lastMod = new Date();
-        next();
-    });
 
-    if (options && options.index) {
-        schema.path('lastMod').index(options.index);
-    }
 });
 
 

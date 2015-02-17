@@ -34,7 +34,7 @@ function Model(methods, statics) {
     this.statics = statics || {};
 
     // give me some plugins
-    this.plugins = {};
+    this.plugins = [];
 }
 
 /**
@@ -50,6 +50,8 @@ Model.prototype.extend = function(methods, statics) {
 
     // extend statics for default schema
     _.extend(extended.statics, this.statics);
+
+    extended.plugins = [].slice.apply(this.plugins);
 
     return extended;
 };
@@ -81,6 +83,9 @@ Model.prototype.schema = function (collectionName, methods, statics) {
         defaultSchema.plugin(plugin);
     });
 
+    // cache collection name
+    defaultSchema.collectionName = collectionName;
+
     return defaultSchema;
 };
 
@@ -97,9 +102,8 @@ Model.prototype.model = function (modelName, schemaObject) {
 
 /**
  * register plugins for Model Object
- * @param pluginKey plugin mapped key
  * @param plugin plugin function
  */
-Model.prototype.plugin = function (pluginKey, plugin) {
-    this.plugins[pluginKey] = plugin;
+Model.prototype.plugin = function (plugin) {
+    this.plugins.push(plugin);
 };

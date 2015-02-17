@@ -59,25 +59,12 @@ ConfigManager.prototype.init = function (rawConfig) {
     return Promise.resolve(self._config);
 };
 
-function configureDriver(client) {
+function configureDriver() {
 
-    //TODO: redis mongodb SQLite 数据库的特定动态设置放在这里
-    //var pg;
-    //
-    //if (client === 'pg' || client === 'postgres' || client === 'postgresql') {
-    //    try {
-    //        pg = require('pg');
-    //    } catch (e) {
-    //        pg = require('pg.js');
-    //    }
-    //
-    //    // By default PostgreSQL returns data as strings along with an OID that identifies
-    //    // its type.  We're setting the parser to convert OID 20 (int8) into a javascript
-    //    // integer.
-    //    pg.types.setTypeParser(20, function (val) {
-    //        return val === null ? null : parseInt(val, 10);
-    //    });
-    //}
+    // Let mongoose support Promise Style of Bluebird,
+    // Look up the docs to find specific Data Access Method,
+    // Trailing 'Async' at the name of Model Object and Model Instance
+    Promise.promisifyAll(mongoose);
 }
 
 /**
@@ -124,7 +111,7 @@ ConfigManager.prototype.set = function (config) {
         var connectionInfo = this._config.database.mongodb.connection,
             options = this._config.database.mongodb.options || {};
 
-        //configureDriver(...);
+        configureDriver();
 
         mongoose.connect(connectionInfo.host,
             connectionInfo.database,
