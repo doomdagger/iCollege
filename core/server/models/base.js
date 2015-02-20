@@ -7,6 +7,7 @@
 // allowed to access data via the API.
 
 var _          = require('lodash'),
+    Shelf      = require('./icollege-shelf'),
     config     = require('../config'),
     errors     = require('../errors'),
     moment     = require('moment'),
@@ -15,14 +16,13 @@ var _          = require('lodash'),
     schema     = require('../data/schema'),
     utils      = require('../utils'),
     uuid       = require('node-uuid'),
-    Shelf      = require('./icollege-shelf'),
 
     icollegeShelf;
 
 
 // ### icollegeShelf
 // Initializes a new Shelf instance called icollegeShelf, for reference elsewhere in iCollege.
-icollegeShelf = new Shelf({
+icollegeShelf = new Shelf(true, {
     // #### Model Instance Level methods, Methods
     // Methods on Model Level means model instance can invoke
 
@@ -68,6 +68,19 @@ icollegeShelf = new Shelf({
         return attrs;
     },
 
+    // Get the user from the options object
+    contextUser: function (options) {
+        // Default to context user
+        if (options.context && options.context.user) {
+            return options.context.user;
+            // Other wise use the internal override
+        } else if (options.context && options.context.internal) {
+            return 1;
+        } else {
+            errors.logAndThrowError(new Error('missing context'));
+        }
+    },
+
     // format date before writing to DB, bools work
     format: function (attrs) {
         return this.fixDates(attrs);
@@ -84,7 +97,7 @@ icollegeShelf = new Shelf({
 
 }, {
     // #### Model Level methods, Statics
-    // Methods on Schema Level means Model Class can invoke
+    // Methods on Model Level means Model Class can invoke
 
     /**
      * Returns an array of keys permitted in every method's `options` hash.
@@ -94,6 +107,15 @@ icollegeShelf = new Shelf({
     permittedOptions: function () {
         // terms to whitelist for all methods.
         return ['context'];
+    },
+
+    forge: function (data, options) {
+        var Self = this,
+            newObj = new Self(data);
+
+        newObj.options = options;
+
+        return newObj;
     },
 
     /**
@@ -125,18 +147,38 @@ icollegeShelf = new Shelf({
      * ### Find All
      * Naive find all fetches all the data for a particular model
      * @param {Object} options (optional)
-     * @return {Promise(ghostBookshelf.Collection)} Collection of all Models
+     * @return {Promise} Collection of all Models
      */
     findAll:  function (options) {
         options = this.filterOptions(options, 'findAll');
         return this.findAsync({}, null, options);
     }
 
-});
+}, {
+    // ### Schema Level Methods
 
-// ### Register Plugins here, demo
-icollegeShelf.plugin(function (schema, options) {
+    // This method registers hooks, should not invoked by developers
+    // icollege shelf will automatically invoke it.
+    // This 'this' is Schema Object
+    initialize: function () {
+        this.pre('create', this.creating);
+        this.pre('save', this.saving);
+    },
 
+    // This 'this' is Model Object, pay attention!
+    creating: function (next, newObj) {
+        if (!newObj.get('created_by')) {
+            newObj.set('created_by', newObj.contextUser(newObj.options));
+        }
+        next(newObj);
+    },
+
+    // This 'this' is Model Instance Object
+    saving: function (next) {
+        this.set('updated_by', this.contextUser(this.options));
+        this.set('updated_at', new Date);
+        next();
+    }
 
 });
 

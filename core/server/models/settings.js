@@ -58,8 +58,6 @@ SettingSchema = icollegeShelf.schema('settings', {
     }
 
 
-
-
 }, {
     // #### Model Level methods, Statics
     // Methods on Model Level means Model Class can invoke
@@ -69,7 +67,7 @@ SettingSchema = icollegeShelf.schema('settings', {
         if (!_.isObject(options)) {
             options = {key: options};
         }
-        return Promise.resolve(icollegeShelf.Model.findOneAsync.call(options));
+        return Promise.resolve(icollegeShelf.Model.findOneAsync.call(this, options));
     },
 
 
@@ -86,14 +84,13 @@ SettingSchema = icollegeShelf.schema('settings', {
             var defaultSetting = _.clone(getDefaultSettings()[key]);
             defaultSetting.value = defaultSetting.defaultValue;
 
-            // @TODO add general options param for all data access object, we need to know who invoke this method!
-            return new Settings(defaultSetting).saveAsync(internal);
+            return Settings.forge(defaultSetting, internal).saveAsync();
         });
     },
 
     populateDefaults: function () {
         return this.findAll().then(function (allSettings) {
-            var usedKeys = allSettings.models.map(function (setting) { return setting.get('key'); }),
+            var usedKeys = allSettings.map(function (setting) { return setting.get('key'); }),
                 insertOperations = [];
 
             _.each(getDefaultSettings(), function (defaultSetting, defaultSettingKey) {
@@ -104,7 +101,7 @@ SettingSchema = icollegeShelf.schema('settings', {
                 }
                 if (isMissingFromDB) {
                     defaultSetting.value = defaultSetting.defaultValue;
-                    insertOperations.push(new Settings(defaultSetting).saveAsync(internal));
+                    insertOperations.push(Settings.forge(defaultSetting, internal).saveAsync());
                 }
             });
 

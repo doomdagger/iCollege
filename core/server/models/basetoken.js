@@ -14,7 +14,7 @@ basetokenShelf = icollegeShelf.extend({
 
 }, {
     // #### Model Level methods, Statics
-    // Methods on Schema Level means Model Class can invoke
+    // Methods on Model Level means Model Class can invoke
 
 
 });
