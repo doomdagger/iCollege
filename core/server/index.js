@@ -17,19 +17,6 @@ var express     = require('express'),
     Server      = require('./icollege-server');
 
 
-// 初次运行执行的逻辑应置于此
-function doFirstRun() {
-    //TODO: 初次运行入口方法
-
-
-
-}
-
-function initDbHashAndFirstRun() {
-    //TODO: 我们需要DBHash吗
-    // put doFirstRun here, it should return a promise
-
-}
 
 // This is run after every initialization is done, right before starting server.
 // Its main purpose is to move adding notifications here, so none of the submodules
@@ -37,8 +24,17 @@ function initDbHashAndFirstRun() {
 // This is also a "one central repository" of adding startup notifications in case
 // in the future apps will want to hook into here
 function initNotifications() {
-    //TODO: 邮件系统的设置问题在这里打印出消息，我们打印到控制台
-
+    if (mailer.state && mailer.state.usingDirect) {
+        console.log(
+                'iCollege is attempting to use a direct method to send e-mail.'.green,
+                '\nIt is recommended that you explicitly configure an e-mail service.'.green
+        );
+    }
+    if (mailer.state && mailer.state.emailDisabled) {
+        console.log(
+                'iCollege is currently unable to send e-mail.'.yellow
+        );
+    }
 }
 
 // ## Initializes the application.
@@ -74,16 +70,15 @@ function init(options) {
         // NOTE: Must be done before initDbHashAndFirstRun calls
         return permissions.init();
     }).then(function () {
-        return Promise.join(
-            // Check for or initialise a dbHash.
-            initDbHashAndFirstRun(),
-            // Initialize mail
-            mailer.init()
-        );
+        // Initialize mail
+        return mailer.init();
     }).then(function () {
         // Output necessary notifications on init
         initNotifications();
         // ##Configuration
+
+        // return the correct mime type for woff filess
+        express['static'].mime.define({'application/font-woff': ['woff']});
 
         // enabled gzip compression by default
         if (config.server.compress !== false) {
