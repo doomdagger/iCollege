@@ -1,18 +1,20 @@
 /**
- * Database versioning
+ * # Database versioning
  * Get Set database version
  * Created by Li He on 2014/7/25.
+ * Updated by Lu Wanbo on 2015/2/18
  */
 
 var errors          = require('../../errors'),
-    Setting         = require('../../models').Setting,
-
+    Settings         = require('../../models').Settings,
     defaultSettings = require('../default-settings'),
 
     initialVersion  = '000',
     defaultDatabaseVersion;
 
-// Default Database Version
+
+
+// ## Default Database Version
 // The migration version number according to the hardcoded default settings
 // This is the version the database should be at or migrated to
 function getDefaultDatabaseVersion() {
@@ -24,12 +26,13 @@ function getDefaultDatabaseVersion() {
     return defaultDatabaseVersion;
 }
 
-// Database Current Version
+// ## Database Current Version
 // The migration version number according to the database
 // This is what the database is currently at and may need to be updated
 function getDatabaseVersion() {
 
-    return Setting.findOnePromised({'key': 'databaseVersion'}, 'value').then(function (version) {
+    //return Settings.findOnePromised({'key': 'databaseVersion'}, 'value').then(function (version) {
+    return Settings.find({'key': 'databaseVersion'}).then(function (version) {
         var databaseVersion;
 
         if (!version) {
@@ -49,9 +52,8 @@ function getDatabaseVersion() {
 }
 
 function setDatabaseVersion() {
-
-    return Setting.updatePromised({key: 'databaseVersion'}, {value: getDefaultDatabaseVersion()});
-
+    //return Settings.updatePromised({key: 'databaseVersion'}, {value: getDefaultDatabaseVersion()});
+    return Settings.update({'key': 'databaseVersion'}, {'value': getDefaultDatabaseVersion()});
 }
 
 module.exports = {
