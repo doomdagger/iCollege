@@ -8,8 +8,6 @@ var should         = require('should'),
     _              = require('lodash'),
     rewire         = require('rewire'),
 
-    testUtils      = require('../utils'),
-
 // Thing we are testing
     defaultConfig  = require('../../../config.example')[process.env.NODE_ENV],
     config         = require('../../server/config'),
@@ -20,41 +18,6 @@ var should         = require('should'),
 should.equal(true, true);
 
 describe('Config', function () {
-    describe('Theme', function () {
-        beforeEach(function () {
-            config.set({
-                url: 'http://my-ghost-blog.com',
-                theme: {
-                    title: 'casper',
-                    description: 'casper',
-                    logo: 'casper',
-                    cover: 'casper'
-                }
-            });
-        });
-
-        afterEach(function () {
-            config.set(_.merge({}, defaultConfig));
-        });
-
-        it('should have exactly the right keys', function () {
-            var themeConfig = config.theme;
-
-            // This will fail if there are any extra keys
-            themeConfig.should.have.keys('url', 'title', 'description', 'logo', 'cover');
-        });
-
-        it('should have the correct values for each key', function () {
-            var themeConfig = config.theme;
-
-            // Check values are as we expect
-            themeConfig.should.have.property('url', 'http://my-ghost-blog.com');
-            themeConfig.should.have.property('title', 'casper');
-            themeConfig.should.have.property('description', 'casper');
-            themeConfig.should.have.property('logo', 'casper');
-            themeConfig.should.have.property('cover', 'casper');
-        });
-    });
 
     describe('Index', function () {
         afterEach(function () {
@@ -75,17 +38,10 @@ describe('Config', function () {
                 'configExample',
                 'contentPath',
                 'corePath',
-                'themePath',
-                'appPath',
                 'imagesPath',
                 'imagesRelPath',
-                'adminViews',
-                'helperTemplates',
                 'exportPath',
-                'lang',
-                'availableThemes',
-                'availableApps',
-                'builtScriptPath'
+                'lang'
             );
         });
 
@@ -98,25 +54,25 @@ describe('Config', function () {
         });
 
         it('should not return a slash for subdir', function () {
-            config.set({url: 'http://my-ghost-blog.com'});
+            config.set({url: 'http://icollege.com'});
             config.paths.should.have.property('subdir', '');
 
-            config.set({url: 'http://my-ghost-blog.com/'});
+            config.set({url: 'http://icollege.com/'});
             config.paths.should.have.property('subdir', '');
         });
 
         it('should handle subdirectories properly', function () {
-            config.set({url: 'http://my-ghost-blog.com/blog'});
-            config.paths.should.have.property('subdir', '/blog');
+            config.set({url: 'http://icollege.com/social'});
+            config.paths.should.have.property('subdir', '/social');
 
-            config.set({url: 'http://my-ghost-blog.com/blog/'});
-            config.paths.should.have.property('subdir', '/blog');
+            config.set({url: 'http://icollege.com/social/'});
+            config.paths.should.have.property('subdir', '/social');
 
-            config.set({url: 'http://my-ghost-blog.com/my/blog'});
-            config.paths.should.have.property('subdir', '/my/blog');
+            config.set({url: 'http://icollege.com/my/social'});
+            config.paths.should.have.property('subdir', '/my/social');
 
-            config.set({url: 'http://my-ghost-blog.com/my/blog/'});
-            config.paths.should.have.property('subdir', '/my/blog');
+            config.set({url: 'http://icollege.com/my/social/'});
+            config.paths.should.have.property('subdir', '/my/social');
         });
 
         it('should allow specific properties to be user defined', function () {
@@ -132,123 +88,7 @@ describe('Config', function () {
 
             config.should.have.property('config', configFile);
             config.paths.should.have.property('contentPath', contentPath);
-            config.paths.should.have.property('themePath', contentPath + 'themes');
-            config.paths.should.have.property('appPath', contentPath + 'apps');
             config.paths.should.have.property('imagesPath', contentPath + 'images');
-        });
-    });
-
-    describe('urlFor', function () {
-        before(function () {
-            config.set(_.merge({}, defaultConfig));
-        });
-
-        afterEach(function () {
-            config.set({url: defaultConfig.url});
-        });
-
-        it('should return the home url with no options', function () {
-            config.urlFor().should.equal('/');
-            config.set({url: 'http://my-ghost-blog.com/blog'});
-            config.urlFor().should.equal('/blog/');
-        });
-
-        it('should return home url when asked for', function () {
-            var testContext = 'home';
-
-            config.set({url: 'http://my-ghost-blog.com'});
-            config.urlFor(testContext).should.equal('/');
-            config.urlFor(testContext, true).should.equal('http://my-ghost-blog.com/');
-
-            config.set({url: 'http://my-ghost-blog.com/blog'});
-            config.urlFor(testContext).should.equal('/blog/');
-            config.urlFor(testContext, true).should.equal('http://my-ghost-blog.com/blog/');
-        });
-
-        it('should return rss url when asked for', function () {
-            var testContext = 'rss';
-
-            config.set({url: 'http://my-ghost-blog.com'});
-            config.urlFor(testContext).should.equal('/rss/');
-            config.urlFor(testContext, true).should.equal('http://my-ghost-blog.com/rss/');
-
-            config.set({url: 'http://my-ghost-blog.com/blog'});
-            config.urlFor(testContext).should.equal('/blog/rss/');
-            config.urlFor(testContext, true).should.equal('http://my-ghost-blog.com/blog/rss/');
-        });
-
-        it('should return url for a random path when asked for', function () {
-            var testContext = {relativeUrl: '/about/'};
-
-            config.set({url: 'http://my-ghost-blog.com'});
-            config.urlFor(testContext).should.equal('/about/');
-            config.urlFor(testContext, true).should.equal('http://my-ghost-blog.com/about/');
-
-            config.set({url: 'http://my-ghost-blog.com/blog'});
-            config.urlFor(testContext).should.equal('/blog/about/');
-            config.urlFor(testContext, true).should.equal('http://my-ghost-blog.com/blog/about/');
-        });
-
-        it('should return url for a post from post object', function () {
-            var testContext = 'post',
-                testData = {post: testUtils.DataGenerator.Content.posts[2]};
-
-            // url is now provided on the postmodel, permalinkSetting tests are in the model_post_spec.js test
-            testData.post.url = '/short-and-sweet/';
-            config.set({url: 'http://my-ghost-blog.com'});
-            config.urlFor(testContext, testData).should.equal('/short-and-sweet/');
-            config.urlFor(testContext, testData, true).should.equal('http://my-ghost-blog.com/short-and-sweet/');
-
-            config.set({url: 'http://my-ghost-blog.com/blog'});
-            config.urlFor(testContext, testData).should.equal('/blog/short-and-sweet/');
-            config.urlFor(testContext, testData, true).should.equal('http://my-ghost-blog.com/blog/short-and-sweet/');
-        });
-
-        it('should return url for a tag when asked for', function () {
-            var testContext = 'tag',
-                testData = {tag: testUtils.DataGenerator.Content.tags[0]};
-
-            config.set({url: 'http://my-ghost-blog.com'});
-            config.urlFor(testContext, testData).should.equal('/tag/kitchen-sink/');
-            config.urlFor(testContext, testData, true).should.equal('http://my-ghost-blog.com/tag/kitchen-sink/');
-
-            config.set({url: 'http://my-ghost-blog.com/blog'});
-            config.urlFor(testContext, testData).should.equal('/blog/tag/kitchen-sink/');
-            config.urlFor(testContext, testData, true).should.equal('http://my-ghost-blog.com/blog/tag/kitchen-sink/');
-        });
-    });
-
-    describe('urlPathForPost', function () {
-        it('should output correct url for post', function () {
-            var permalinkSetting = '/:slug/',
-            /*jshint unused:false*/
-                testData = testUtils.DataGenerator.Content.posts[2],
-                postLink = '/short-and-sweet/';
-
-            // next test
-            config.urlPathForPost(testData, permalinkSetting).should.equal(postLink);
-        });
-
-        it('should output correct url for post with date permalink', function () {
-            var permalinkSetting = '/:year/:month/:day/:slug/',
-            /*jshint unused:false*/
-                testData = testUtils.DataGenerator.Content.posts[2],
-                today = new Date(),
-                dd = ('0' + today.getDate()).slice(-2),
-                mm = ('0' + (today.getMonth() + 1)).slice(-2),
-                yyyy = today.getFullYear(),
-                postLink = '/' + yyyy + '/' + mm + '/' + dd + '/short-and-sweet/';
-            // next test
-            config.urlPathForPost(testData, permalinkSetting).should.equal(postLink);
-        });
-
-        it('should output correct url for page with date permalink', function () {
-            var permalinkSetting = '/:year/:month/:day/:slug/',
-            /*jshint unused:false*/
-                testData = testUtils.DataGenerator.Content.posts[5],
-                postLink = '/static-page-test/';
-            // next test
-            config.urlPathForPost(testData, permalinkSetting).should.equal(postLink);
         });
     });
 
@@ -292,8 +132,7 @@ describe('Config', function () {
 
             config.load().then(function (config) {
                 config.url.should.equal(defaultConfig.url);
-                config.database.client.should.equal(defaultConfig.database.client);
-                config.database.connection.should.eql(defaultConfig.database.connection);
+                config.database.mongodb.connection.should.eql(defaultConfig.database.mongodb.connection);
                 config.server.host.should.equal(defaultConfig.server.host);
                 config.server.port.should.equal(defaultConfig.server.port);
 
@@ -307,8 +146,7 @@ describe('Config', function () {
 
             config.load(path.join(originalConfig.paths.appRoot, 'config.example.js')).then(function (config) {
                 config.url.should.equal(defaultConfig.url);
-                config.database.client.should.equal(defaultConfig.database.client);
-                config.database.connection.should.eql(defaultConfig.database.connection);
+                config.database.mongodb.connection.should.eql(defaultConfig.database.mongodb.connection);
                 config.server.host.should.equal(defaultConfig.server.host);
                 config.server.port.should.equal(defaultConfig.server.port);
 
