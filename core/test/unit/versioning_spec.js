@@ -10,7 +10,7 @@ var should          = require('should'),
 // Thing we are testing
 // Original functions are not Promise-based, need promisify to run our unit test
 //    versioning      = require('../../server/data/versioning'),
-    versioning      = Promise.promisify(require('../../server/data/versioning')),
+    versioning      = Promise.promisifyAll(require('../../server/data/versioning')),
     defaultSettings = require('../../server/data/default-settings.json');
 // storing current environment
 
