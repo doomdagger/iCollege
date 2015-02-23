@@ -33,7 +33,7 @@ describe('Migration', function () {
         it('should clean up our database', function (done) {
             migration.reset().then(function () {
                 Settings.findOneAsync({'key': 'migrationUnitTestFlag'}).value.should.equals(null);
-            })
+            }).catch(done);
         });
     });
 
@@ -41,7 +41,7 @@ describe('Migration', function () {
         it('should clean up our database', function (done) {
             migration.reset().then(function () {
                 Settings.findOneAsync({'key': 'migrationUnitTestFlag'}).value.should.equals(null);
-            })
+            }).catch(done);
         });
     });
 
@@ -124,7 +124,7 @@ describe('Migration', function () {
                     // Former data should not exist
                     Settings.findOneAsync({'key': 'migrationUnitTestFlag'}).value.should.equals(null);
                 })
-            })
+            }).catch(done);
         });
     });
 });
