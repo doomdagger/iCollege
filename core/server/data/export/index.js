@@ -2,15 +2,14 @@
  * Export Module
  * Export database data into files for backup
  * Created by Li He on 2014/7/25.
+ * Edited by Xie Wei on 2015/2/16.
  */
 
-var _          = require('lodash'),
-    when       = require('when'),
-    callbacks  = require('when/callbacks'),
-
-    versioning = require('../versioning'),
+var _           = require('lodash'),
+    Promise     = require('bluebird'),
+    versioning  = require('../versioning'),
     config      = require('../../config'),
-    utils      = require('../utils'),
+    utils       = require('../utils'),
     serverUtils = require('../../utils'),
     errors      = require('../../errors'),
     settings    = require('../../api/settings'),
@@ -35,17 +34,18 @@ exportFileName = function () {
     });
 };
 
+
 exporter = function () {
-    return when.join(versioning.getDatabaseVersion(), utils.collections()).then(function (results) {
+    return Promise.join(versioning.getDatabaseVersion(), utils.operations.collections()).then(function (results) {
         var version = results[0],
-            collections = results[1],
-            selectOps = _.map(collections, function (collection) {
-                if (excludedTables.indexOf(collection.collectionName) < 0) {
-                    return callbacks.call(collection.find({}).toArray);
+            tables = results[1],
+            selectOps = _.map(tables, function (name) {
+                if (excludedTables.indexOf(name) < 0) {
+                    return config.database.knex(name).select();
                 }
             });
 
-        return when.all(selectOps).then(function (collectionData) {
+        return Promise.all(selectOps).then(function (tableData) {
             var exportData = {
                 meta: {
                     exported_on: new Date().getTime(),
@@ -56,14 +56,13 @@ exporter = function () {
                 }
             };
 
-            _.each(collections, function (collection, i) {
-                exportData.data[collection.collectionName] = collectionData[i];
+            _.each(tables, function (name, i) {
+                exportData.data[name] = tableData[i];
             });
 
-
-            return when.resolve(exportData);
+            return exportData;
         }).catch(function (err) {
-            console.log('Error exporting data: ' + err);
+            errors.logAndThrowError(err, 'Error exporting data', '');
         });
     });
 };
