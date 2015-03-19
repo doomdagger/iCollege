@@ -5,16 +5,21 @@ var _          = require('lodash'),
     schema     = require('../data/schema'),
     mongoose   = require('mongoose');
 
+// ## 关于model模块层级划分的文档介绍
+// Shelf接受三个参数，分别为methods, statics, functions
+// 对应的为: Model.prototype, Model, Schema.prototype
+//
+//
+//
 
 /**
- * My Shelf Class
- * @param base {Boolean} is this shelf the base one
- * @param methods {Object} Model instance level
- * @param statics {Object} Model Level
- * @param functions {Object} Schema Level
+ * My Shelf Class: 单例！！
+ * @param methods [Object] Model instance level
+ * @param statics [Object] Model Level
+ * @param functions [Object] Schema Level
  * @constructor
  */
-function Shelf(base, methods, statics, functions) {
+function Shelf(methods, statics, functions) {
     // # options for parent schema, descendants will override these options
     // pay attention to some specific part
     this.options = {
@@ -31,30 +36,23 @@ function Shelf(base, methods, statics, functions) {
         }
     };
 
-    // is this the base Shelf
-    // we could only have one base shelf
-    this.base = base;
-
     // methods to inherit
-    this.methods = methods || {};
-
+    this.methods = {};
     // static methods to inherit
-    this.statics = statics || {};
-
+    this.statics = {};
     // functions to inherit
-    this.functions = functions || {};
+    this.functions = {};
 
     // add Model to our shelf
     this.Model = mongoose.Model;
-
     // add Schema to our shelf
     this.Schema = mongoose.Schema;
 
-    // 如果是base，那把functions注册到mongoose的Schema prototype下
     // 杜绝覆盖mongoose的核心方法，所以使用了_.defaults，而非_.extend
-    if (this.base) {
-        _.defaults(this.Schema.prototype, this.functions);
-        _.defaults(this.Model, this.statics);
+    if (methods || statics || functions) {
+        _.defaults(this.Model.prototype, methods);
+        _.defaults(this.Model, statics);
+        _.defaults(this.Schema.prototype, functions);
     }
 }
 
@@ -66,15 +64,13 @@ function Shelf(base, methods, statics, functions) {
  * @returns {Shelf} return a brand new Shelf object
  */
 Shelf.prototype.extend = function(methods, statics, functions) {
-    var extended = new Shelf(false, methods, statics, functions);
+    var extended = new Shelf();
     // extend methods for default schema
-    _.defaults(extended.methods, this.methods);
-
+    _.extend(extended.methods, this.methods, methods);
     // extend statics for default schema
-    _.defaults(extended.statics, this.statics);
-
+    _.extend(extended.statics, this.statics, statics);
     // extend functions for default schema
-    _.defaults(extended.functions, this.functions);
+    _.extend(extended.functions, this.functions, functions);
 
     return extended;
 };
@@ -97,19 +93,22 @@ Shelf.prototype.schema = function (collectionName, methods, statics, functions) 
     );
 
     // extend methods for default schema
-    _.extend(defaultSchema.methods, this.methods, methods || {});
+    _.extend(defaultSchema.methods, this.methods, methods);
 
     // extend statics for default schema
-    _.extend(defaultSchema.statics, this.statics, statics || {});
+    _.extend(defaultSchema.statics, this.statics, statics);
 
     // extend schema functions
-    _.extend(defaultSchema, this.functions, functions || {});
+    _.extend(defaultSchema, this.functions, functions);
 
     // cache collection name
     defaultSchema.collectionName = collectionName;
 
     // register compulsory hooks
-    defaultSchema.initialize();
+    if (!!defaultSchema.initialize)
+        defaultSchema.initialize();
+    else
+        console.log("schema did not define initialize method");
 
     return defaultSchema;
 };

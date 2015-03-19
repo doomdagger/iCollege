@@ -15,8 +15,7 @@ var passport = require('passport'),
  */
 passport.use(new ClientPasswordStrategy(
     function (clientId, clientSecret, done) {
-        models.Client.forge({slug: clientId})
-        .fetch()
+        models.Client.findOneAsync({slug: clientId})
         .then(function (model) {
             if (model) {
                 var client = model.toJSON();
@@ -39,14 +38,12 @@ passport.use(new ClientPasswordStrategy(
  */
 passport.use(new BearerStrategy(
     function (accessToken, done) {
-        models.Accesstoken.forge({token: accessToken})
-        .fetch()
+        models.Accesstoken.findOneAsync({token: accessToken})
         .then(function (model) {
             if (model) {
                 var token = model.toJSON();
                 if (token.expires > Date.now()) {
-                    models.User.forge({id: token.user_id})
-                    .fetch()
+                    models.User.findOneAsync({id: token.user_id})
                     .then(function (model) {
                         if (model) {
                             var user = model.toJSON(),

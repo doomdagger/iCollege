@@ -22,12 +22,12 @@ var _          = require('lodash'),
 
 // ### icollegeShelf
 // Initializes a new Shelf instance called icollegeShelf, for reference elsewhere in iCollege.
-icollegeShelf = new Shelf(true, {
+icollegeShelf = new Shelf({
     // #### Model Instance Level methods, Methods
     // Methods on Model Level means model instance can invoke
 
     // Get permitted attributes from server/data/schema.js, which is where the DB schema is defined
-    permittedAttributes: function () {
+    attributes: function () {
         return _.keys(schema.collections[this.schema.collectionName]);
     },
 
@@ -70,7 +70,7 @@ icollegeShelf = new Shelf(true, {
 
     // Get the user from the options object
     contextUser: function (options) {
-        // Default to context user
+        // Default to context user, it's an user id
         if (options.context && options.context.user) {
             return options.context.user;
             // Other wise use the internal override
@@ -106,9 +106,15 @@ icollegeShelf = new Shelf(true, {
      */
     permittedOptions: function () {
         // terms to whitelist for all methods.
-        return ['context'];
+        return ['context', 'include', 'transacting'];
     },
 
+    /**
+     * A simple helper function to instantiate a new Model without needing new
+     * @param data
+     * @param options
+     * @returns {Model}
+     */
     forge: function (data, options) {
         var Self = this,
             newObj = new Self(data);
@@ -118,16 +124,6 @@ icollegeShelf = new Shelf(true, {
         return newObj;
     },
 
-    /**
-     * Filters potentially unsafe model attributes, so you can pass them to Bookshelf / Knex.
-     * @param {Object} data Has keys representing the model's attributes/fields in the database.
-     * @return {Object} The filtered results of the passed in data, containing only what's allowed in the schema.
-     */
-    filterData: function (data) {
-        var permittedAttributes = this.prototype.permittedAttributes();
-
-        return _.pick(data, permittedAttributes);
-    },
 
     /**
      * Filters potentially unsafe `options` in a model method's arguments, so you can pass them to Bookshelf / Knex.
@@ -146,12 +142,23 @@ icollegeShelf = new Shelf(true, {
     /**
      * ### Find All
      * Naive find all fetches all the data for a particular model
-     * @param {Object} options (optional)
+     * @param {Object} options (optional) mongoose options, not our options
      * @return {Promise} Collection of all Models
      */
     findAll:  function (options) {
-        options = this.filterOptions(options, 'findAll');
         return this.findAsync({}, null, options);
+    },
+
+    /**
+     * ### Generate Slug
+     * Create a string to act as the permalink for an object.
+     * @param {ghostBookshelf.Model} Model Model type to generate a slug for
+     * @param {String} base The string for which to generate a slug, usually a title or name
+     * @param {Object} options Options to pass to findOne
+     * @return {Promise(String)} Resolves to a unique slug string
+     */
+    generateSlug: function (Model, base, options) {
+        //TODO: slug? we do need slug! Pending implementation.
     }
 
 }, {
@@ -166,6 +173,8 @@ icollegeShelf = new Shelf(true, {
     },
 
     // This 'this' is Model Object, pay attention!
+    // TODO: 迫于mongoose的接受参数并没有options，我们把options放在Model instance的options字段
+    // 我们的自定义options不等于mongoose有些函数需要传入的options，我们的options仅仅负责给中间件提供帮助
     creating: function (next, newObj) {
         if (!newObj.get('created_by')) {
             newObj.set('created_by', newObj.contextUser(newObj.options));
@@ -179,7 +188,6 @@ icollegeShelf = new Shelf(true, {
         this.set('updated_at', new Date);
         next();
     }
-
 });
 
 

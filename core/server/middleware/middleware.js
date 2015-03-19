@@ -35,7 +35,7 @@ function cacheOauthServer(server) {
 middleware = {
 
     // ### Authenticate Middleware
-    // authentication has to be done for /ghost/* routes with
+    // authentication has to be done for /icollege/* routes with
     // exceptions for signin, signout, signup, forgotten, reset only
     // api and frontend use different authentication mechanisms atm
     authenticate: function (req, res, next) {
@@ -43,15 +43,15 @@ middleware = {
             subPath;
 
         // SubPath is the url path starting after any default subdirectories
-        // it is stripped of anything after the two levels `/ghost/.*?/` as the reset link has an argument
+        // it is stripped of anything after the two levels `/icollege/.*?/` as the reset link has an argument
         path = req.path;
         /*jslint regexp:true, unparam:true*/
         subPath = path.replace(/^(\/.*?\/.*?\/)(.*)?/, function (match, a) {
             return a;
         });
 
-        if (subPath.indexOf('/ghost/api/') === 0
-            && path.indexOf('/ghost/api/v0.1/authentication/') !== 0) {
+        if (subPath.indexOf('/icollege/api/') === 0
+            && path.indexOf('/icollege/api/v' + config.api.version + '/authentication/') !== 0) {
             return passport.authenticate('bearer', {session: false, failWithError: true},
                 function (err, user, info) {
                     if (err) {

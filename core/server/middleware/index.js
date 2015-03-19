@@ -60,8 +60,7 @@ function uncapitalise(req, res, next) {
 }
 
 function isSSLrequired() {
-    var forceSSL = url.parse(config.url).protocol === 'https:';
-    return !!forceSSL;
+    return url.parse(config.url).protocol === 'https:';
 }
 
 // Check to see if we should use SSL
@@ -153,13 +152,12 @@ setupMiddleware = function (appInstance) {
     // Set up API routes
     app.use(routes.apiBaseUri, routes.api(middleware));
 
-    //TODO: 我们需要全局的404和500返回结果吗
-    // ### Error handling
-    // 404 Handler
-    //app.use(errors.error404);
+    //### Error handling
+    //404 Handler
+    app.use(errors.error404);
 
-    // 500 Handler
-    //app.use(errors.error500);
+    //500 Handler
+    app.use(errors.error500);
 };
 
 module.exports = setupMiddleware;

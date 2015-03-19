@@ -62,12 +62,12 @@ SettingSchema = icollegeShelf.schema('settings', {
     // #### Model Level methods, Statics
     // Methods on Model Level means Model Class can invoke
 
-    findOneAsync: function (options) {
+    findOneAsync: function (conditions) {
         // Allow for just passing the key instead of attributes
-        if (!_.isObject(options)) {
-            options = {key: options};
+        if (!_.isObject(conditions)) {
+            conditions = {key: conditions};
         }
-        return Promise.resolve(icollegeShelf.Model.findOneAsync.call(this, options));
+        return Promise.resolve(icollegeShelf.Model.findOneAsync.call(this, conditions));
     },
 
 
