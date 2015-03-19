@@ -5,16 +5,22 @@ var _ = require('lodash'),
 
 effective = {
     user: function (id) {
-        return Models.User.findOne({id: id, status: 'all'}, {include: ['permissions', 'roles', 'roles.permissions']})
-            .then(function (foundUser) {
-                var seenPerms = {},
-                    rolePerms = _.map(foundUser.related('roles').models, function (role) {
-                        return role.related('permissions').models;
-                    }),
-                    allPerms = [],
-                    user = foundUser.toJSON();
+        var seenPerms = {},
+            allPerms = [],
+            rolePerms,
+            user;
 
-                rolePerms.push(foundUser.related('permissions').models);
+        return Models.User.findOne({_id: id}, 'permissions roles').populate('permissions').execAsync()
+            .then(function (foundUser) {
+                user = foundUser.toJSON();
+
+                return Models.Role.find({_id: {$in: foundUser.roles}}).populate("permissions").execAsync();
+            }).then(function (roles) {
+
+                rolePerms = _.map(roles, function (role) {
+                    return role.permissions;
+                });
+                rolePerms.push(user.permissions);
 
                 _.each(rolePerms, function (rolePermGroup) {
                     _.each(rolePermGroup, function (perm) {
@@ -30,18 +36,18 @@ effective = {
                     });
                 });
 
-                return {permissions: allPerms, roles: user.roles};
-            }, errors.logAndThrowError);
+                return {permissions: allPerms, roles: roles};
+            }).catch(errors.logAndThrowError);
     },
 
     app: function (appName) {
-        return Models.App.findOne({name: appName}, {withRelated: ['permissions']})
+        return Models.App.findOne({name: appName}).populate('permissions').execAsync()
             .then(function (foundApp) {
                 if (!foundApp) {
                     return [];
                 }
 
-                return {permissions: foundApp.related('permissions').models};
+                return {permissions: foundApp.permissions};
             }, errors.logAndThrowError);
     }
 };

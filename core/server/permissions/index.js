@@ -51,11 +51,16 @@ CanThisResult = function () {
 
 CanThisResult.prototype.buildObjectTypeHandlers = function (objTypes, actType, context, permissionLoad) {
     var objectTypeModelMap = {
-        post:       Models.Post,
-        role:       Models.Role,
-        user:       Models.User,
-        permission: Models.Permission,
-        setting:    Models.Settings
+        user:           Models.User,
+        notification:   Models.Notification,
+        role:           Models.Role,
+        permission:     Models.Permission,
+        group:          Models.Group,
+        circle:         Models.Circle,
+        message:        Models.Message,
+        post:           Models.Post,
+        repost:         Models.Repost,
+        setting:        Models.Settings
     };
 
     // Iterate through the object types, i.e. ['post', 'tag', 'user']

@@ -54,6 +54,7 @@ function Shelf(base, methods, statics, functions) {
     // 杜绝覆盖mongoose的核心方法，所以使用了_.defaults，而非_.extend
     if (this.base) {
         _.defaults(this.Schema.prototype, this.functions);
+        _.defaults(this.Model, this.statics);
     }
 }
 
