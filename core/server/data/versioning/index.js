@@ -32,7 +32,7 @@ function getDefaultDatabaseVersion() {
 function getDatabaseVersion() {
 
     //return Settings.findOnePromised({'key': 'databaseVersion'}, 'value').then(function (version) {
-    return Settings.find({'key': 'databaseVersion'}).then(function (version) {
+    return Settings.findOneAsync({'key': 'databaseVersion'}).then(function (version) {
         var databaseVersion;
 
         if (!version) {
