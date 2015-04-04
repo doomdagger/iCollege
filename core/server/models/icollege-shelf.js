@@ -3,7 +3,9 @@
 
 var _          = require('lodash'),
     schema     = require('../data/schema'),
-    mongoose   = require('mongoose');
+    mongoose   = require('mongoose'),
+
+    Shelf;
 
 // ## 关于model模块层级划分的文档介绍
 // Shelf接受三个参数，分别为methods, statics, functions
@@ -19,7 +21,7 @@ var _          = require('lodash'),
  * @param functions [Object] Schema Level
  * @constructor
  */
-function Shelf(methods, statics, functions) {
+Shelf = function Shelf(methods, statics, functions) {
     // # options for parent schema, descendants will override these options
     // pay attention to some specific part
     this.options = {
@@ -54,7 +56,7 @@ function Shelf(methods, statics, functions) {
         _.defaults(this.Model, statics);
         _.defaults(this.Schema.prototype, functions);
     }
-}
+};
 
 /**
  * extend the base Shelf object to gain some inherited methods
@@ -122,3 +124,5 @@ Shelf.prototype.schema = function (collectionName, methods, statics, functions) 
 Shelf.prototype.model = function (modelName, schemaObject) {
     return mongoose.model(modelName, schemaObject);
 };
+
+module.exports = Shelf;
