@@ -44,7 +44,7 @@ db = {
     },
     /**
      * ### Import Content
-     * Import posts, tags etc from a JSON blob
+     * Import messages, posts etc from a JSON blob
      *
      * @public
      * @param {{context}} options
@@ -89,7 +89,13 @@ db = {
         options = options || {};
 
         return canThis(options.context).deleteAllContent.db().then(function () {
-            return Promise.resolve(models.deleteAllContent())
+
+            //delete all content from message and post tables
+            return Promise.resolve(function () {
+                return models.Message.removeAsync();
+            }.then(function () {
+                    return models.Post.removeAsync();
+                }))
                 .return({db: []})
                 .catch(function (error) {
                     return Promise.reject(new errors.InternalServerError(error.message || error));
