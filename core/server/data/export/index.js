@@ -41,7 +41,8 @@ exporter = function () {
             tables = results[1],
             selectOps = _.map(tables, function (name) {
                 if (excludedTables.indexOf(name) < 0) {
-                    return config.database.knex(name).select();
+                    return utils.operations.findDocuments(name);
+                    //return config.database.knex(name).select();
                 }
             });
 

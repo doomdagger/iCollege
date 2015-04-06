@@ -16,6 +16,7 @@ var mongoose    = require('mongoose'),
 
 var operations = {
     /**
+     * ### Create collection
      * Create Collection with specified property
      * @param [collectionName] (string) – the collection name we wish to filter by.
      * @param [options] (object) – returns option results.
@@ -35,6 +36,7 @@ var operations = {
 },
 
     /**
+     * ### Drop collection
      * Drop a collection from the database,removing it permanently.
      * New accesses will create a new collection.
      * @param collectionName (string) – the name of the collection we wish to drop.
@@ -53,6 +55,7 @@ var operations = {
     },
 
     /**
+     * ### Fetch collection
      * Fetch all collections for the current db.
      * @returns {Promise}
      */
@@ -71,6 +74,7 @@ var operations = {
 
 
     /**
+     * ### Fetch collection
      * Get the list of all collection names for the specified db
      * [collectionName] (string) – the collection name we wish to filter by.
      * [options] (object) – additional options during update.
@@ -91,6 +95,7 @@ var operations = {
     },
 
     /**
+     * ### Inspect collection
      * inspect the collection whether exist.
      * @param [collectionName] (string) – the collection name we wish to detect.
      * @returns {Promise|*}
@@ -105,6 +110,7 @@ var operations = {
     },
 
     /**
+     * ### Safe drop collections
      * safe drop all of exist collections!
      * @returns {Promise|*}
      */
@@ -125,6 +131,7 @@ var operations = {
     },
 
     /**
+     * ### Inserts a single document
      * Inserts a single document or a an array of documents into collection.
      * @param collectionName (string) – the collection name we wish to insert documents.
      * @param docs (array) – the content of documents
@@ -164,11 +171,13 @@ var operations = {
                 return;
             }
             deferred.resolve(result);
+            return result;
         });
     },
 
 
     /**
+     * ### Removes Document
      * Removes documents specified by selector from the db.
      * @param collectionName (string) – the collection name we wish to remove documents.
      * @param selector (object) – optional select, no selector is equivalent to removing all documents.
@@ -191,6 +200,7 @@ var operations = {
     },
 
     /**
+     * ### Find Document
      * Creates a cursor for a query that can be used to iterate over results from mongodb.
      * @param collectionName (string) – the collection name we wish to find documents.
      * @param query (object) – query object to locate the object to modify
@@ -208,6 +218,7 @@ var operations = {
                 return;
             }
             deferred.resolve(result);
+            return result;
         });
     }
 };
