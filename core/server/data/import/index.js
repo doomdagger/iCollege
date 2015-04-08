@@ -195,14 +195,17 @@ validate = function validate(data) {
 
 module.exports = function (data) {
 
-    var sanitizeResults = sanitize(data);
-    data = sanitizeResults.data;
+    //TODO : we don't need this function at this time
+    //var sanitizeResults = sanitize(data);
+    //data = sanitizeResults.data;
 
     return validate(data).then(function () {
         return importer.importData(data);
-    }).then(function () {
-        return sanitizeResults;
-    }).catch(function (result) {
+    })
+    //    .then(function () {
+    //    return sanitizeResults;
+    //})
+        .catch(function (result) {
         return handleErrors(result);
     });
 };

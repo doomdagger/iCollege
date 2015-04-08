@@ -66,7 +66,7 @@ updateSettingsCache = function (settings) {
     }
 
     return dataProvider.Settings.findAll()
-        .then(function (result) {
+            .then(function (result) {
             settingsCache = readSettingsResult(result.models);
 
             updateConfigTheme();
@@ -294,7 +294,7 @@ settings = {
 
         // If there is no context, return only blog settings
         if (!options.context) {
-            return Promise.resolve(_.filter(result.settings, function (setting) { return setting.type === 'blog'; }));
+            return Promise.resolve(_.filter(result.settings, function (setting) { return setting.type === 'post'; }));
         }
 
         // Otherwise return whatever this context is allowed to browse
@@ -330,7 +330,7 @@ settings = {
                     );
                 }
 
-                if (setting.type === 'blog') {
+                if (setting.type === 'post') {
                     return Promise.resolve(settingsResult(result));
                 }
 
