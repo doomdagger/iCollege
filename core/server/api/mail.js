@@ -58,12 +58,12 @@ mail = {
      * @returns {Promise}
      */
     sendTest: function (options) {
-        return Models.User.findOne({id: options.context.user}).then(function (result) {
+        return Models.User.findOneAsync({id: options.context.user}).then(function (result) {
             return mail.generateContent({template: 'test'}).then(function (emailContent) {
                 var payload = {mail: [{
                     message: {
                         to: result.get('email'),
-                        subject: 'Test Ghost Email',
+                        subject: 'Test iCollege Email',
                         html: emailContent.html,
                         text: emailContent.text
                     }
