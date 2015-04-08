@@ -17,7 +17,7 @@ var _            = require('lodash'),
  * ## Mail API Methods
  *
  * **See:** [API Methods](index.js.html#api%20methods)
- * @typedef Mail
+ * @typedef mail
  * @param mail
  */
 mail = {
@@ -26,7 +26,8 @@ mail = {
      * Send an email
      *
      * @public
-     * @param {Mail} object details of the email to send
+     * @param {mail} object details of the email to send
+     * @param {options} options of the email
      * @returns {Promise}
      */
     send: function (object, options) {
