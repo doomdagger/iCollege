@@ -6,7 +6,6 @@
 
 var _              = require('lodash'),
     Promise        = require('bluebird'),
-    config         = require('../config'),
     // Include Endpoints
     configuration  = require('./configuration'),
     db             = require('./db'),
@@ -48,7 +47,7 @@ init = function () {
  * @param {Object} result API method result
  * @return {Promise(String)} Resolves to header string
  */
-cacheInvalidationHeader = function (req, result) {
+cacheInvalidationHeader = function (/*req, result*/) {
     //var parsedUrl = req._parsedUrl.pathname.replace(/^\/|\/$/g, '').split('/'),
     //    method = req.method,
     //    endpoint = parsedUrl[0],
@@ -97,7 +96,7 @@ cacheInvalidationHeader = function (req, result) {
  * @param {Object} result API method result
  * @return {Promise(String)} Resolves to header string
  */
-locationHeader = function (req, result) {
+locationHeader = function (/*req, result*/) {
     //var apiRoot = config.urlFor('api'),
     //    location,
     //    newObject;

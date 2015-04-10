@@ -1,6 +1,5 @@
 // # API routes
 var express     = require('express'),
-    api         = require('../api'),
     apiRoutes;
 
 apiRoutes = function (/*middleware*/) {

@@ -21,6 +21,8 @@ var _               = require('lodash'),
     schemaCollections = _.keys(schema),
 
     init,
+    logInfo,
+    backupDatabase,
     reset,
     migrateUp,
     migrateUpFreshDb,
@@ -47,8 +49,8 @@ backupDatabase = function backupDatabase() {
             return Promise.promisify(fs.writeFile)(fileName, JSON.stringify(data)).then(function () {
                 logInfo('Database backup is completed. Data is written to: ' + fileName);
             });
-        })
-    })
+        });
+    });
 };
 
 /**
@@ -80,7 +82,7 @@ init = function () {
         if (databaseVersion === defaultVersion) {
             // 1. The database exists and is up-to-date
             logInfo('Your database is already up-to-date. Current database version is: ' + databaseVersion);
-            return when.resolve();
+            return Promise.resolve();
         }
 
         if (databaseVersion > defaultVersion) {

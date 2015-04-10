@@ -4,8 +4,6 @@
  * Use this class to populate or update database data
  */
 var _           = require('lodash'),
-    promise     = require('bluebird'),
-    node_uuid   = require('node-uuid'),
     User        = require('../../models/user').User,
     Role        = require('../../models/role').Role,
     Permission  = require('../../models/permission').Permission,
@@ -32,8 +30,8 @@ populateFixtures = function () {
         r = [],
         psa = [],
         pa = [],
-        pi = [],
-        ops = [];
+        pi = [];
+        //ops = [];
 
     // we need super administrator's _id to ...
     // ... fill in created_by and updated_by for each object
@@ -97,7 +95,7 @@ populateFixtures = function () {
         pa.each(function (permission) {permission.saveAsync();}).then(function () {
             pi.each(function (permission) {permission.saveAsync();}).then(function () {
                 r.each(function (role) {role.saveAsync();}).then(function () {
-                    u.each(function (user) {user.saveAsync();})
+                    u.each(function (user) {user.saveAsync();});
                 });
             });
         });

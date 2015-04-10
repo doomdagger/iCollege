@@ -1,7 +1,6 @@
 /*jslint regexp: true */
 var _                          = require('lodash'),
     colors                     = require('colors'),
-    path                       = require('path'),
     Promise                    = require('bluebird'),
     NotFoundError              = require('./not-found-error'),
     BadRequestError            = require('./bad-request-error'),
@@ -13,7 +12,6 @@ var _                          = require('lodash'),
     UnsupportedMediaTypeError  = require('./unsupported-media-type-error'),
     EmailError                 = require('./email-error'),
     DataImportError            = require('./data-import-error'),
-    config,
     errors;
 
 // This is not useful but required for jshint

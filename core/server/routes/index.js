@@ -1,5 +1,4 @@
-var api          = require('./api'),
-    config       = require('../config');
+var api          = require('./api');
 
 module.exports = {
     api: api

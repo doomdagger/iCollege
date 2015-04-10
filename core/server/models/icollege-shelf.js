@@ -107,10 +107,12 @@ Shelf.prototype.schema = function (collectionName, methods, statics, functions) 
     defaultSchema.collectionName = collectionName;
 
     // register compulsory hooks
-    if (!!defaultSchema.initialize)
+    if (!!defaultSchema.initialize) {
         defaultSchema.initialize();
-    else
+    }
+    else {
         console.log("schema did not define initialize method");
+    }
 
     return defaultSchema;
 };

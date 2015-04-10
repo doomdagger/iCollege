@@ -7,29 +7,8 @@
  * Edited by Xie Wei on 2015/2/16
  */
 
-
-//var when = require('when');
-//
-//module.exports = function (version, data) {
-//    var importer;
-//
-//    try {
-//        importer = require('./' + version);
-//    } catch (ignore) {
-//        // Zero effs given
-//    }
-//
-//    if (!importer) {
-//        return when.reject("No importer found");
-//    }
-//
-//    return importer.importData(data);
-//};
-
 var Promise     = require('bluebird'),
     _           = require('lodash'),
-    models      = require('../../models'),
-    errors      = require('../../errors'),
     User         = require('../../models/user').User,
     App          = require('../../models/app').App,
     Notification = require('../../models/notification').Notification,
@@ -43,7 +22,7 @@ var Promise     = require('bluebird'),
     Setting      = require('../../models/settings').Setting,
     //globalUtils = require('../../utils'),
 
-    internal    = {context: {internal: true}},
+    //internal    = {context: {internal: true}},
     utils,
     areEmpty,
     updatedSettingKeys,

@@ -8,7 +8,6 @@
 var _           = require('lodash'),
     Promise     = require('bluebird'),
     versioning  = require('../versioning'),
-    config      = require('../../config'),
     utils       = require('../utils'),
     serverUtils = require('../../utils'),
     errors      = require('../../errors'),

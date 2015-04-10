@@ -15,11 +15,11 @@ var config      = require('../../config'),
  * ### Create collection
  * Create Collection with specified property
  * @param [collectionName] (string) – the collection name we wish to filter by.
- * @param [options] (object) – returns option results.
+ * @param [ops] (object) – returns option results.
  */
-function createCollection(collectionName, options) {
+function createCollection(collectionName, ops) {
     var deferred = Promise.defer(),
-        options = options || {};
+        options = ops || {};
 
     config.database.db.createCollection(collectionName, options, function (err, collection) {
         if (err) {
@@ -72,12 +72,12 @@ function collections() {
  * ### Fetch collection
  * Get the list of all collection names for the specified config.database.db
  * [collectionName] (string) – the collection name we wish to filter by.
- * [options] (object) – additional options during update.
+ * [ops] (object) – additional options during update.
  * @returns {Promise}
  */
-function collectionNames(collectionName,options) {
+function collectionNames(collectionName,ops) {
     var deferred = Promise.defer(),
-        options = options || {};
+        options = ops || {};
 
     config.database.db.collectionNames(collectionName, options, function (err, names) {
         if (err) {
@@ -118,7 +118,7 @@ function safeDropCollections() {
         }), function (collection) {
             return function () {
                 return dropCollection(collection.collectionName);
-            };s
+            };
         });
 
         //return sequence(tasks);
@@ -131,13 +131,13 @@ function safeDropCollections() {
  * Inserts a single document or a an array of documents into collection.
  * @param collectionName (string) – the collection name we wish to insert documents.
  * @param docs (array) – the content of documents
- * @param options (object) – optional options for insert command
+ * @param ops (object) – optional options for insert command
  * @returns {Promise}
  */
-function insertDocuments(collectionName, docs, options) {
+function insertDocuments(collectionName, docs, ops) {
     var collection = config.database.db.collection(collectionName),
         deferred = Promise.defer(),
-        options = options || {};
+        options = ops || {};
 
     collection.insert(docs, options, function(err, result) {
         if (err) {
@@ -153,13 +153,13 @@ function insertDocuments(collectionName, docs, options) {
  * @param collectionName (string) – the collection name we wish to update documents.
  * @param selector (object) – the query to select the document/documents to be updated
  * @param document (object) – the fields/vals to be updated, or in the case of an upsert operation, inserted.
- * @param options (object) – additional options during update.
+ * @param ops (object) – additional options during update.
  * @returns {Promise}
  */
-function updateDocuments(collectionName, selector, document, options) {
+function updateDocuments(collectionName, selector, document, ops) {
     var collection = config.database.db.collection(collectionName),
         deferred = Promise.defer(),
-        options = options || {};
+        options = ops || {};
 
     collection.update(selector, document, options, function(err, result) {
         if (err) {
@@ -175,15 +175,15 @@ function updateDocuments(collectionName, selector, document, options) {
  * ### Removes Document
  * Removes documents specified by selector from the config.database.db.
  * @param collectionName (string) – the collection name we wish to remove documents.
- * @param selector (object) – optional select, no selector is equivalent to removing all documents.
- * @param options (object) – additional options during remove.
+ * @param sel (object) – optional select, no selector is equivalent to removing all documents.
+ * @param ops (object) – additional options during remove.
  * @returns {Promise}
  */
-function removeDocuments(collectionName, selector, options) {
+function removeDocuments(collectionName, sel, ops) {
     var collection = config.database.db.collection(collectionName),
         deferred = Promise.defer(),
-        selector = selector || {},
-        options = options || {};
+        selector = sel || {},
+        options = ops || {};
 
     collection.remove(selector, options, function(err, result) {
         if (err) {
@@ -198,14 +198,14 @@ function removeDocuments(collectionName, selector, options) {
  * ### Find Document
  * Creates a cursor for a query that can be used to iterate over results from mongodb.
  * @param collectionName (string) – the collection name we wish to find documents.
- * @param query (object) – query object to locate the object to modify
- * @param options  (object) – additional options during update.
+ * @param qu (object) – query object to locate the object to modify
+ * @param ops  (object) – additional options during update.
  */
-function findDocuments(collectionName, query, options) {
+function findDocuments(collectionName, qu, ops) {
     var collection = config.database.db.collection(collectionName),
         deferred = Promise.defer(),
-        query = query || {},
-        options = options || {};
+        query = qu || {},
+        options = ops || {};
 
     collection.find(query, options).toArray(function(err, result) {
         if (err) {

@@ -8,13 +8,10 @@
 
 var _          = require('lodash'),
     Shelf      = require('./icollege-shelf'),
-    config     = require('../config'),
     errors     = require('../errors'),
     moment     = require('moment'),
-    Promise    = require('bluebird'),
     sanitize   = require('validator').sanitize,
     schema     = require('../data/schema'),
-    utils      = require('../utils'),
     uuid       = require('node-uuid'),
 
     icollegeShelf;
@@ -157,9 +154,9 @@ icollegeShelf = new Shelf({
      * @param {Object} options Options to pass to findOne
      * @return {Promise(String)} Resolves to a unique slug string
      */
-    generateSlug: function (Model, base, options) {
-        //TODO: slug? we do need slug! Pending implementation.
-    }
+    //generateSlug: function (Model, base, options) {
+    //    //TODO: slug? we do need slug! Pending implementation.
+    //}
 
 }, {
     // ### Schema Level Methods
@@ -169,7 +166,7 @@ icollegeShelf = new Shelf({
     // This 'this' is Schema Object
     initialize: function () {
         //TODO create 挂上hook并不好使！！！如何解决
-        //this.pre('create', this.creating);
+        this.pre('init', this.creating);
         this.pre('save', this.saving);
     },
 
@@ -186,7 +183,7 @@ icollegeShelf = new Shelf({
     // This 'this' is Model Instance Object
     saving: function (next) {
         this.set('updated_by', this.contextUser(this.options));
-        this.set('updated_at', new Date);
+        this.set('updated_at', new Date());
         next();
     }
 });

@@ -3,14 +3,10 @@
 // middleware_spec.js
 
 var _           = require('lodash'),
-    express     = require('express'),
     busboy      = require('./icollege-busboy'),
     config      = require('../config'),
-    path        = require('path'),
-    api         = require('../api'),
     passport    = require('passport'),
     errors      = require('../errors'),
-    utils       = require('../utils'),
 
     middleware,
     app,
@@ -18,11 +14,11 @@ var _           = require('lodash'),
     loginSecurity = [],
     forgottenSecurity = [];
 
-function isBlackListedFileType(file) {
-    var blackListedFileTypes = ['.hbs', '.md', '.json'],
-        ext = path.extname(file);
-    return _.contains(blackListedFileTypes, ext);
-}
+//function isBlackListedFileType(file) {
+//    var blackListedFileTypes = ['.hbs', '.md', '.json'],
+//        ext = path.extname(file);
+//    return _.contains(blackListedFileTypes, ext);
+//}
 
 function cacheApp(appInstance) {
     app = appInstance;

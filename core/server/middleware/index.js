@@ -2,13 +2,10 @@
 // The following custom middleware functions cannot yet be unit tested, and as such are kept separate from
 // the testable custom middleware functions in middleware.js
 
-var api            = require('../api'),
-    bodyParser     = require('body-parser'),
+var bodyParser     = require('body-parser'),
     config         = require('../config'),
-    crypto         = require('crypto'),
     errors         = require('../errors'),
     express        = require('express'),
-    fs             = require('fs'),
     logger         = require('morgan'),
     middleware     = require('./middleware'),
     path           = require('path'),
@@ -16,7 +13,6 @@ var api            = require('../api'),
     slashes        = require('connect-slashes'),
     storage        = require('../storage'),
     url            = require('url'),
-    _              = require('lodash'),
     passport       = require('passport'),
     oauth          = require('./oauth'),
     oauth2orize    = require('oauth2orize'),

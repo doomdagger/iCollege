@@ -21,10 +21,10 @@ function Transaction () {
 
     //It is the array of transaction for saving all of database operations.
     //The type of array's member is ObjectId.
-    this.transArrary = new Array();
+    this.transArrary = [];
 
     //ops save Promise.reject solution
-    this.ops = new Array();
+    this.ops = [];
 
     //transaction state
     //when the transaction initialize,the value of state is true meaning the transaction is not working.
@@ -49,7 +49,7 @@ Transaction.prototype.backup = function (collectionName, docs) {
         this.transArrary.push(transaction);
     });
 
-}
+};
 
 /**
  * rollback datas to database.
@@ -68,7 +68,7 @@ Transaction.prototype.rollback = function () {
             if (transaction.doc.length > 1) {
                 //If doc have only one member,it must be "_id".
                 //In this situation,the member of transaction is insert,so we just remove it.
-                collection.remove(transaction.doc, function (err, result) {
+                collection.remove(transaction.doc, function (err/*, result*/) {
                     if (err) {
                         //If it has problems while transaction,
                         //we should rollback again until documents recover.
@@ -83,7 +83,7 @@ Transaction.prototype.rollback = function () {
                 });
             }
             else {
-                collection.update({_id : transaction.doc._id}, transaction.doc, function (err, result) {
+                collection.update({_id : transaction.doc._id}, transaction.doc, function (err/*, result*/) {
                     if (err) {
                         //the same reason.
                         //this.state = true;
@@ -99,7 +99,7 @@ Transaction.prototype.rollback = function () {
         });
     }
 
-}
+};
 
 //Transaction.prototype.insert = function (collectionName, documents, options) {
 //

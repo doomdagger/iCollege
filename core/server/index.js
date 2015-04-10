@@ -2,13 +2,9 @@
 var express     = require('express'),
     compress    = require('compression'),
     methodOver  = require('method-override'),
-    fs          = require('fs'),
-    _           = require('lodash'),
-    Promise     = require('bluebird'),
 
     api         = require('./api'),
     config      = require('./config'),
-    errors      = require('./errors'),
     mailer      = require('./mail'),
     middleware  = require('./middleware'),
     migrations  = require('./data/migration'),

@@ -1,9 +1,7 @@
-var schema    = require('../schema').collections,
-    _         = require('lodash'),
+var _         = require('lodash'),
     validator = require('validator'),
     Promise   = require('bluebird'),
     errors    = require('../../errors'),
-    config    = require('../../config'),
 
     validateSchema,
     validateSettings,

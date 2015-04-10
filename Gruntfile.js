@@ -7,10 +7,7 @@
 // **Debug tip:** If you have any problems with any Grunt tasks, try running them with the `--verbose` command
 var _              = require('lodash'),
     colors         = require('colors'),
-    fs             = require('fs-extra'),
     path           = require('path'),
-    Promise        = require('bluebird'),
-    request        = require('request'),
 
     escapeChar     = process.platform.match(/^win/) ? '^' : '\\',
     cwd            = process.cwd().replace(/( |\(|\))/g, escapeChar + '$1'),
