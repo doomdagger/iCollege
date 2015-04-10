@@ -150,7 +150,7 @@ setupMiddleware = function (appInstance) {
 
     // ### Routing
     // Set up API routes
-    app.use(routes.apiBaseUri, routes.api(middleware));
+    app.use('/icollege/api/v' + config.api.version + '/', routes.api(middleware));
 
     //### Error handling
     //404 Handler

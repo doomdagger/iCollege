@@ -84,9 +84,12 @@ populateFixtures = function () {
     // then roles are ready ...
     // ... and we can add them to users:
     // admin is a SuperAdministrator, Administrator and iColleger ...
-    u[0].roles.push(r[0]._id).push(r[1]._id).push(r[2]._id);
+    u[0].roles.push(r[0]._id);
+    u[0].roles.push(r[1]._id);
+    u[0].roles.push(r[2]._id);
     // ... admin2 is an Administrator and iColleger
-    u[1].roles.push(r[1]._id).push(r[2]._id);
+    u[1].roles.push(r[1]._id);
+    u[1].roles.push(r[2]._id);
     // ... and icolleger is an iColleger
     u[2].roles.push(r[2]._id);
 

@@ -16,6 +16,7 @@ var _               = require('lodash'),
     dataExport       = require('../export'),
     utils            = require('../utils'),
     config           = require('../../config'),
+    sequence         = require('../../utils/sequence'),
 
     schemaCollections = _.keys(schema),
 

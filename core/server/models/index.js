@@ -27,7 +27,7 @@ models = {
             _.each(modelFiles, function (path, fileName) {
                 // Return early if this fileName is one of the ones we want
                 // to exclude.
-                if (_.contains(self.excludeFiles, fileName)) {
+                if (_.contains(self.excludeFiles, fileName) || !_.isString(path)) {
                     return;
                 }
 

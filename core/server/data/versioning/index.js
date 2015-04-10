@@ -6,7 +6,7 @@
  */
 
 var errors          = require('../../errors'),
-    Settings         = require('../../models').Settings,
+    Settings          = require('../../models/settings').Settings,
     defaultSettings = require('../default-settings'),
 
     initialVersion  = '000',

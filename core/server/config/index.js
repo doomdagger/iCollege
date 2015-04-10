@@ -102,9 +102,7 @@ ConfigManager.prototype.set = function (config) {
     // Otherwise default to default content path location
     contentPath = this._config.paths.contentPath || path.resolve(appRoot, 'content');
 
-    //TODO: mongoose 以及其他数据库的启动代码放置在这里，如果有需要共享的全局变量，请在文件头部声明，例如knexInstance
-    if (!mongoose.connection &&
-        this._config.database &&
+    if (this._config.database &&
         this._config.database.mongodb &&
         this._config.database.mongodb.connection) {
 
@@ -120,10 +118,9 @@ ConfigManager.prototype.set = function (config) {
     }
 
     _.merge(this._config, {
-        //TODO: 数据库实例对象在这里共享
-        //database: {
-        //    connection: mongoose.connection
-        //},
+        database: {
+            db: mongoose.connection.db
+        },
         icollegeVersion: packageInfo.version,
         paths: {
             appRoot:          appRoot,

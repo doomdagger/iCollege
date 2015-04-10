@@ -168,7 +168,8 @@ icollegeShelf = new Shelf({
     // icollege shelf will automatically invoke it.
     // This 'this' is Schema Object
     initialize: function () {
-        this.pre('create', this.creating);
+        //TODO create 挂上hook并不好使！！！如何解决
+        //this.pre('create', this.creating);
         this.pre('save', this.saving);
     },
 
