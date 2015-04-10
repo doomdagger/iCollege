@@ -5,8 +5,8 @@
  * Updated by Lu Wanbo on 2015/2/18
  */
 
-var errors          = require('../../errors'),
-    Settings          = require('../../models/settings').Settings,
+var errors         = require('../../errors'),
+    Models          = require('../../models'),
     defaultSettings = require('../default-settings'),
 
     initialVersion  = '000',
@@ -31,6 +31,7 @@ function getDefaultDatabaseVersion() {
 // This is what the database is currently at and may need to be updated
 function getDatabaseVersion() {
 
+    var Settings = Models.Settings;
     //return Settings.findOnePromised({'key': 'databaseVersion'}, 'value').then(function (version) {
     return Settings.findOneAsync({'key': 'databaseVersion'}).then(function (version) {
         var databaseVersion;
