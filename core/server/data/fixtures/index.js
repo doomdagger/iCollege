@@ -4,9 +4,12 @@
  * Use this class to populate or update database data
  */
 var _           = require('lodash'),
-    User        = require('../../models/user').User,
-    Role        = require('../../models/role').Role,
-    Permission  = require('../../models/permission').Permission,
+    Promise     = require('bluebird'),
+
+    Models      = require('../../models'),
+
+    errors      = require('../../errors'),
+    sequence    = require('../../utils/sequence'),
 
     populateFixtures;
 
@@ -26,12 +29,16 @@ var _           = require('lodash'),
 var fixtures = require('./fixtures.json');
 
 populateFixtures = function () {
+    var User      = Models.User,
+        Role       = Models.Role,
+        Permission = Models.Permission;
+
     var u = [],
         r = [],
         psa = [],
         pa = [],
-        pi = [];
-        //ops = [];
+        pi = [],
+        ops = [];
 
     // we need super administrator's _id to ...
     // ... fill in created_by and updated_by for each object
@@ -42,63 +49,66 @@ populateFixtures = function () {
         return obj;
     };
 
+    var gatherResults = function (array) {
+        _.forEach(array, function (promise) {
+            ops.push(promise);
+        });
+    };
     // so we have to create super administrator at beginning ...
     _.forEach(fixtures.users, function (user) {
         u.push(new User(user));
     });
+    u[0].saveAsync().then(function () {
+        sauid = u[0]._id;
+    });
     // ... only then we can get the _id
-    sauid = u[0]._id;
     _.forEach(u, function (user) {
         saStamp(user);
     });
 
-    // get permissions ready...
-    _.forEach(fixtures.permissions.SuperAdministrator, function (p) {
-        psa.push(saStamp(new Permission(p)));
-    });
-    _.forEach(fixtures.permissions.Administrator, function (p) {
-        pa.push(saStamp(new Permission(p)));
-    });
-    _.forEach(fixtures.permissions.iColleger, function (p) {
-        pi.push(saStamp(new Permission(p)));
-    });
-    // ... and push them into roles:
+    // get roles ready
     _.forEach(fixtures.roles, function (role) {
         r.push(saStamp(new Role(role)));
     });
-    // SuperAdministrator ...
-    _.forEach(psa, function (p) {
-        r[0].permissions.push(p._id);
+    // then get permissions ready , save them into db and push them into roles ...
+    // ... SuperAdministrator ...
+    _.forEach(fixtures.permissions.SuperAdministrator, function (p) {
+        psa.push(saStamp(new Permission(p)).save());
     });
-    // ... Administrator ...
-    _.forEach(pa, function (p) {
-        r[1].permissions.push(p._id);
-    });
-    // ... and iColleger
-    _.forEach(pi, function (p) {
-        r[2].permissions.push(p._id);
-    });
-
-    // then roles are ready ...
-    // ... and we can add them to users:
-    // admin is a SuperAdministrator, Administrator and iColleger ...
-    u[0].roles.push(r[0]._id);
-    u[0].roles.push(r[1]._id);
-    u[0].roles.push(r[2]._id);
-    // ... admin2 is an Administrator and iColleger
-    u[1].roles.push(r[1]._id);
-    u[1].roles.push(r[2]._id);
-    // ... and icolleger is an iColleger
-    u[2].roles.push(r[2]._id);
-
-    return psa.each(function (permission) {permission.saveAsync();}).then(function () {
-        pa.each(function (permission) {permission.saveAsync();}).then(function () {
-            pi.each(function (permission) {permission.saveAsync();}).then(function () {
-                r.each(function (role) {role.saveAsync();}).then(function () {
-                    u.each(function (user) {user.saveAsync();});
-                });
-            });
+    gatherResults(sequence(psa).then(function (array) {
+        _.forEach(array, function (permission) {
+            r[0].permissions.push(permission._id);
         });
+    }));
+    // ... Administrator ...
+    _.forEach(fixtures.permissions.Administrator, function (p) {
+        pa.push(saStamp(new Permission(p)).save());
+    });
+    gatherResults(sequence(pa).then(function (array) {
+        _.forEach(array, function (permission) {
+            r[1].permissions.push(permission._id);
+        });
+    }));
+    // ... and iColleger
+    _.forEach(fixtures.permissions.iColleger, function (p) {
+        pi.push(saStamp(new Permission(p)).save());
+    });
+    gatherResults(sequence(pi).then(function (array) {
+        _.forEach(array, function (permission) {
+            r[2].permissions.push(permission._id);
+        });
+    }));
+    // then save roles into db ...
+    gatherResults(sequence([].push(r[0].save(), r[1].save(), r[2].save())).then(function (array) {
+        u[0].roles.push(array[0]._id, array[1]._id, array[2]._id);
+        u[1].roles.push(array[1]._id, array[2]._id);
+        u[2].roles.push(array[2]._id);
+    }));
+    // finally save users into db ...
+    gatherResults(sequence([].push(u[0].save(), u[1].save(), u[2].save())));
+
+    return Promise.all(ops).catch(function (err) {
+        errors.logError(err);
     });
 };
 
