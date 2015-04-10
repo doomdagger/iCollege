@@ -10,7 +10,7 @@ var _               = require('lodash'),
     errors           = require('../../errors'),
 
     versioning       = require('../versioning'),
-    Settings         = require('../../models/settings').Settings,
+    Models           = require('../../models'),
     fixtures         = require('../fixtures'),
     schema           = require('../schema').collections,
     dataExport       = require('../export'),
@@ -19,6 +19,8 @@ var _               = require('lodash'),
     sequence         = require('../../utils/sequence'),
 
     schemaCollections = _.keys(schema),
+
+    Settings,
 
     init,
     logInfo,
@@ -59,6 +61,8 @@ backupDatabase = function backupDatabase() {
  * @returns {*}
  */
 init = function () {
+
+    Settings = Models.Settings;
     var self = this;
     // There are 4 possibilities:
     // 1. The database exists and is up-to-date
