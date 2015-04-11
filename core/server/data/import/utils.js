@@ -9,17 +9,7 @@
 
 var Promise     = require('bluebird'),
     _           = require('lodash'),
-    User         = require('../../models/user').User,
-    App          = require('../../models/app').App,
-    Notification = require('../../models/notification').Notification,
-    Role         = require('../../models/role').Role,
-    Permission   = require('../../models/permission').Permission,
-    Group        = require('../../models/group').Group,
-    Circle       = require('../../models/circle').Circle,
-    Message      = require('../../models/message').Message,
-    Post         = require('../../models/post').Post,
-    Repost       = require('../../models/repost').Repost,
-    Setting      = require('../../models/settings').Setting,
+    models       = require('../../model'),
     //globalUtils = require('../../utils'),
 
     //internal    = {context: {internal: true}},
@@ -61,7 +51,7 @@ utils = {
         _.each(jsonData, function (user) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new User(user).saveAsync()
+            transaction.ops.push(new models.User(user).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("users", [{_id : savedPerson._id}]);
@@ -80,7 +70,7 @@ utils = {
         _.each(jsonData, function (app) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new App(app).saveAsync()
+            transaction.ops.push(new models.App(app).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("apps", [{_id : savedPerson._id}]);
@@ -99,7 +89,7 @@ utils = {
         _.each(jsonData, function (notification) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new Notification(notification).saveAsync()
+            transaction.ops.push(new models.Notification(notification).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("notifications", [{_id : savedPerson._id}]);
@@ -118,7 +108,7 @@ utils = {
         _.each(jsonData, function (role) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new Role(role).saveAsync()
+            transaction.ops.push(new models.Role(role).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("roles", [{_id : savedPerson._id}]);
@@ -137,7 +127,7 @@ utils = {
         _.each(jsonData, function (permission) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new Permission(permission).saveAsync()
+            transaction.ops.push(new models.Permission(permission).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("permissions", [{_id : savedPerson._id}]);
@@ -156,7 +146,7 @@ utils = {
         _.each(jsonData, function (group) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new Group(group).saveAsync()
+            transaction.ops.push(new models.Group(group).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("groups", [{_id : savedPerson._id}]);
@@ -175,7 +165,7 @@ utils = {
         _.each(jsonData, function (circle) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new Circle(circle).saveAsync()
+            transaction.ops.push(new models.Circle(circle).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("circles", [{_id : savedPerson._id}]);
@@ -194,7 +184,7 @@ utils = {
         _.each(jsonData, function (message) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new Message(message).saveAsync()
+            transaction.ops.push(new models.Message(message).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("messages", [{_id : savedPerson._id}]);
@@ -213,7 +203,7 @@ utils = {
         _.each(jsonData, function (post) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new Post(post).saveAsync()
+            transaction.ops.push(new models.Post(post).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("posts", [{_id : savedPerson._id}]);
@@ -232,7 +222,7 @@ utils = {
         _.each(jsonData, function (repost) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new Repost(repost).saveAsync()
+            transaction.ops.push(new models.Repost(repost).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("reposts", [{_id : savedPerson._id}]);
@@ -251,7 +241,7 @@ utils = {
         _.each(jsonData, function (setting) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(new Setting(setting).saveAsync()
+            transaction.ops.push(new models.Settings(setting).saveAsync()
                 .then(function (savedPerson) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("settings", [{_id : savedPerson._id}]);

@@ -92,9 +92,9 @@ db = {
 
             //delete all content from message and post tables
             return Promise.resolve(function () {
-                return models.Message.removeAsync();
+                return models.Message.removeAllAsync();
             }.then(function () {
-                    return models.Post.removeAsync();
+                    return models.Post.removeAllAsync();
                 }))
                 .return({db: []})
                 .catch(function (error) {
