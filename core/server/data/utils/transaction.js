@@ -5,12 +5,11 @@
 
 
 
-var mongoose    = require('mongoose'),
-    Promise     = require('bluebird'),
+var Promise     = require('bluebird'),
     _           = require('lodash'),
     //Model  = require('../../models').Transaction,
-
-    db = mongoose.connection.db;
+    config      = require('../../config');
+    //db = mongoose.connection.db;
 
 
 /**
@@ -63,7 +62,7 @@ Transaction.prototype.rollback = function () {
         //this.state = false;
 
         _.each(this.transArrary, function (transaction, index) {
-            var collection = db.collection(transaction.collectionName);
+            var collection = config.database.db.collection(transaction.collectionName);
 
             if (transaction.doc.length > 1) {
                 //If doc have only one member,it must be "_id".

@@ -35,12 +35,12 @@ exportFileName = function () {
 
 
 exporter = function () {
-    return Promise.join(versioning.getDatabaseVersion(), utils.operations.collections()).then(function (results) {
+    return Promise.join(versioning.getDatabaseVersion(), utils.collections()).then(function (results) {
         var version = results[0],
             tables = results[1],
             selectOps = _.map(tables, function (name) {
                 if (excludedTables.indexOf(name) < 0) {
-                    return utils.operations.findDocuments(name);
+                    return utils.findDocuments(name);
                     //return config.database.knex(name).select();
                 }
             });
