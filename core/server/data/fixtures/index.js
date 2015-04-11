@@ -46,8 +46,8 @@ populateFixtures = function () {
 
     return Promise.try(function () {
         var roleNames = _.keys(fixtures.permissions);
+        ops.permissions = [];
         _.forEach(roleNames, function (roleName) {
-            ops.permissions = [];
             _.forEach(fixtures.permissions[roleName], function (permission) {
                 if (!_.isObject(permission.uuid)) {
                     permission.uuid = node_uuid.v4();
@@ -58,6 +58,7 @@ populateFixtures = function () {
         });
     }).then(function () {
         var opsRoleNames = _.keys(ops.permissions);
+        ops.roles = [];
         _.forEach(opsRoleNames, function (roleName) {
             sequence(ops[roleName]).then(function (arrays) {
                 _.map(fixtures.roles, function (r) {
@@ -69,7 +70,6 @@ populateFixtures = function () {
                         _.forEach(arrays, function(permission) {
                             role.permissions.push(permission._id);
                         });
-                        ops.roles = [];
                         ops.roles.push(role.saveAsync());
                     }
                 });
@@ -77,6 +77,7 @@ populateFixtures = function () {
         });
     }).then(sequence(ops.roles).then(function (array) {
         var users = [];
+        ops.users = [];
         _.forEach(fixtures.users, function (user) {
             if (! _.isObject(user.uuid)) {
                 user.uuid = node_uuid.v4();
@@ -98,7 +99,6 @@ populateFixtures = function () {
                 if (role.name === 'iColleger') {
                     user.roles.push(role._id);
                 }
-                ops.users = [];
                 ops.users.push(user.saveAsync());
             });
         });
