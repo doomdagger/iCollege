@@ -5,10 +5,11 @@
  */
 var _           = require('lodash'),
     Promise     = require('bluebird'),
+    mongoose    = require('mongoose'),
+    node_uuid        = require('node-uuid'),
 
     Models      = require('../../models'),
 
-    errors      = require('../../errors'),
     sequence    = require('../../utils/sequence'),
 
     populateFixtures;
@@ -33,83 +34,76 @@ populateFixtures = function () {
         Role       = Models.Role,
         Permission = Models.Permission;
 
-    var u = [],
-        r = [],
-        psa = [],
-        pa = [],
-        pi = [],
-        ops = [];
+    var ops = [];
 
-    // we need super administrator's _id to ...
-    // ... fill in created_by and updated_by for each object
-    var sauid;
+    // Super Administrator's _id is fixed to ffffffffffffffffffffffff
+    var sauid = mongoose.Types.ObjectId('ffffffffffffffffffffffff');
     var saStamp = function (obj) {
         obj.created_by = sauid;
         obj.updated_by = sauid;
         return obj;
     };
 
-    var gatherResults = function (array) {
-        _.forEach(array, function (promise) {
-            ops.push(promise);
+    return Promise.try(function () {
+        var roleNames = _.keys(fixtures.permissions);
+        _.forEach(roleNames, function (roleName) {
+            ops.permissions = [];
+            _.forEach(fixtures.permissions[roleName], function (permission) {
+                if (!_.isObject(permission.uuid)) {
+                    permission.uuid = node_uuid.v4();
+                }
+                ops.permissions[roleName] = [];
+                ops.permissions[roleName].push(saStamp(new Permission(permission).saveAsync()));
+            });
         });
-    };
-    // so we have to create super administrator at beginning ...
-    _.forEach(fixtures.users, function (user) {
-        u.push(new User(user));
-    });
-    u[0].saveAsync().then(function () {
-        sauid = u[0]._id;
-    });
-    // ... only then we can get the _id
-    _.forEach(u, function (user) {
-        saStamp(user);
-    });
-
-    // get roles ready
-    _.forEach(fixtures.roles, function (role) {
-        r.push(saStamp(new Role(role)));
-    });
-    // then get permissions ready , save them into db and push them into roles ...
-    // ... SuperAdministrator ...
-    _.forEach(fixtures.permissions.SuperAdministrator, function (p) {
-        psa.push(saStamp(new Permission(p)).save());
-    });
-    gatherResults(sequence(psa).then(function (array) {
-        _.forEach(array, function (permission) {
-            r[0].permissions.push(permission._id);
+    }).then(function () {
+        var opsRoleNames = _.keys(ops.permissions);
+        _.forEach(opsRoleNames, function (roleName) {
+            sequence(ops[roleName]).then(function (arrays) {
+                _.map(fixtures.roles, function (r) {
+                    if (!_.isObject(r.uuid)) {
+                        r.uuid = node_uuid.v4();
+                    }
+                    if (roleName === r.name) {
+                        var role = saStamp(new Role(r));
+                        _.forEach(arrays, function(permission) {
+                            role.permissions.push(permission._id);
+                        });
+                        ops.roles = [];
+                        ops.roles.push(role.saveAsync());
+                    }
+                });
+            });
         });
-    }));
-    // ... Administrator ...
-    _.forEach(fixtures.permissions.Administrator, function (p) {
-        pa.push(saStamp(new Permission(p)).save());
-    });
-    gatherResults(sequence(pa).then(function (array) {
-        _.forEach(array, function (permission) {
-            r[1].permissions.push(permission._id);
+    }).then(sequence(ops.roles).then(function (array) {
+        var users = [];
+        _.forEach(fixtures.users, function (user) {
+            if (! _.isObject(user.uuid)) {
+                user.uuid = node_uuid.v4();
+                users.push(new User(user));
+            }
         });
-    }));
-    // ... and iColleger
-    _.forEach(fixtures.permissions.iColleger, function (p) {
-        pi.push(saStamp(new Permission(p)).save());
-    });
-    gatherResults(sequence(pi).then(function (array) {
-        _.forEach(array, function (permission) {
-            r[2].permissions.push(permission._id);
+        _.forEach(array, function (role) {
+            _.forEach(users, function (user) {
+                if (role.name === 'SuperAdministrator') {
+                    if (user.name === 'admin') {
+                        user.roles.push(role._id);
+                    }
+                }
+                if (role.name === 'Administrator') {
+                    if (user.name !== 'iColleger') {
+                        user.roles.push(role._id);
+                    }
+                }
+                if (role.name === 'iColleger') {
+                    user.roles.push(role._id);
+                }
+                ops.users = [];
+                ops.users.push(user.saveAsync());
+            });
         });
-    }));
-    // then save roles into db ...
-    gatherResults(sequence([].push(r[0].save(), r[1].save(), r[2].save())).then(function (array) {
-        u[0].roles.push(array[0]._id, array[1]._id, array[2]._id);
-        u[1].roles.push(array[1]._id, array[2]._id);
-        u[2].roles.push(array[2]._id);
-    }));
-    // finally save users into db ...
-    gatherResults(sequence([].push(u[0].save(), u[1].save(), u[2].save())));
-
-    return Promise.all(ops).catch(function (err) {
-        errors.logError(err);
-    });
+        // other fixtures saves here after users are saved
+    })).then(sequence(ops.users));
 };
 
 module.exports = {
