@@ -53,6 +53,7 @@ function getDatabaseVersion() {
 }
 
 function setDatabaseVersion() {
+    var Settings = Models.Settings;
     //return Settings.updatePromised({key: 'databaseVersion'}, {value: getDefaultDatabaseVersion()});
     return Settings.update({'key': 'databaseVersion'}, {'value': getDefaultDatabaseVersion()});
 }
