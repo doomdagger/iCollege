@@ -85,6 +85,7 @@ populateFixtures = function () {
                     users.push(saStamp(new User(user)));
                 }
             });
+            users[0]._id = sauid;
             _.forEach(array, function (role) {
                 _.forEach(users, function (user) {
                     if (role.name === 'SuperAdministrator') {
