@@ -9,7 +9,7 @@
 
 var Promise     = require('bluebird'),
     _           = require('lodash'),
-    models       = require('../../model'),
+    models       = require('../../models'),
     //globalUtils = require('../../utils'),
 
     //internal    = {context: {internal: true}},
