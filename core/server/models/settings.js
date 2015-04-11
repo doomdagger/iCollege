@@ -82,6 +82,7 @@ SettingSchema = icollegeShelf.schema('settings', {
             }
 
             var defaultSetting = _.clone(getDefaultSettings()[key]);
+            defaultSetting.uuid = uuid.v4();
             defaultSetting.value = defaultSetting.defaultValue;
 
             return Settings.forge(defaultSetting, internal).saveAsync();
@@ -101,6 +102,7 @@ SettingSchema = icollegeShelf.schema('settings', {
                 }
                 if (isMissingFromDB) {
                     defaultSetting.value = defaultSetting.defaultValue;
+                    defaultSetting.uuid = uuid.v4();
                     insertOperations.push(Settings.forge(defaultSetting, internal).saveAsync());
                 }
             });

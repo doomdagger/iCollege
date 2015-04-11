@@ -27,7 +27,7 @@ Shelf = function Shelf(methods, statics, functions) {
     this.options = {
         autoIndex: true,
         id: true,
-        _id: false, // Note that currently you must disable the _id. After data is inserted, _id and id will be assigned
+        //_id: false, // Note that currently you must disable the _id. After data is inserted, _id and id will be assigned
         toJSON: {
             getters: true,
             virtuals: false

@@ -200,15 +200,15 @@ var db = {
         // object_types map the sub-modules of api module
         object_type: {
             type: String,
-            enum: ['db', 'user', 'app', 'notification', 'role', 'permission',
-                'group', 'circle', 'message', 'post', 'repost', 'setting', 'mail'],
+            enum: ['db', 'user', 'app', 'notification', 'role', 'permission', 'group_member', 'circle_member',
+                'group', 'circle', 'message', 'post', 'repost', 'setting', 'mail', 'slug'],
             required: true
         },
         // action_types map the operations of each sub-module
         action_type: {
             type: String,
-            enum: ['edit', 'destroy', 'create', 'read', 'generate', 'exportContent',
-                'importContent', 'deleteAllContent', 'browse', 'add', 'send', 'assign'],
+            enum: ['edit', 'destroy', 'create', 'read', 'generate', 'exportContent', 'remove',
+                'favor', 'importContent', 'deleteAllContent', 'browse', 'add', 'send', 'assign'],
             required: true
         },
         object_id: {type: Schema.Types.ObjectId}, // 非必须的
@@ -468,7 +468,7 @@ var db = {
         uuid: {type: String, required: true},
         key: {type: String, required: true},
         value: {type: String},
-        type: {type: String, required: true, default: 'core', enum: ['core', 'user', 'app', 'group', 'circle']}, // TODO: add more setting types for icollege
+        type: {type: String, required: true, default: 'core', enum: ['core', 'user', 'app', 'group', 'circle', 'post']}, // TODO: add more setting types for icollege
         created_at: {type: Date, default: Date.now()},
         created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},

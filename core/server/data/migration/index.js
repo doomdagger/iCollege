@@ -10,7 +10,7 @@ var _               = require('lodash'),
     errors           = require('../../errors'),
 
     versioning       = require('../versioning'),
-    Models           = require('../../models'),
+    models           = require('../../models'),
     fixtures         = require('../fixtures'),
     schema           = require('../schema').collections,
     dataExport       = require('../export'),
@@ -20,11 +20,13 @@ var _               = require('lodash'),
 
     schemaCollections = _.keys(schema),
 
-    Settings,
-
-    init,
+    // private
     logInfo,
+    populateDefaultSettings,
     backupDatabase,
+
+    // public
+    init,
     reset,
     migrateUp,
     migrateUpFreshDb,
@@ -32,7 +34,15 @@ var _               = require('lodash'),
 
 
 logInfo = function logInfo(message) {
-    errors.logInfo('migration', message);
+    errors.logInfo('Migrations', message);
+};
+
+populateDefaultSettings = function populateDefaultSettings() {
+    // Initialise the default settings
+    logInfo('Populating default settings');
+    return models.Settings.populateDefault('databaseVersion').then(function () {
+        logInfo('Complete');
+    });
 };
 
 /**
@@ -46,7 +56,7 @@ backupDatabase = function backupDatabase() {
         // Write data into a file
         return dataExport.fileName().then(function (fileName) {
             // Get full path of exported data backup file
-            fileName = path.resolve(config.core.contentPath + '/data/' + fileName);
+            fileName = path.resolve(config.paths.contentPath + '/data/' + fileName);
 
             return Promise.promisify(fs.writeFile)(fileName, JSON.stringify(data)).then(function () {
                 logInfo('Database backup is completed. Data is written to: ' + fileName);
@@ -62,7 +72,6 @@ backupDatabase = function backupDatabase() {
  */
 init = function () {
 
-    Settings = Models.Settings;
     var self = this;
     // There are 4 possibilities:
     // 1. The database exists and is up-to-date
@@ -74,10 +83,9 @@ init = function () {
 
         if (databaseVersion < defaultVersion) {
             // 2. The database exists but is out of date
-            logInfo('Current database is out of date.' +
-                'Current version: ' + databaseVersion +  ', latest version: ' + defaultVersion + '. Upgrading...');
+            logInfo('Database upgrade required from version ' + databaseVersion + ' to ' +  defaultVersion);
             // Migrate to latest version
-            return self.migrateUp().then(function () {
+            return self.migrateUp(databaseVersion, defaultVersion).then(function () {
                 // Finally update the databases current version
                 return versioning.setDatabaseVersion();
             });
@@ -85,8 +93,8 @@ init = function () {
 
         if (databaseVersion === defaultVersion) {
             // 1. The database exists and is up-to-date
-            logInfo('Your database is already up-to-date. Current database version is: ' + databaseVersion);
-            return Promise.resolve();
+            logInfo('Up to date at version ' + databaseVersion);
+            return;
         }
 
         if (databaseVersion > defaultVersion) {
@@ -101,6 +109,7 @@ init = function () {
         if (err.message || err === 'No Database version could be found, settings collection does not exist?') {
             // 4. The database has not yet been created
             // Bring everything up from initial version.
+            logInfo('Database initialisation required for version ' + versioning.getDefaultDatabaseVersion());
             return self.migrateUpFreshDb();
         }
         // 3. The database exists but the currentVersion setting does not or cannot be understood
@@ -120,7 +129,6 @@ reset = function () {
         };
     }).reverse();
 
-
     return sequence(collections);
 };
 
@@ -135,22 +143,20 @@ safeReset = function () {
 // no version, no all; delete all collections in this database
 migrateUpFreshDb = function () {
 
-    var collections = _.map(schemaCollections, function (collection) {
-        return function () {
-            return utils.createCollection(collection);
-        };
-    });
-
-    // drop all exists!
-    return utils.safeDropCollections().then(function () {
-        // sequence creations
-        return sequence(collections).then(function () {
-            // Load the fixtures
-            return fixtures.populateFixtures().then(function () {
-                // Initialise the default settings
-                return Settings.populateDefaults();
-            });
+    var collectionSequence,
+        collections = _.map(schemaCollections, function (collection) {
+            return function () {
+                logInfo('Creating collection: ' + collection);
+                return utils.createCollection(collection);
+            };
         });
+    logInfo('Creating tables...');
+    collectionSequence = sequence(collections);
+
+    return collectionSequence.then(function () {
+        return fixtures.populateFixtures();
+    }).then(function () {
+        return populateDefaultSettings();
     });
 };
 

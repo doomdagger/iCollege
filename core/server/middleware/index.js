@@ -20,6 +20,7 @@ var bodyParser     = require('body-parser'),
     utils          = require('../utils'),
 
     app,
+    apiBaseUri,
     setupMiddleware;
 
 // ##Custom Middleware
@@ -85,6 +86,8 @@ setupMiddleware = function (appInstance) {
         corePath = config.paths.corePath,
         oauthServer = oauth2orize.createServer();
 
+    apiBaseUri = '/icollege/api/v' + config.api.version + '/';
+
     // silence JSHint without disabling unused check for the whole file
     authStrategies = authStrategies;
 
@@ -136,7 +139,7 @@ setupMiddleware = function (appInstance) {
 
     // ### Caching
     app.use(middleware.cacheControl('public'));
-    app.use(routes.apiBaseUri, middleware.cacheControl('private'));
+    app.use(apiBaseUri, middleware.cacheControl('private'));
 
     // enable authentication
     app.use(middleware.authenticate);
@@ -146,7 +149,7 @@ setupMiddleware = function (appInstance) {
 
     // ### Routing
     // Set up API routes
-    app.use('/icollege/api/v' + config.api.version + '/', routes.api(middleware));
+    app.use(apiBaseUri, routes.api(middleware));
 
     //### Error handling
     //404 Handler

@@ -102,7 +102,8 @@ ConfigManager.prototype.set = function (config) {
     // Otherwise default to default content path location
     contentPath = this._config.paths.contentPath || path.resolve(appRoot, 'content');
 
-    if (this._config.database &&
+    if (!mongoose.connection.db &&
+        this._config.database &&
         this._config.database.mongodb &&
         this._config.database.mongodb.connection) {
 
