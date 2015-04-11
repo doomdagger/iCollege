@@ -166,7 +166,7 @@ icollegeShelf = new Shelf({
     // This 'this' is Schema Object
     initialize: function () {
         //TODO create 挂上hook并不好使！！！如何解决
-        this.pre('init', this.creating);
+        //this.pre('init', this.creating);
         this.pre('save', this.saving);
     },
 
@@ -182,6 +182,9 @@ icollegeShelf = new Shelf({
 
     // This 'this' is Model Instance Object
     saving: function (next) {
+        if (!this.get('created_by')) {
+            this.set('created_by', this.contextUser(this.options));
+        }
         this.set('updated_by', this.contextUser(this.options));
         this.set('updated_at', new Date());
         next();
