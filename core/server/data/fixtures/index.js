@@ -60,7 +60,7 @@ populateFixtures = function () {
         var opsRoleNames = _.keys(ops.permissions);
         ops.roles = [];
         _.forEach(opsRoleNames, function (roleName) {
-            sequence(ops[roleName]).then(function (arrays) {
+            return sequence(ops.permissions[roleName]).then(function (arrays) {
                 _.map(fixtures.roles, function (r) {
                     if (!_.isObject(r.uuid)) {
                         r.uuid = node_uuid.v4();
@@ -75,35 +75,39 @@ populateFixtures = function () {
                 });
             });
         });
-    }).then(sequence(ops.roles).then(function (array) {
-        var users = [];
-        ops.users = [];
-        _.forEach(fixtures.users, function (user) {
-            if (! _.isObject(user.uuid)) {
-                user.uuid = node_uuid.v4();
-                users.push(new User(user));
-            }
-        });
-        _.forEach(array, function (role) {
-            _.forEach(users, function (user) {
-                if (role.name === 'SuperAdministrator') {
-                    if (user.name === 'admin') {
-                        user.roles.push(role._id);
-                    }
+    }).then(function () {
+        return sequence(ops.roles).then(function (array) {
+            var users = [];
+            ops.users = [];
+            _.forEach(fixtures.users, function (user) {
+                if (! _.isObject(user.uuid)) {
+                    user.uuid = node_uuid.v4();
+                    users.push(saStamp(new User(user)));
                 }
-                if (role.name === 'Administrator') {
-                    if (user.name !== 'iColleger') {
-                        user.roles.push(role._id);
-                    }
-                }
-                if (role.name === 'iColleger') {
-                    user.roles.push(role._id);
-                }
-                ops.users.push(user.saveAsync());
             });
-        });
-        // other fixtures saves here after users are saved
-    })).then(sequence(ops.users));
+            _.forEach(array, function (role) {
+                _.forEach(users, function (user) {
+                    if (role.name === 'SuperAdministrator') {
+                        if (user.name === 'admin') {
+                            user.roles.push(role._id);
+                        }
+                    }
+                    if (role.name === 'Administrator') {
+                        if (user.name !== 'iColleger') {
+                            user.roles.push(role._id);
+                        }
+                    }
+                    if (role.name === 'iColleger') {
+                        user.roles.push(role._id);
+                    }
+                    ops.users.push(user.saveAsync());
+                });
+            });
+            // other fixtures saves here after users are saved
+        })
+    }).then(function () {
+        return sequence(ops.users)
+    });
 };
 
 module.exports = {
