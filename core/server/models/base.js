@@ -115,8 +115,13 @@ icollegeShelf = new Shelf({
      */
     forge: function (data, options) {
         var Self = this,
-            newObj = new Self(data);
+            newObj;
+        // 没有uuid，为model instance补充
+        if (!data.uuid) {
+            data.uuid = uuid.v4();
+        }
 
+        newObj = new Self(data);
         newObj.options = options;
 
         return newObj;
@@ -145,7 +150,7 @@ icollegeShelf = new Shelf({
      */
     findAll:  function (options) {
         return this.findAsync({}, null, options);
-    }
+    },
 
     /**
      * ### Generate Slug
@@ -155,9 +160,9 @@ icollegeShelf = new Shelf({
      * @param {Object} options Options to pass to findOne
      * @return {Promise(String)} Resolves to a unique slug string
      */
-    //generateSlug: function (Model, base, options) {
-    //    //TODO: slug? we do need slug! Pending implementation.
-    //}
+    generateSlug: function (Model, base, options) {
+        //TODO: we really do need to write this method
+    }
 
 }, {
     // ### Schema Level Methods

@@ -41,7 +41,7 @@ var db = {
         location: [{type: Number, index: '2dsphere', default: 0.0}], // 经纬度
         location_info: {type: String, trim: true}, // 地址位置文字描述
         tags: [{type: String, trim: true}], // 用户个性标签
-        status: {type: String, enum: ['online', 'invisible', 'offline'], default: 'offline', required: true}, // online offline or ...
+        status: {type: String, enum: ['online', 'invisible', 'offline', 'invited', 'invited-pending', 'inactive'], default: 'inactive', required: true}, // online offline or ...
         last_login: {type: Date},
 
         settings: {

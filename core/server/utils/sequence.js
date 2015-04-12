@@ -1,5 +1,5 @@
 // # Bluebird extension
-// Bluebird does not have function sequence promise
+// Bluebird does not have function sequencing promise
 
 var Promise = require('bluebird');
 

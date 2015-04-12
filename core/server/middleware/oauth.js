@@ -4,7 +4,7 @@ var oauth2orize = require('oauth2orize'),
     errors      = require('../errors'),
 
     oauth;
-
+//TODO: finish oauth ok?
 oauth = {
 
     init: function (oauthServer, resetSpamCounter) {
@@ -20,8 +20,7 @@ oauth = {
         // application issues an access token on behalf of the user who authorized the code.
         oauthServer.exchange(oauth2orize.exchange.password(function (client, username, password, scope, done) {
             // Validate the client
-            models.Client.forge({slug: client.slug})
-                .fetch()
+            models.Client.findOneAsync({slug: client.slug})
                 .then(function (client) {
                     if (!client) {
                         return done(new errors.NoPermissionError('Invalid client.'), false);
