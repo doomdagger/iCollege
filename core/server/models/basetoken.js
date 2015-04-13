@@ -47,12 +47,6 @@ basetokenShelf = icollegeShelf.extend({
 
 }, {
     // override for base function since we don't have
-    // a created_by field for sessions
-    creating: function (next, newObj) {
-        next(newObj);
-    },
-
-    // override for base function since we don't have
     // a updated_by field for sessions
     saving: function (next) {
         next();

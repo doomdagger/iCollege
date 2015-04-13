@@ -11,7 +11,6 @@ var _            = require('lodash'),
     docName      = 'settings',
     settings,
 
-    updateConfigTheme,
     updateSettingsCache,
     settingsFilter,
     filterPaths,
@@ -29,21 +28,6 @@ var _            = require('lodash'),
      */
     settingsCache = {};
 
-/**
-* ### Updates Config Theme Settings
-* Maintains the cache of theme specific variables that are reliant on settings.
-* @private
-*/
-updateConfigTheme = function () {
-    config.set({
-        theme: {
-            title: (settingsCache.title && settingsCache.title.value) || '',
-            description: (settingsCache.description && settingsCache.description.value) || '',
-            logo: (settingsCache.logo && settingsCache.logo.value) || '',
-            cover: (settingsCache.cover && settingsCache.cover.value) || ''
-        }
-    });
-};
 
 /**
  * ### Update Settings Cache
@@ -60,7 +44,6 @@ updateSettingsCache = function (settings) {
             settingsCache[key] = setting;
         });
 
-        updateConfigTheme();
 
         return Promise.resolve(settingsCache);
     }
@@ -69,7 +52,6 @@ updateSettingsCache = function (settings) {
             .then(function (result) {
             settingsCache = readSettingsResult(result.models);
 
-            updateConfigTheme();
 
             return settingsCache;
         });

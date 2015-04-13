@@ -7,6 +7,7 @@
 // allowed to access data via the API.
 
 var _          = require('lodash'),
+    mongoose   = require('mongoose'),
     Shelf      = require('./icollege-shelf'),
     errors     = require('../errors'),
     moment     = require('moment'),
@@ -72,7 +73,7 @@ icollegeShelf = new Shelf({
             return options.context.user;
             // Other wise use the internal override
         } else if (options.context && options.context.internal) {
-            return 1;
+            return mongoose.Types.ObjectId("ffffffffffffffffffffffff");
         } else {
             errors.logAndThrowError(new Error('missing context'));
         }
@@ -114,8 +115,13 @@ icollegeShelf = new Shelf({
      */
     forge: function (data, options) {
         var Self = this,
-            newObj = new Self(data);
+            newObj;
+        // 没有uuid，为model instance补充
+        if (!data.uuid) {
+            data.uuid = uuid.v4();
+        }
 
+        newObj = new Self(data);
         newObj.options = options;
 
         return newObj;
@@ -154,9 +160,9 @@ icollegeShelf = new Shelf({
      * @param {Object} options Options to pass to findOne
      * @return {Promise(String)} Resolves to a unique slug string
      */
-    //generateSlug: function (Model, base, options) {
-    //    //TODO: slug? we do need slug! Pending implementation.
-    //}
+    generateSlug: function (Model, base, options) {
+        //TODO: we really do need to write this method
+    }
 
 }, {
     // ### Schema Level Methods
@@ -165,20 +171,10 @@ icollegeShelf = new Shelf({
     // icollege shelf will automatically invoke it.
     // This 'this' is Schema Object
     initialize: function () {
-        //TODO create 挂上hook并不好使！！！如何解决
-        //this.pre('init', this.creating);
-        this.pre('save', this.saving);
+        //hook这里，只有init save validate这几个是可用的
+        this.pre('validate', this.saving);
     },
 
-    // This 'this' is Model Object, pay attention!
-    // TODO: 迫于mongoose的接受参数并没有options，我们把options放在Model instance的options字段
-    // 我们的自定义options不等于mongoose有些函数需要传入的options，我们的options仅仅负责给中间件提供帮助
-    creating: function (next, newObj) {
-        if (!newObj.get('created_by')) {
-            newObj.set('created_by', newObj.contextUser(newObj.options));
-        }
-        next(newObj);
-    },
 
     // This 'this' is Model Instance Object
     saving: function (next) {

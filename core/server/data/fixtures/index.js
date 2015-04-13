@@ -6,13 +6,23 @@
 var _           = require('lodash'),
     Promise     = require('bluebird'),
     mongoose    = require('mongoose'),
-    node_uuid        = require('node-uuid'),
+    uuid        = require('node-uuid'),
+    errors      = require('../../errors'),
 
-    Models      = require('../../models'),
-
+    models      = require('../../models'),
     sequence    = require('../../utils/sequence'),
+    fixtures    = require('./fixtures.json'),
+    internal    = {context: {internal: true}},
 
-    populateFixtures;
+    // private
+    logInfo,
+    addAllPermissions,
+    addAllRoles,
+    addAllRolesPermissions,
+    addRolesPermissionsForRole,
+    addAllUsers,
+
+    populate;
 
 // before handle, populate demo user or posts or message data
 // into database.
@@ -27,90 +37,106 @@ var _           = require('lodash'),
 // Attention: Super Administrator's uuid is special, because we need to know it beforehand
 // in order to fetch it by hard-coded codes.
 //noinspection JSUnresolvedFunction
-var fixtures = require('./fixtures.json');
 
-populateFixtures = function () {
-    var User      = Models.User,
-        Role       = Models.Role,
-        Permission = Models.Permission;
+logInfo = function logInfo(message) {
+    errors.logInfo('Migrations', message);
+};
 
+
+addAllPermissions = function (options) {
     var ops = [];
-
-    // Super Administrator's _id is fixed to ffffffffffffffffffffffff
-    var sauid = mongoose.Types.ObjectId('ffffffffffffffffffffffff');
-    var saStamp = function (obj) {
-        obj.created_by = sauid;
-        obj.updated_by = sauid;
-        return obj;
-    };
-
-    return Promise.try(function () {
-        var roleNames = _.keys(fixtures.permissions);
-        ops.permissions = [];
-        _.forEach(roleNames, function (roleName) {
-            _.forEach(fixtures.permissions[roleName], function (permission) {
-                if (!_.isObject(permission.uuid)) {
-                    permission.uuid = node_uuid.v4();
-                }
-                ops.permissions[roleName] = [];
-                ops.permissions[roleName].push(saStamp(new Permission(permission).saveAsync()));
+    _.each(fixtures.permissions, function (permissions, objectType) {
+        _.each(permissions, function (permission) {
+            ops.push(function () {
+                permission.uuid = uuid.v4();
+                permission.object_type = objectType;
+                return models.Permission.forge(permission, options).saveAsync();
             });
         });
-    }).then(function () {
-        var opsRoleNames = _.keys(ops.permissions);
-        ops.roles = [];
-        _.forEach(opsRoleNames, function (roleName) {
-            return sequence(ops.permissions[roleName]).then(function (arrays) {
-                _.map(fixtures.roles, function (r) {
-                    if (!_.isObject(r.uuid)) {
-                        r.uuid = node_uuid.v4();
-                    }
-                    if (roleName === r.name) {
-                        var role = saStamp(new Role(r));
-                        _.forEach(arrays, function(permission) {
-                            role.permissions.push(permission._id);
-                        });
-                        ops.roles.push(role.saveAsync());
-                    }
-                });
-            });
+    });
+
+    return sequence(ops);
+};
+
+addAllRoles = function (options) {
+    var ops = [];
+    _.each(fixtures.roles, function (role) {
+        ops.push(function () {
+            role.uuid = uuid.v4();
+            return models.Role.forge(role, options).saveAsync();
         });
-    }).then(function () {
-        return sequence(ops.roles).then(function (array) {
-            var users = [];
-            ops.users = [];
-            _.forEach(fixtures.users, function (user) {
-                if (! _.isObject(user.uuid)) {
-                    user.uuid = node_uuid.v4();
-                    users.push(saStamp(new User(user)));
+    });
+
+    return sequence(ops);
+};
+
+addRolesPermissionsForRole = function (roleName) {
+    var fixturesForRole = fixtures.permissions_roles[roleName],
+        permissionsToAdd;
+
+    return models.Permission.findAll().then(function (permissions) {
+        if (_.isObject(fixturesForRole)) {
+            permissionsToAdd = _.map(permissions, function (permission) {
+                var objectPermissions = fixturesForRole[permission.object_type];
+                if (objectPermissions === 'all') {
+                    return permission.id;
+                } else if (_.isArray(objectPermissions) && _.contains(objectPermissions, permission.action_type)) {
+                    return permission.id;
                 }
+                return null;
             });
-            users[0]._id = sauid;
-            _.forEach(array, function (role) {
-                _.forEach(users, function (user) {
-                    if (role.name === 'SuperAdministrator') {
-                        if (user.name === 'admin') {
-                            user.roles.push(role._id);
-                        }
-                    }
-                    if (role.name === 'Administrator') {
-                        if (user.name !== 'iColleger') {
-                            user.roles.push(role._id);
-                        }
-                    }
-                    if (role.name === 'iColleger') {
-                        user.roles.push(role._id);
-                    }
-                    ops.users.push(user.saveAsync());
-                });
-            });
-            // other fixtures saves here after users are saved
-        })
-    }).then(function () {
-        return sequence(ops.users)
+        }
+
+        return models.Role.updateAsync({name: roleName}, {$push: {permission: {$each: _.compact(permissionsToAdd)}}});
     });
 };
 
+addAllRolesPermissions = function () {
+    var roleNames = _.keys(fixtures.permissions_roles),
+        ops = [];
+
+    _.each(roleNames, function (roleName) {
+        ops.push(addRolesPermissionsForRole(roleName));
+    });
+
+    return Promise.all(ops);
+};
+
+addAllUsers = function (options) {
+    var ops = [];
+    _.each(fixtures.users, function (user) {
+        ops.push(function () {
+            if (user.name === "admin") {
+                user._id = mongoose.Types.ObjectId('ffffffffffffffffffffffff');
+            }
+            user.uuid = uuid.v4();
+            return models.User.forge(user, options).saveAsync();
+        });
+    });
+
+    return sequence(ops);
+};
+
+// ## Populate
+populate = function () {
+    var options = internal;
+
+    logInfo('Populating permissions');
+    // ### Ensure all permissions are added
+    return addAllPermissions(options).then(function () {
+        // ### Ensure all roles are added
+        return addAllRoles(options);
+    }).then(function () {
+        // ### Ensure all roles_permissions are added
+        return addAllRolesPermissions();
+    }).then(function () {
+        // ### Ensure all roles_permissions are added
+        return addAllUsers(options);
+    });
+};
+
+
+
 module.exports = {
-    populateFixtures: populateFixtures
+    populateFixtures: populate
 };

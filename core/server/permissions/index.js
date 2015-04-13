@@ -20,7 +20,6 @@ function hasActionsMap() {
     });
 }
 
-// TODO: Move this to its own file so others can use it?
 function parseContext(context) {
     // Parse what's passed to canThis.beginCheck for standard user and app scopes
     var parsed = {
@@ -111,7 +110,6 @@ CanThisResult.prototype.buildObjectTypeHandlers = function (objTypes, actType, c
                         }
 
                         // Otherwise, check if the id's match
-                        // TODO: String vs Int comparison possibility here?
                         return modelId === permObjId;
                     };
                 // Check user permissions for matching action, object and id.

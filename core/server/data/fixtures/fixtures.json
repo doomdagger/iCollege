@@ -1,10 +1,9 @@
 {
   "users": [
     {
-      "uuid": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "nickname": "SuperAdministrator",
       "slug": "admin",
       "name": "admin",
-      "nickname": "SuperAdministrator",
       "password": "123456",
       "email": "admin@icollege.com",
       "phone": "18877776666",
@@ -32,319 +31,6 @@
       "location": [0.0, 0.0]
     }
   ],
-
-  "permissions": {
-    "SuperAdministrator": [
-      {
-        "name": "Export database",
-        "object_type": "db",
-        "action_type": "exportContent"
-      },
-      {
-        "name": "Import database",
-        "object_type": "db",
-        "action_type": "importContent"
-      },
-      {
-        "name": "Delete all content",
-        "object_type": "db",
-        "action_type": "deleteAllContent"
-      }
-    ],
-    "Administrator": [
-      {
-        "name": "Browse settings",
-        "object_type": "setting",
-        "action_type": "browse"
-      },
-      {
-        "name": "Read setting",
-        "object_type": "setting",
-        "action_type": "read"
-      },
-
-      {
-        "name": "Edit app",
-        "object_type": "app",
-        "action_type": "edit"
-      },
-      {
-        "name": "Edit notification",
-        "object_type": "notification",
-        "action_type": "edit"
-      },
-      {
-        "name": "Edit message",
-        "object_type": "message",
-        "action_type": "edit"
-      },
-
-      {
-        "name": "Edit repost",
-        "object_type": "repost",
-        "action_type": "edit"
-      },
-      {
-        "name": "Edit setting",
-        "object_type": "setting",
-        "action_type": "edit"
-      },
-      {
-        "name": "Add user",
-        "object_type": "user",
-        "action_type": "add"
-      },
-      {
-        "name": "Add app",
-        "object_type": "app",
-        "action_type": "add"
-      },
-      {
-        "name": "Remove user",
-        "object_type": "user",
-        "action_type": "remove"
-      },
-      {
-        "name": "Remove app",
-        "object_type": "app",
-        "action_type": "remove"
-      },
-      {
-        "name": "Remove notification",
-        "object_type": "notification",
-        "action_type": "remove"
-      },
-
-      {
-        "name": "Remove message",
-        "object_type": "message",
-        "action_type": "remove"
-      },
-
-      {
-        "name": "Create notification",
-        "object_type": "notification",
-        "action_type": "create"
-      }
-    ],
-    "iColleger": [
-      {
-        "name": "Browse users",
-        "object_type": "user",
-        "action_type": "browse"
-      },
-      {
-        "name": "Browse apps",
-        "object_type": "app",
-        "action_type": "browse"
-      },
-      {
-        "target_id": "iColleger",
-        "name": "Browse notification",
-        "object_type": "notification",
-        "action_type": "browse"
-      },
-      {
-        "name": "Browse groups",
-        "object_type": "group",
-        "action_type": "browse"
-      },
-      {
-        "name": "Browse circles",
-        "object_type": "circle",
-        "action_type": "browse"
-      },
-      {
-        "target_id": "iColleger",
-        "name": "Browse posts",
-        "object_type": "post",
-        "action_type": "browse"
-      },
-      {
-        "target_id": "iColleger",
-        "name": "Browse reposts",
-        "object_type": "repost",
-        "action_type": "browse"
-      },
-
-      {
-        "name": "Read user",
-        "object_type": "user",
-        "action_type": "read"
-      },
-      {
-        "name": "Read app",
-        "object_type": "app",
-        "action_type": "read"
-      },
-      {
-        "name": "Read notification",
-        "object_type": "notification",
-        "action_type": "read"
-      },
-      {
-        "name": "Read group",
-        "object_type": "group",
-        "action_type": "read"
-      },
-      {
-        "name": "Read circle",
-        "object_type": "circle",
-        "action_type": "read"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Read post",
-        "object_type": "post",
-        "action_type": "read"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Read repost",
-        "object_type": "repost",
-        "action_type": "read"
-      },
-      {
-        "target_id": "iColleger",
-        "name": "Edit user",
-        "object_type": "user",
-        "action_type": "edit"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Edit group",
-        "object_type": "group",
-        "action_type": "edit"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Edit circle",
-        "object_type": "circle",
-        "action_type": "edit"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Edit post",
-        "object_type": "post",
-        "action_type": "edit"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Remove group",
-        "object_type": "group",
-        "action_type": "remove"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Remove circle",
-        "object_type": "circle",
-        "action_type": "remove"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Remove post",
-        "object_type": "post",
-        "action_type": "remove"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Remove repost",
-        "object_type": "repost",
-        "action_type": "remove"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Create group",
-        "object_type": "group",
-        "action_type": "create"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Create circle",
-        "object_type": "circle",
-        "action_type": "create"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Create message",
-        "object_type": "message",
-        "action_type": "create"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Create post",
-        "object_type": "post",
-        "action_type": "create"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Create repost",
-        "object_type": "repost",
-        "action_type": "create"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Favor post",
-        "object_type": "post",
-        "action_type": "favor"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Favor repost",
-        "object_type": "repost",
-        "action_type": "favor"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Add group member",
-        "object_type": "group_member",
-        "action_type": "add"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Add circle member",
-        "object_type": "circle_member",
-        "action_type": "add"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Edit group member",
-        "object_type": "group_member",
-        "action_type": "edit"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Edit circle member",
-        "object_type": "circle_member",
-        "action_type": "edit"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Remove group member",
-        "object_type": "group_member",
-        "action_type": "remove"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Remove circle member",
-        "object_type": "circle_member",
-        "action_type": "remove"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Browse group members",
-        "object_type": "group_member",
-        "action_type": "browse"
-      },
-      {
-        "target_id": "user_id",
-        "name": "Browse circle members",
-        "object_type": "circle_member",
-        "action_type": "browse"
-      }
-    ]
-  },
-
   "roles": [
     {
       
@@ -361,6 +47,143 @@
       "name": "iColleger",
       "description": "Normal User of iCollege"
     }
-  ]
-
+  ],
+  "permissions": {
+    "db": [
+      {
+        "name": "Export database",
+        "action_type": "exportContent"
+      },
+      {
+        "name": "Import database",
+        "action_type": "importContent"
+      },
+      {
+        "name": "Delete all content",
+        "action_type": "deleteAllContent"
+      }
+    ],
+    "mail": [
+      {
+        "name": "Send mail",
+        "action_type": "send"
+      }
+    ],
+    "notification": [
+      {
+        "name": "Browse notifications",
+        "action_type": "browse"
+      },
+      {
+        "name": "Add notifications",
+        "action_type": "add"
+      },
+      {
+        "name": "Delete notifications",
+        "action_type": "destroy"
+      }
+    ],
+    "post": [
+      {
+        "name": "Browse posts",
+        "action_type": "browse"
+      },
+      {
+        "name": "Read posts",
+        "action_type": "read"
+      },
+      {
+        "name": "Edit posts",
+        "action_type": "edit"
+      },
+      {
+        "name": "Add posts",
+        "action_type": "add"
+      },
+      {
+        "name": "Delete posts",
+        "action_type": "destroy"
+      }
+    ],
+    "setting": [
+      {
+        "name": "Browse settings",
+        "action_type": "browse"
+      },
+      {
+        "name": "Read settings",
+        "action_type": "read"
+      },
+      {
+        "name": "Edit settings",
+        "action_type": "edit"
+      }
+    ],
+    "slug": [
+      {
+        "name": "Generate slugs",
+        "action_type": "generate"
+      }
+    ],
+    "user": [
+      {
+        "name": "Browse users",
+        "action_type": "browse"
+      },
+      {
+        "name": "Read users",
+        "action_type": "read"
+      },
+      {
+        "name": "Edit users",
+        "action_type": "edit"
+      },
+      {
+        "name": "Add users",
+        "action_type": "add"
+      },
+      {
+        "name": "Delete users",
+        "action_type": "destroy"
+      }
+    ],
+    "role": [
+      {
+        "name": "Assign a role",
+        "action_type": "assign"
+      },
+      {
+        "name": "Browse roles",
+        "action_type": "browse"
+      }
+    ]
+  },
+  "permissions_roles": {
+    "SuperAdministrator": {
+      "db": "all",
+      "mail": "all",
+      "notification": "all",
+      "post": "all",
+      "setting": "all",
+      "slug": "all",
+      "user": "all",
+      "role": "all"
+    },
+    "Administrator": {
+      "post": "all",
+      "setting": ["browse", "read"],
+      "slug": "all",
+      "user": "all",
+      "setting": ["browse", "read"],
+      "role": "all"
+    },
+    "iColleger": {
+      "post": ["browse", "read", "add"],
+      "setting": ["browse", "read"],
+      "slug": "all",
+      "user": ["browse", "read"],
+      "setting": ["browse", "read"],
+      "role": ["browse"]
+    }
+  }
 }
