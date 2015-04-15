@@ -137,14 +137,13 @@ ConfigManager.prototype.set = function (config) {
             exportPath:       path.join(corePath, '/server/data/export/'),
             lang:             path.join(corePath, '/shared/lang/')
         },
-        //TODO: 确定slugs的设计思路
-        //slugs: {
-        //    // Used by generateSlug to generate slugs for posts, tags, users, ..
-        //    // reserved slugs are reserved but can be extended/removed by apps
-        //    // protected slugs cannot be changed or removed
-        //    reserved: ['admin', 'app', 'apps', 'archive', 'archives', 'categories', 'category', 'dashboard', 'feed', 'icollege-admin', 'login', 'logout', 'page', 'pages', 'post', 'posts', 'public', 'register', 'setup', 'signin', 'signout', 'signup', 'tag', 'tags', 'user', 'users', 'wp-admin', 'wp-login'],
-        //    protected: ['icollege', 'rss']
-        //},
+        slugs: {
+            // Used by generateSlug to generate slugs for posts, tags, users, ..
+            // reserved slugs are reserved but can be extended/removed by apps
+            // protected slugs cannot be changed or removed
+            reserved: ['admin', 'app', 'apps', 'archive', 'archives', 'categories', 'category', 'dashboard', 'feed', 'icollege-admin', 'login', 'logout', 'page', 'pages', 'post', 'posts', 'public', 'register', 'setup', 'signin', 'signout', 'signup', 'tag', 'tags', 'user', 'users', 'wp-admin', 'wp-login'],
+            protected: ['icollege', 'rss']
+        },
         uploads: {
             // Used by the upload API to limit uploads to images
             extensions: ['.jpg', '.jpeg', '.gif', '.png', '.svg', '.svgz'],

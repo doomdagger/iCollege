@@ -10,6 +10,9 @@ var _          = require('lodash'),
     mongoose   = require('mongoose'),
     Shelf      = require('./icollege-shelf'),
     errors     = require('../errors'),
+    filters    = require('../filters'),
+    utils      = require('../utils'),
+    config     = require('../config'),
     moment     = require('moment'),
     sanitize   = require('validator').sanitize,
     schema     = require('../data/schema'),
@@ -23,6 +26,23 @@ var _          = require('lodash'),
 icollegeShelf = new Shelf({
     // #### Model Instance Level methods, Methods
     // Methods on Model Level means model instance can invoke
+
+    // we extend the set method of Mongoose
+    // you can now also pass an object to instance, covering multiple attributes
+    set: function (key, value) {
+        if (arguments.length === 1) {
+            if (_.isObject(key)) {
+                _.each(key, function (k, v) {
+                    this.set(k, v);
+                });
+                return this;
+            }
+            return this.options[key];
+        } else {
+            this.options[key] = value;
+            return this;
+        }
+    },
 
     // Get permitted attributes from server/data/schema.js, which is where the DB schema is defined
     attributes: function () {
@@ -77,6 +97,19 @@ icollegeShelf = new Shelf({
         } else {
             errors.logAndThrowError(new Error('missing context'));
         }
+    },
+
+    // 我们需要统一options绑定到Model Instance上的行为
+    // 如果是Model类，请使用 Model.forge(data, options)
+    // 如果是Model实例（model），请使用 model.bindOptions(options)
+    //
+    bindOptions: function (options, force) {
+        if (!!this.options && force) {
+            // 如果事先有options，直接删除
+            delete this.options;
+        }
+        this.options = _.extend(this.options || {}, options);
+        return this;
     },
 
     // format date before writing to DB, bools work
@@ -161,7 +194,75 @@ icollegeShelf = new Shelf({
      * @return {Promise(String)} Resolves to a unique slug string
      */
     generateSlug: function (Model, base, options) {
-        //TODO: we really do need to write this method
+        var slug,
+            slugTryCount = 1,
+            baseName = Model.schema.collectionName.replace(/s$/, ''),
+        // Look for a matching slug, append an incrementing number if so
+            checkIfSlugExists, longSlug;
+
+        checkIfSlugExists = function (slugToFind) {
+            var args = {slug: slugToFind};
+            // status is needed for posts
+            if (options && options.status) {
+                args.status = options.status;
+            }
+            return Model.findOneAsync(args, options).then(function (found) {
+                var trimSpace;
+
+                if (!found) {
+                    return slugToFind;
+                }
+
+                slugTryCount += 1;
+
+                // If we shortened, go back to the full version and try again
+                if (slugTryCount === 2 && longSlug) {
+                    slugToFind = longSlug;
+                    longSlug = null;
+                    slugTryCount = 1;
+                    return checkIfSlugExists(slugToFind);
+                }
+
+                // If this is the first time through, add the hyphen
+                if (slugTryCount === 2) {
+                    slugToFind += '-';
+                } else {
+                    // Otherwise, trim the number off the end
+                    trimSpace = -(String(slugTryCount - 1).length);
+                    slugToFind = slugToFind.slice(0, trimSpace);
+                }
+
+                slugToFind += slugTryCount;
+
+                return checkIfSlugExists(slugToFind);
+            });
+        };
+
+        slug = utils.safeString(base);
+
+        // Remove trailing hyphen
+        slug = slug.charAt(slug.length - 1) === '-' ? slug.substr(0, slug.length - 1) : slug;
+
+        // If it's a user, let's try to cut it down (unless this is a human request)
+        if (baseName === 'user' && options && options.shortSlug && slugTryCount === 1 && slug !== 'admin') {
+            longSlug = slug;
+            slug = (slug.indexOf('-') > -1) ? slug.substr(0, slug.indexOf('-')) : slug;
+        }
+
+        // Check the filtered slug doesn't match any of the reserved keywords
+        return filters.doFilter('slug.reservedSlugs', config.slugs.reserved).then(function (slugList) {
+            // Some keywords cannot be changed
+            slugList = _.union(slugList, config.slugs.protected);
+
+            return _.contains(slugList, slug) ? slug + '-' + baseName : slug;
+        }).then(function (slug) {
+            // if slug is empty after trimming use the model name
+            if (!slug) {
+                slug = baseName;
+            }
+            // Test for duplicate slugs.
+            return checkIfSlugExists(slug);
+        });
     }
 
 }, {

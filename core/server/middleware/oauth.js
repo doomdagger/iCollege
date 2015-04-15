@@ -4,7 +4,7 @@ var oauth2orize = require('oauth2orize'),
     errors      = require('../errors'),
 
     oauth;
-//TODO: finish oauth ok?
+
 oauth = {
 
     init: function (oauthServer, resetSpamCounter) {
@@ -26,15 +26,15 @@ oauth = {
                         return done(new errors.NoPermissionError('Invalid client.'), false);
                     }
                     // Validate the user
-                    return models.User.check({email: username, password: password}).then(function (user) {
+                    return models.User.check({name: username, password: password}).then(function (user) {
                         // Everything validated, return the access- and refreshtoken
                         var accessToken = utils.uid(256),
                             refreshToken = utils.uid(256),
                             accessExpires = Date.now() + utils.ONE_HOUR_MS,
                             refreshExpires = Date.now() + utils.ONE_DAY_MS;
 
-                        return models.Accesstoken.add({token: accessToken, user_id: user.id, client_id: client.id, expires: accessExpires}).then(function () {
-                            return models.Refreshtoken.add({token: refreshToken, user_id: user.id, client_id: client.id, expires: refreshExpires});
+                        return models.Accesstoken.createAsync({token: accessToken, user_id: user.id, client_id: client.id, expires: accessExpires}).then(function () {
+                            return models.Refreshtoken.createAsync({token: refreshToken, user_id: user.id, client_id: client.id, expires: refreshExpires});
                         }).then(function () {
                             resetSpamCounter(username);
                             return done(null, accessToken, refreshToken, {expires_in: utils.ONE_HOUR_S});
@@ -52,8 +52,7 @@ oauth = {
         // for verification. If these values are validated, the application issues an
         // access token on behalf of the user who authorized the code.
         oauthServer.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken, scope, done) {
-            models.Refreshtoken.forge({token: refreshToken})
-                .fetch()
+            models.Refreshtoken.findOneAsync({token: refreshToken})
                 .then(function (model) {
                     if (!model) {
                         return done(new errors.NoPermissionError('Invalid refresh token.'), false);
@@ -64,13 +63,13 @@ oauth = {
                             refreshExpires = Date.now() + utils.ONE_DAY_MS;
 
                         if (token.expires > Date.now()) {
-                            models.Accesstoken.add({
+                            models.Accesstoken.createAsync({
                                 token: accessToken,
                                 user_id: token.user_id,
                                 client_id: token.client_id,
                                 expires: accessExpires
                             }).then(function () {
-                                return models.Refreshtoken.edit({expires: refreshExpires}, {id: token.id});
+                                return models.Refreshtoken.updateAsync({id: token.id}, {expires: {$set: refreshExpires}});
                             }).then(function () {
                                 return done(null, accessToken, {expires_in: utils.ONE_HOUR_S});
                             }).catch(function (error) {

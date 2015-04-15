@@ -41,7 +41,11 @@ var db = {
         location: [{type: Number, index: '2dsphere', default: 0.0}], // 经纬度
         location_info: {type: String, trim: true}, // 地址位置文字描述
         tags: [{type: String, trim: true}], // 用户个性标签
-        status: {type: String, enum: ['online', 'invisible', 'offline', 'invited', 'invited-pending', 'inactive'], default: 'inactive', required: true}, // online offline or ...
+        // inactive states: invited, invited-pending, inactive
+        // active-usable states: online, invisible, offline
+        // active-unusable states: locked
+        // 记录密码输入错误： 'warn-1', 'warn-2', 'warn-3', 'warn-4'
+        status: {type: String, enum: ['online', 'invisible', 'offline', 'invited', 'invited-pending', 'inactive', 'locked', 'warn-1', 'warn-2', 'warn-3', 'warn-4'], default: 'inactive', required: true}, // online offline or ...
         last_login: {type: Date},
 
         settings: {
