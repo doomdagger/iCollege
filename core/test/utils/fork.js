@@ -2,11 +2,11 @@
  * Created by psicat on 2015/4/4.
  */
 var cp         = require('child_process'),
+    Promise    = require('bluebird'),
     _          = require('lodash'),
     fs         = Promise.promisifyAll(require('fs')),
     url        = require('url'),
     net        = require('net'),
-    Promise    = require('bluebird'),
     path       = require('path'),
     config     = require('../../server/config');
 
@@ -153,7 +153,7 @@ function forkICollege(newConfig, envName) {
         });
     });
 }
-modules.exports = {
+module.exports = {
     forkConfig: forkConfig,
     forkICollege: forkICollege
 };
