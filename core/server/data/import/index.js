@@ -193,7 +193,7 @@ validate = function validate(data) {
 
 
 
-module.exports = function (data) {
+module.exports.doImport = function (data) {
 
     //TODO : we don't need this function at this time
     //var sanitizeResults = sanitize(data);
