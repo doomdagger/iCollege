@@ -4,7 +4,7 @@
 var cp         = require('child_process'),
     Promise    = require('bluebird'),
     _          = require('lodash'),
-    fs         = Promise.promisifyAll(require('fs')),
+    fs         = require('fs'),
     url        = require('url'),
     net        = require('net'),
     path       = require('path'),
@@ -73,82 +73,84 @@ function forkICollege(newConfig, envName) {
 
         return new Promise(function (resolve, reject) {
             // save provided config into a config.js ...
-            fs.writeFileAsync(newConfigFile, 'module.exports = {' + envName + ': ' + JSON.stringify(newConfig) + '}')
-                .then(function () {
-                    // and setup environment for forked iCollege
-                    var env = _.clone(process.env),
-                        baseKill,
-                        child,
-                        pingTries = 0,
-                        pingCheck,
-                        pingStop = function () {
-                            if (pingCheck) {
-                                clearInterval(pingCheck);
-                                pingCheck = undefined;
-                                return true;
-                            }
-                            return false;
-                        };
-                    env.ICOLLEGE_CONFIG = newConfigFile;
-                    env.NODE_ENV = envName;
-                    child = cp.fork(path.join(config.paths.appRoot, 'index.js'), {env: env});
-                    child.port = port;
+            fs.writeFile(newConfigFile, 'module.exports = {' + envName + ': ' + JSON.stringify(newConfig) + '}', function (err) {
+                if (err) {
+                    return reject(err);
+                }
 
-                    pingCheck = setInterval(function () {
-                        var socket = net.connect(port);
-                        socket.on('connect', function () {
-                            socket.end();
-                            if (pingStop()) {
-                                resolve(child);
-                            }
-                        });
-                        socket.on('error', function (err) {
-                            /*jshint unused:false*/
-                            pingTries = pingTries + 1;
-                            // continue checking
-                            if (pingTries >= 50 && pingStop()) {
-                                child.kill();
-                                reject(new Error('Timed out waiting for child process'));
-                            }
-                        });
-                    }, 200);
+                // setup process environment for the forked Ghost to use the new config file
+                var env = _.clone(process.env),
+                    baseKill,
+                    child,
+                    pingTries = 0,
+                    pingCheck,
+                    pingStop = function () {
+                        if (pingCheck) {
+                            clearInterval(pingCheck);
+                            pingCheck = undefined;
+                            return true;
+                        }
+                        return false;
+                    };
 
-
-                    child.on('exit', function (code, signal) {
-                        /*jshint unused:false*/
-                        child.exited = true;
-
-                        fs.unlink(newConfigFile, function () {
-                            // swallow any errors -- file may not exist if fork() failed
-                        });
-
+                env.ICOLLEGE_CONFIG = newConfigFile;
+                env.NODE_ENV = envName;
+                child = cp.fork(path.join(config.paths.appRoot, 'index.js'), {env: env});
+                // return the port to make it easier to do requests
+                child.port = port;
+                // periodic check until forked Ghost is running and is listening on the port
+                pingCheck = setInterval(function () {
+                    var socket = net.connect(port);
+                    socket.on('connect', function () {
+                        socket.end();
                         if (pingStop()) {
-                            reject(new Error('Child process exit code: ' + code));
+                            resolve(child);
                         }
                     });
-
-                    // override kill() to have an async callback
-                    baseKill = child.kill;
-                    child.kill = function (signal, cb) {
-                        if (typeof signal === 'function') {
-                            cb = signal;
-                            signal = undefined;
+                    socket.on('error', function (err) {
+                        /*jshint unused:false*/
+                        pingTries = pingTries + 1;
+                        // continue checking
+                        if (pingTries >= 50 && pingStop()) {
+                            child.kill();
+                            reject(new Error('Timed out waiting for child process'));
                         }
+                    });
+                }, 200);
 
-                        if (cb) {
-                            child.on('exit', function () {
-                                cb();
-                            });
-                        }
+                child.on('exit', function (code, signal) {
+                    /*jshint unused:false*/
+                    child.exited = true;
 
-                        if (child.exited) {
-                            process.nextTick(cb);
-                        } else {
-                            baseKill.apply(child, [signal]);
-                        }
+                    fs.unlink(newConfigFile, function () {
+                        // swallow any errors -- file may not exist if fork() failed
+                    });
+
+                    if (pingStop()) {
+                        reject(new Error('Child process exit code: ' + code));
                     }
-                }).catch(function (error) {
-                reject(error);
+                });
+
+                // override kill() to have an async callback
+                baseKill = child.kill;
+                child.kill = function (signal, cb) {
+                    if (typeof signal === 'function') {
+                        cb = signal;
+                        signal = undefined;
+                    }
+
+                    if (cb) {
+                        child.on('exit', function () {
+                            cb();
+                        });
+                    }
+
+                    if (child.exited) {
+                        process.nextTick(cb);
+                    } else {
+                        baseKill.apply(child, [signal]);
+                    }
+                };
             });
         });
     });
