@@ -123,6 +123,7 @@ ConfigManager.prototype.set = function (config) {
             db: mongoose.connection.db
         },
         icollegeVersion: packageInfo.version,
+        adminId: mongoose.Types.ObjectId('ffffffffffffffffffffffff'),
         paths: {
             appRoot:          appRoot,
             subdir:           subdir,

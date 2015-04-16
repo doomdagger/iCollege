@@ -7,7 +7,6 @@
 // allowed to access data via the API.
 
 var _          = require('lodash'),
-    mongoose   = require('mongoose'),
     Shelf      = require('./icollege-shelf'),
     errors     = require('../errors'),
     filters    = require('../filters'),
@@ -37,9 +36,9 @@ icollegeShelf = new Shelf({
                 });
                 return this;
             }
-            return this.options[key];
+            return this[key];
         } else {
-            this.options[key] = value;
+            this[key] = value;
             return this;
         }
     },
@@ -93,7 +92,7 @@ icollegeShelf = new Shelf({
             return options.context.user;
             // Other wise use the internal override
         } else if (options.context && options.context.internal) {
-            return mongoose.Types.ObjectId("ffffffffffffffffffffffff");
+            return config.adminId;
         } else {
             errors.logAndThrowError(new Error('missing context'));
         }
@@ -120,6 +119,14 @@ icollegeShelf = new Shelf({
     // format data and bool when fetching from DB
     parse: function (attrs) {
         return this.fixBools(this.fixDates(attrs));
+    },
+
+    /**
+     * I create this method for our own logic to be hooked in!
+     * @returns {*}
+     */
+    jsonify: function () {
+        return icollegeShelf.Model.prototype.toJSON.apply(this, arguments);
     },
 
     sanitize: function (attr) {
@@ -206,7 +213,7 @@ icollegeShelf = new Shelf({
             if (options && options.status) {
                 args.status = options.status;
             }
-            return Model.findOneAsync(args, options).then(function (found) {
+            return Model.findOneAsync(args).then(function (found) {
                 var trimSpace;
 
                 if (!found) {
@@ -273,9 +280,9 @@ icollegeShelf = new Shelf({
     // This 'this' is Schema Object
     initialize: function () {
         //hook这里，只有init save validate这几个是可用的
-        this.pre('validate', this.saving);
+        this.pre('save', this.saving);
+        this.pre('update', this.updating);
     },
-
 
     // This 'this' is Model Instance Object
     saving: function (next) {
@@ -285,6 +292,13 @@ icollegeShelf = new Shelf({
         this.set('updated_by', this.contextUser(this.options));
         this.set('updated_at', new Date());
         next();
+    },
+
+    // Get options from args
+    // This 'this' is Model Object
+    updating: function (next, criteria, doc, options) {
+        _.merge(doc, {$set: {'updated_at': new Date(), 'updated_by': this.prototype.contextUser(options)}});
+        next(criteria, doc);
     }
 });
 

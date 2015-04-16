@@ -50,7 +50,14 @@ basetokenShelf = icollegeShelf.extend({
     // a updated_by field for sessions
     saving: function (next) {
         next();
+    },
+
+    // override for base function since we don't have
+    // a updated_by field for sessions
+    updating: function (next, criteria, doc, options) {
+        next(criteria, doc, options);
     }
+
 });
 
 module.exports = basetokenShelf;

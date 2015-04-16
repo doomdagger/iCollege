@@ -54,9 +54,9 @@ var db = {
         },
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true},
+        updated_by: {type: Schema.Types.ObjectId},
 
         // 加入的群组
         groups: [{
@@ -66,10 +66,10 @@ var db = {
             location_share: {type: Boolean, default: true},
             profile_visible: {type: Boolean, default: false},
 
-            created_at: {type: Date, default: Date.now()}, // 记录了什么时候加入群组的信息
-            created_by: {type: Schema.Types.ObjectId, required: true},
+            created_at: {type: Date, default: Date.now()},
+            created_by: {type: Schema.Types.ObjectId},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId, required: true}
+            updated_by: {type: Schema.Types.ObjectId}
         }],
         // 加入的圈子
         circles: [{
@@ -79,10 +79,10 @@ var db = {
             location_share: {type: Boolean, default: true},
             profile_visible: {type: Boolean, default: false},
 
-            created_at: {type: Date, default: Date.now()}, // 记录了什么时候加入圈子的信息
-            created_by: {type: Schema.Types.ObjectId, required: true},
+            created_at: {type: Date, default: Date.now()},
+            created_by: {type: Schema.Types.ObjectId},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId, required: true}
+            updated_by: {type: Schema.Types.ObjectId}
         }],
         // 添加的好友
         friends: [{
@@ -94,10 +94,10 @@ var db = {
             // 获取好友列表时请筛选status为agreed的
             status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'}, // 已经成为好友了吗，好友记录会在好友申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由好友申请构建的好友系统消息不会消失
 
-            created_at: {type: Date, default: Date.now()},  // 记录了什么时候添加好友的信息
-            created_by: {type: Schema.Types.ObjectId, required: true},
+            created_at: {type: Date, default: Date.now()},
+            created_by: {type: Schema.Types.ObjectId},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId, required: true}
+            updated_by: {type: Schema.Types.ObjectId}
         }],
         // 用户角色
         roles: [{
@@ -120,18 +120,18 @@ var db = {
                 relatable_id: {type: Schema.Types.ObjectId, required: true},
                 relatable_type: {type: String, enum: ['messages', 'posts', 'groups', 'circles'], default: 'posts'},
                 created_at: {type: Date, default: Date.now()},
-                created_by: {type: Schema.Types.ObjectId, required: true},
+                created_by: {type: Schema.Types.ObjectId},
                 updated_at: {type: Date, default: Date.now()},
-                updated_by: {type: Schema.Types.ObjectId, required: true}
+                updated_by: {type: Schema.Types.ObjectId}
             }],
             app_settings: [{
                 uuid: {type: String, required: true}, // uuid
                 key: {type: String, required: true},
                 value: {type: String, default: ""},
                 created_at: {type: Date, default: Date.now()},
-                created_by: {type: Schema.Types.ObjectId, required: true},
+                created_by: {type: Schema.Types.ObjectId},
                 updated_at: {type: Date, default: Date.now()},
-                updated_by: {type: Schema.Types.ObjectId, required: true}
+                updated_by: {type: Schema.Types.ObjectId}
             }]
         }]
     },
@@ -157,9 +157,9 @@ var db = {
             ref: 'Permission'
         }],
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true}
+        updated_by: {type: Schema.Types.ObjectId}
     },
 
     // ### 通知，见于通知中心
@@ -175,9 +175,9 @@ var db = {
         object_id: {type: Schema.Types.ObjectId, required: true}, // 对应着以上通知的类别，跟通知有关的对象ID可能是，repost, post两种，记住，是原有对象，不是行为产生后的对象
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true}
+        updated_by: {type: Schema.Types.ObjectId}
     },
 
     // ### 角色
@@ -192,9 +192,9 @@ var db = {
         description: {type: String, trim: true, default: ""},
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true}
+        updated_by: {type: Schema.Types.ObjectId}
     },
 
     // ### 权限
@@ -218,9 +218,9 @@ var db = {
         object_id: {type: Schema.Types.ObjectId}, // 非必须的
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true}
+        updated_by: {type: Schema.Types.ObjectId}
     },
 
     // ### groups 群组实体
@@ -242,9 +242,9 @@ var db = {
             status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'}, // 已经成为成员了吗，成员记录会在用户加入群组申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由成员申请构建生成的系统消息不会消失
 
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId, required: true},
+            created_by: {type: Schema.Types.ObjectId},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId, required: true}
+            updated_by: {type: Schema.Types.ObjectId}
         }],
         // we have a limited range of categories for user to select, but not listed here as enums
         // 兴趣爱好：影视，音乐，星座，动漫，运动，读书，摄影，其他
@@ -264,9 +264,9 @@ var db = {
             content: {type: String, trim: true, default: "New Group~ Say Something to Your Members"},
             author: {type: String, trim: true, required: true}, // 我们到时候只显示名称即可，存个字符串就行
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId, required: true},
+            created_by: {type: Schema.Types.ObjectId},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId, required: true}
+            updated_by: {type: Schema.Types.ObjectId}
         }],  // 群公告
         location: [{type: Number, index: '2dsphere', default: 0.0}],// longitude latitude
         location_info: {type: String, trim: true},// location name
@@ -285,15 +285,15 @@ var db = {
             path: {type: String}, // 文件路径
 
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId, required: true},
+            created_by: {type: Schema.Types.ObjectId},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId, required: true}
+            updated_by: {type: Schema.Types.ObjectId}
         }],
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true}
+        updated_by: {type: Schema.Types.ObjectId}
     },
 
     // ---------------------------------------- 扩充以下的实体字段 注:根据mongoose标准添加，如果有default，就无需加上required ------------- //
@@ -318,9 +318,9 @@ var db = {
             status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'}, // 已经成为成员了吗，成员记录会在用户加入群组申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由成员申请构建生成的系统消息不会消失
 
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId, required: true},
+            created_by: {type: Schema.Types.ObjectId},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId, required: true}
+            updated_by: {type: Schema.Types.ObjectId}
         }],
         // we have a limited range of categories for user to select, but not listed here as enums
         // 兴趣爱好：影视，音乐，星座，动漫，运动，读书，摄影，其他
@@ -341,9 +341,9 @@ var db = {
             content: {type: String, trim: true, default: "New Circle~ Say Something to Your Members"},
             author: {type: String, trim: true, required: true}, // 我们到时候只显示名称即可，存个字符串就行
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId, required: true},
+            created_by: {type: Schema.Types.ObjectId},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId, required: true}
+            updated_by: {type: Schema.Types.ObjectId}
         }],  // 圈子公告
         location: [{type: Number, index: '2dsphere'}], // longitude latitude
         location_info: {type: String, trim: true}, // location name
@@ -355,9 +355,9 @@ var db = {
         },
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true}
+        updated_by: {type: Schema.Types.ObjectId}
     },
 
     // ### 消息实体 一定要考虑消息的共通性，系统消息和聊天消息
@@ -372,9 +372,9 @@ var db = {
         message_to: {type: Schema.Types.ObjectId, required: true},
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true} // 消息的某些状态被改变，改变者为谁
+        updated_by: {type: Schema.Types.ObjectId} // 消息的某些状态被改变，改变者为谁
     },
 
     // ### 帖子实体 一定要考虑帖子的共通性，发帖（日志）；存在或不存在于圈子里
@@ -409,9 +409,9 @@ var db = {
                 path: {type: String}, // 文件路径
 
                 created_at: {type: Date, default: Date.now()},
-                created_by: {type: Schema.Types.ObjectId, required: true},
+                created_by: {type: Schema.Types.ObjectId},
                 updated_at: {type: Date, default: Date.now()},
-                updated_by: {type: Schema.Types.ObjectId, required: true}
+                updated_by: {type: Schema.Types.ObjectId}
             }]
         },
 
@@ -430,9 +430,9 @@ var db = {
         published_at: {type: Date, default: Date.now()},
         published_by: {type: Schema.Types.ObjectId, required: true},
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true}
+        updated_by: {type: Schema.Types.ObjectId}
     },
 
     // ### 回帖实体
@@ -456,15 +456,15 @@ var db = {
             size: {type: Number, min: 0, default: 0},
             path: {type: String}, // 文件路径
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId, required: true}
+            created_by: {type: Schema.Types.ObjectId}
         }],
 
         at_users: [{type: Schema.Types.ObjectId}], // @user ids
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId, required: true},
+        created_by: {type: Schema.Types.ObjectId},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId, required: true}
+        updated_by: {type: Schema.Types.ObjectId}
     },
 
     // ### 设置实体，相当于数据字典，也相当于一些系统级的默认配置

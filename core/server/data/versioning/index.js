@@ -32,7 +32,6 @@ function getDefaultDatabaseVersion() {
 function getDatabaseVersion() {
 
     var Settings = Models.Settings;
-    //return Settings.findOnePromised({'key': 'databaseVersion'}, 'value').then(function (version) {
     return Settings.findOneAsync({'key': 'databaseVersion'}).then(function (version) {
         var databaseVersion;
 
@@ -52,10 +51,9 @@ function getDatabaseVersion() {
     });
 }
 
-function setDatabaseVersion() {
+function setDatabaseVersion(options) {
     var Settings = Models.Settings;
-    //return Settings.updatePromised({key: 'databaseVersion'}, {value: getDefaultDatabaseVersion()});
-    return Settings.update({'key': 'databaseVersion'}, {'value': getDefaultDatabaseVersion()});
+    return Settings.updateAsync({'key': 'databaseVersion'}, {$set: {'value': getDefaultDatabaseVersion()}}, options);
 }
 
 module.exports = {

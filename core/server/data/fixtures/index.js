@@ -5,9 +5,8 @@
  */
 var _           = require('lodash'),
     Promise     = require('bluebird'),
-    mongoose    = require('mongoose'),
-    uuid        = require('node-uuid'),
     errors      = require('../../errors'),
+    config      = require('../../config'),
 
     models      = require('../../models'),
     sequence    = require('../../utils/sequence'),
@@ -48,7 +47,6 @@ addAllPermissions = function (options) {
     _.each(fixtures.permissions, function (permissions, objectType) {
         _.each(permissions, function (permission) {
             ops.push(function () {
-                permission.uuid = uuid.v4();
                 permission.object_type = objectType;
                 return models.Permission.forge(permission, options).saveAsync();
             });
@@ -62,7 +60,6 @@ addAllRoles = function (options) {
     var ops = [];
     _.each(fixtures.roles, function (role) {
         ops.push(function () {
-            role.uuid = uuid.v4();
             return models.Role.forge(role, options).saveAsync();
         });
     });
@@ -107,9 +104,8 @@ addAllUsers = function (options) {
     _.each(fixtures.users, function (user) {
         ops.push(function () {
             if (user.name === "admin") {
-                user._id = mongoose.Types.ObjectId('ffffffffffffffffffffffff');
+                user._id = config.adminId;
             }
-            user.uuid = uuid.v4();
             return models.User.forge(user, options).saveAsync();
         });
     });

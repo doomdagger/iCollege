@@ -52,13 +52,13 @@ populateDefaultSettings = function populateDefaultSettings() {
  */
 backupDatabase = function backupDatabase() {
     logInfo('Creating database backup...');
-    return dataExport().then(function (data) {
+    return dataExport().then(function (exportedData) {
         // Write data into a file
         return dataExport.fileName().then(function (fileName) {
             // Get full path of exported data backup file
             fileName = path.resolve(config.paths.contentPath + '/data/' + fileName);
 
-            return Promise.promisify(fs.writeFile)(fileName, JSON.stringify(data)).then(function () {
+            return Promise.promisify(fs.writeFile)(fileName, JSON.stringify(exportedData)).then(function () {
                 logInfo('Database backup is completed. Data is written to: ' + fileName);
             });
         });
@@ -70,7 +70,8 @@ backupDatabase = function backupDatabase() {
  * Check for whether data is needed to be bootstrapped or not
  * @returns {*}
  */
-init = function () {
+init = function (tablesOnly) {
+    tablesOnly = tablesOnly || false;
 
     var self = this;
     // There are 4 possibilities:
@@ -81,13 +82,13 @@ init = function () {
     return versioning.getDatabaseVersion().then(function (databaseVersion) {
         var defaultVersion = versioning.getDefaultDatabaseVersion();
 
-        if (databaseVersion < defaultVersion) {
+        if (databaseVersion < defaultVersion || process.env.FORCE_MIGRATION) {
             // 2. The database exists but is out of date
             logInfo('Database upgrade required from version ' + databaseVersion + ' to ' +  defaultVersion);
             // Migrate to latest version
             return self.migrateUp(databaseVersion, defaultVersion).then(function () {
                 // Finally update the databases current version
-                return versioning.setDatabaseVersion();
+                return versioning.setDatabaseVersion({context: {internal: true}});
             });
         }
 
@@ -110,7 +111,7 @@ init = function () {
             // 4. The database has not yet been created
             // Bring everything up from initial version.
             logInfo('Database initialisation required for version ' + versioning.getDefaultDatabaseVersion());
-            return self.migrateUpFreshDb();
+            return self.migrateUpFreshDb(tablesOnly);
         }
         // 3. The database exists but the currentVersion setting does not or cannot be understood
         // In this case the setting was missing or there was some other problem
@@ -122,7 +123,6 @@ init = function () {
 // Delete all tables from the database in reverse order
 // **only if all collections in schema.js exist! we can safely use this function**
 reset = function () {
-
     var collections = _.map(schemaCollections, function (collection) {
         return function () {
             return utils.dropCollection(collection);
@@ -141,8 +141,7 @@ safeReset = function () {
 
 // Only do this if we have no database at all
 // no version, no all; delete all collections in this database
-migrateUpFreshDb = function () {
-
+migrateUpFreshDb = function (tablesOnly) {
     var collectionSequence,
         collections = _.map(schemaCollections, function (collection) {
             return function () {
@@ -152,6 +151,10 @@ migrateUpFreshDb = function () {
         });
     logInfo('Creating tables...');
     collectionSequence = sequence(collections);
+
+    if (tablesOnly) {
+        return collectionSequence;
+    }
 
     return collectionSequence.then(function () {
         return fixtures.populateFixtures();
@@ -164,6 +167,7 @@ migrateUpFreshDb = function () {
 /**
  * ## migrateUp
  * Upgrade current database to new version one
+ * TODO in the future, we may know how to write upgrade logic
  * @returns {*}
  */
 migrateUp = function () {

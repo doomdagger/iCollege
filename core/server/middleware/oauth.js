@@ -69,7 +69,7 @@ oauth = {
                                 client_id: token.client_id,
                                 expires: accessExpires
                             }).then(function () {
-                                return models.Refreshtoken.updateAsync({id: token.id}, {expires: {$set: refreshExpires}});
+                                return models.Refreshtoken.updateAsync({id: token.id}, {$set: {expires: refreshExpires}});
                             }).then(function () {
                                 return done(null, accessToken, {expires_in: utils.ONE_HOUR_S});
                             }).catch(function (error) {
