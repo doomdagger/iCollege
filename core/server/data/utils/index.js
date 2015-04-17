@@ -10,25 +10,42 @@ var config      = require('../../config'),
 
     Promise     = require('bluebird'),
     _           = require('lodash');
-    
+
+
+/**
+ * ### Get collection
+ * @param name (String)– the collection object we wish to get.
+ * @returns {Promise}
+ */
+function collection (name) {
+    return new Promise(function (resolve, reject) {
+        config.database.db.collection(function (err, collection) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(collection);
+        });
+    });
+}
+
 /**
  * ### Create collection
  * Create Collection with specified property
- * @param [collectionName] (string) – the collection name we wish to filter by.
+ * @param collectionName (string) – the collection name we wish to filter by.
  * @param [options] (object) – returns option results.
+ * @returns {Promise}
  */
-function createCollection(collectionName, options) {
-    var deferred = Promise.defer();
-        options = options || {};
+function createCollection (collectionName, options) {
+    var options = options || {};
 
-    config.database.db.createCollection(collectionName, options, function (err, collection) {
-        if (err) {
-            deferred.reject(err);
-            return;
-        }
-        deferred.resolve(collection);
+    return new Promise(function (resolve, reject) {
+        config.database.db.createCollection(collectionName, options, function (err, collection) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(collection);
+        })
     });
-    return deferred.promise;
 }
 
 /**
@@ -36,18 +53,17 @@ function createCollection(collectionName, options) {
  * Drop a collection from the database,removing it permanently.
  * New accesses will create a new collection.
  * @param collectionName (string) – the name of the collection we wish to drop.
+ * @returns {Promise}
  */
-function dropCollection(collectionName) {
-    var deferred = Promise.defer();
-
-    config.database.db.dropCollection(collectionName, function (err, ret) {
-        if (err) {
-            deferred.reject(err);
-            return;
-        }
-        deferred.resolve(ret);
+function dropCollection (collectionName) {
+    return new Promise(function (resolve, reject) {
+        config.database.db.dropCollection(collectionName, function (err, ret) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(ret);
+        });
     });
-    return deferred.promise;
 }
 
 /**
@@ -55,38 +71,34 @@ function dropCollection(collectionName) {
  * Fetch all collections for the current config.database.db.
  * @returns {Promise}
  */
-function collections() {
-    var deferred = Promise.defer();
-
-    config.database.db.collections(function (err, collections) {
-        if (err) {
-            deferred.reject(err);
-            return;
-        }
-        deferred.resolve(collections);
+function collections () {
+    return new Promise(function (resolve, reject) {
+        config.database.db.collections(function (err, collections) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(collections);
+        });
     });
-    return deferred.promise;
 }
 
 /**
  * ### Fetch collection
  * Get the list of all collection names for the specified config.database.db
- * [collectionName] (string) – the collection name we wish to filter by.
- * [options] (object) – additional options during update.
+ * @param [collectionName] (string) – the collection name we wish to filter by.
+ * @param [options] (object) – additional options during update.
  * @returns {Promise}
  */
-function collectionNames(collectionName,options) {
-    var deferred = Promise.defer();
-        options = options || {};
-
-    config.database.db.collectionNames(collectionName, options, function (err, names) {
-        if (err) {
-            deferred.reject(err);
-            return;
-        }
-        deferred.resolve(names);
+function collectionNames (collectionName,options) {
+    var options = options || {};
+    return new Promise(function (resolve, reject) {
+        config.database.db.collectionNames(collectionName, options, function (err, names) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(names);
+        });
     });
-    return deferred.promise;
 }
 
 /**
@@ -95,7 +107,7 @@ function collectionNames(collectionName,options) {
  * @param [collectionName] (string) – the collection name we wish to detect.
  * @returns {Promise|*}
  */
-function doesCollectionExist(collectionName) {
+function doesCollectionExist (collectionName) {
     return collections().then(function (collections) {
         var names = _.map(collections, function (collection) {
             return collection.collectionName;
@@ -109,7 +121,7 @@ function doesCollectionExist(collectionName) {
  * safe drop all of exist collections!
  * @returns {Promise|*}
  */
-function safeDropCollections() {
+function safeDropCollections () {
     return collections().then(function (collections) {
         // filter out system collections, fill drop tasks
         /* var tasks = */
@@ -131,20 +143,20 @@ function safeDropCollections() {
  * Inserts a single document or a an array of documents into collection.
  * @param collectionName (string) – the collection name we wish to insert documents.
  * @param docs (array) – the content of documents
- * @param options (object) – optional options for insert command
+ * @param [options] (object) – optional options for insert command
  * @returns {Promise}
  */
-function insertDocuments(collectionName, docs, options) {
+function insertDocuments (collectionName, docs, options) {
     var collection = config.database.db.collection(collectionName),
-        deferred = Promise.defer();
         options = options || {};
 
-    collection.insert(docs, options, function(err, result) {
-        if (err) {
-            deferred.reject(err);
-            return;
-        }
-        deferred.resolve(result);
+    return new Promise(function (resolve, reject) {
+        collection.insert(docs, options, function(err, result) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(result);
+        });
     });
 }
 
@@ -153,21 +165,20 @@ function insertDocuments(collectionName, docs, options) {
  * @param collectionName (string) – the collection name we wish to update documents.
  * @param selector (object) – the query to select the document/documents to be updated
  * @param document (object) – the fields/vals to be updated, or in the case of an upsert operation, inserted.
- * @param options (object) – additional options during update.
+ * @param [options] (object) – additional options during update.
  * @returns {Promise}
  */
-function updateDocuments(collectionName, selector, document, options) {
+function updateDocuments (collectionName, selector, document, options) {
     var collection = config.database.db.collection(collectionName),
-        deferred = Promise.defer();
         options = options || {};
 
-    collection.update(selector, document, options, function(err, result) {
-        if (err) {
-            deferred.reject(err);
-            return;
-        }
-        deferred.resolve(result);
-        return result;
+    return new Promise(function (resolve, reject) {
+        collection.update(selector, document, options, function(err, result) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(result);
+        });
     });
 }
 
@@ -175,22 +186,22 @@ function updateDocuments(collectionName, selector, document, options) {
  * ### Removes Document
  * Removes documents specified by selector from the config.database.db.
  * @param collectionName (string) – the collection name we wish to remove documents.
- * @param selector (object) – optional select, no selector is equivalent to removing all documents.
- * @param options (object) – additional options during remove.
+ * @param [selector] (object) – optional select, no selector is equivalent to removing all documents.
+ * @param [options] (object) – additional options during remove.
  * @returns {Promise}
  */
-function removeDocuments(collectionName, selector, options) {
+function removeDocuments (collectionName, selector, options) {
     var collection = config.database.db.collection(collectionName),
-        deferred = Promise.defer();
-        selector = selector || {};
+        selector = selector || {},
         options = options || {};
 
-    collection.remove(selector, options, function(err, result) {
-        if (err) {
-            deferred.reject(err);
-            return;
-        }
-        deferred.resolve(result);
+    return new Promise(function (resolve, reject) {
+        collection.remove(selector, options, function(err, result) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(result);
+        });
     });
 }
 
@@ -199,26 +210,27 @@ function removeDocuments(collectionName, selector, options) {
  * Creates a cursor for a query that can be used to iterate over results from mongodb.
  * @param collectionName (string) – the collection name we wish to find documents.
  * @param query (object) – query object to locate the object to modify
- * @param options  (object) – additional options during update.
+ * @param [options]  (object) – additional options during update.
+ * @returns {Promise}
  */
-function findDocuments(collectionName, query, options) {
+function findDocuments (collectionName, query, options) {
     var collection = config.database.db.collection(collectionName),
-        deferred = Promise.defer();
-        query = query || {};
+        query = query || {},
         options = options || {};
 
-    collection.find(query, options).toArray(function(err, result) {
-        if (err) {
-            deferred.reject(err);
-            return;
-        }
-        deferred.resolve(result);
-        return result;
+    return new Promise(function (resolve, reject) {
+        collection.find(query, options).toArray(function(err, result) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(result);
+        });
     });
 }
 
 
 module.exports = {
+    collection: collection,
     createCollection: createCollection,
     dropCollection: dropCollection,
     collections: collections,
