@@ -7,16 +7,15 @@
 
 var Promise     = require('bluebird'),
     _           = require('lodash'),
-    //Model  = require('../../models').Transaction,
+
     config      = require('../../config');
-    //db = mongoose.connection.db;
 
 
 /**
  * Transaction Class
  * @constructor
  */
-function Transaction () {
+Transaction = function Transaction () {
 
     //It is the array of transaction for saving all of database operations.
     //The type of array's member is ObjectId.
@@ -32,148 +31,72 @@ function Transaction () {
 
 
 /**
+ * ### Backup data
  * Save all of document into the array of transaction.
- * @param [collectionName] (string) – the collection name documents belong to.
- * @param [docs] (Array) - the documents we save into transaction.
+ * if use after save success, you should use by it : 'backup(collectionName, _id)'
+ * other you should save the document for update : 'backup(collectionName, _id, doc)'
+ * @param collectionName (String) – the collection name documents belong to.
+ * @param _id (Object) - the id of document that we save.
+ * @param [doc] (Array) - the document we change before update..
  */
-Transaction.prototype.backup = function (collectionName, docs) {
+Transaction.prototype.backup = function (collectionName, _id, doc) {
 
-    _.each(docs, function (doc) {
-
-        var transaction = {
+    var doc = doc || {},
+        transaction = {
             collectionName : collectionName,
+            _id : _id,
             doc : doc
         };
 
-        this.transArrary.push(transaction);
-    });
-
+    this.transArrary.push(transaction);
 };
 
 /**
- * rollback datas to database.
+ * rollback data to database.
  */
 Transaction.prototype.rollback = function () {
+    var self = this;
+    return new Promise(function (reslove, reject) {
+        if (self.ops.length > 0) {
+            //lock the rollback function,so only one rollback function working..
+            //this.state = false;
 
-    var deferred = Promise.defer();
+            _.each(self.transArrary, function (transaction, index) {
+                var collection = config.database.db.collection(transaction.collectionName);
 
-    if (this.ops.length > 0) {
-        //lock the rollback function,so only one rollback function working..
-        //this.state = false;
+                if (_.isEmpty(transaction.doc)) {
+                    //If doc have only one member,it must be "_id".
+                    //In this situation,the member of transaction is insert,so we just remove it.
+                    collection.remove(transaction.doc, function (err/*, result*/) {
+                        if (err) {
+                            //If it has problems while transaction,
+                            //we should rollback again until documents recover.
+                            //this.state = true;
+                            reject(err);
 
-        _.each(this.transArrary, function (transaction, index) {
-            var collection = config.database.db.collection(transaction.collectionName);
+                            //if the function is fail,we should delete the array member.
+                            self.transArrary.splice(0, index + 1);
+                            self.rollback();
+                            return;
+                        }
+                    });
+                }
+                else {
+                    collection.update({_id : transaction._id}, transaction.doc, function (err/*, result*/) {
+                        if (err) {
+                            //the same reason.
+                            //this.state = true;
+                            reject(err);
+                            self.transArrary.splice(0, index + 1);
+                            self.rollback();
+                            return;
+                        }
+                    });
+                }
 
-            if (transaction.doc.length > 1) {
-                //If doc have only one member,it must be "_id".
-                //In this situation,the member of transaction is insert,so we just remove it.
-                collection.remove(transaction.doc, function (err/*, result*/) {
-                    if (err) {
-                        //If it has problems while transaction,
-                        //we should rollback again until documents recover.
-                        //this.state = true;
-                        deferred.reject();
-
-                        //if the function is fail,we should delete the array member.
-                        this.transArrary.splice(0, index + 1);
-                        this.rollback();
-                        return;
-                    }
-                });
-            }
-            else {
-                collection.update({_id : transaction.doc._id}, transaction.doc, function (err/*, result*/) {
-                    if (err) {
-                        //the same reason.
-                        //this.state = true;
-                        deferred.reject();
-                        this.transArrary.splice(0, index + 1);
-                        this.rollback();
-                        return;
-                    }
-                    //this.transArrary.splice(index, 1);
-                });
-            }
-
-        });
-    }
-
+            });
+        }
+    });
 };
 
-//Transaction.prototype.insert = function (collectionName, documents, options) {
-//
-//    var deferred = Promise.defer(),
-//        collection = db.collection(collectionName),
-//        options = options || {};
-//
-//    collection.insert(documents, options, function (err, result) {
-//        if (err) {
-//            //If it has problems while executing insert function,
-//            //we should end up saving document into collection and recovery it.
-//            deferred.reject();
-//            this.rollback();
-//            return;
-//        }
-//
-//        //Save insert result's _id into transaction array.
-//        _.each(result.ops, function (doc) {
-//            //save each doc into transaction array member.
-//            //not include doc member.
-//            var transaction = {
-//                doc_id: doc._id,
-//                collection_name: collectionName
-//            };
-//
-//            this.transArrary.push(transaction);
-//        });
-//    });
-//
-//    return this;
-//}
-//
-//Transaction.prototype.remove = function (collectionName, selector, options) {
-//
-//    var deferred = Promise.defer(),
-//        collection = db.collection(collectionName),
-//        selector = selector || {},
-//        options = options || {};
-//
-//    //find all of results from collection
-//    collection.find(selector).toArray(function(err, docs) {
-//        //Step 1 : Check if the find function is useful.
-//        if (err) {
-//            //If it has problems while executing find function,
-//            //we should end up saving document into collection and recovery it.
-//            deferred.reject();
-//            this.rollback();
-//            return;
-//        }
-//
-//        //Step 2 : Documents record.
-//        _.each(docs, function (doc) {
-//
-//            //save each doc into transaction array member.
-//            //include doc member.
-//            var transaction = {
-//                doc_id: doc._id,
-//                collection_name: collectionName,
-//                doc: doc
-//            };
-//
-//            this.transArrary.push(transaction);
-//        });
-//
-//        //Step 3 : Remove collection.
-//        collection.remove(selector, document, options, function (err, result) {
-//            if (err) {
-//                //If it has problems while executing update function,
-//                //we should end up saving document into collection and recovery it.
-//                deferred.reject();
-//                this.rollback();
-//                return;
-//            }
-//        });
-//    });
-//
-//    return this;
-//}
+module.exports = Transaction;

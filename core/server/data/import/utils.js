@@ -51,14 +51,14 @@ utils = {
         _.each(jsonData, function (user) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(models.User.forge(user, internal).saveAsync()
-                .then(function (savedPerson) {
+           models.User.forge(user, internal).saveAsync()
+               .then(function (savedUser) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("users", [{_id : savedPerson._id}]);
+                    transaction.backup("users", {_id : savedUser._id});
                 })
                 .catch(function (error) {
-                        return Promise.reject(error);
-                    }));
+                    transaction.ops.push(Promise.reject(error));
+               });
         });
         return transaction;
     },
@@ -70,14 +70,14 @@ utils = {
         _.each(jsonData, function (app) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            transaction.ops.push(models.App.forge(app, internal).saveAsync()
-                .then(function (savedPerson) {
+            models.App.forge(app, internal).saveAsync()
+                .then(function (savedApp) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("apps", [{_id : savedPerson._id}]);
+                    transaction.backup("apps", {_id : savedApp._id});
                 })
                 .catch(function (error) {
-                    return Promise.reject(error);
-                }));
+                    transaction.ops.push(Promise.reject(error));
+                });
         });
         return transaction;
     },
@@ -90,12 +90,12 @@ utils = {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
             transaction.ops.push(models.Notification.forge(notification, internal).saveAsync()
-                .then(function (savedPerson) {
+                .then(function (savedNotification) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("notifications", [{_id : savedPerson._id}]);
+                    transaction.backup("notifications", {_id : savedNotification._id});
                 })
                 .catch(function (error) {
-                    return Promise.reject(error);
+                    transaction.ops.push(Promise.reject(error));
                 }));
         });
         return transaction;
@@ -109,12 +109,12 @@ utils = {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
             transaction.ops.push(models.Role.forge(role, internal).saveAsync()
-                .then(function (savedPerson) {
+                .then(function (savedRole) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("roles", [{_id : savedPerson._id}]);
+                    transaction.backup("roles", {_id : savedRole._id});
                 })
                 .catch(function (error) {
-                    return Promise.reject(error);
+                    transaction.ops.push(Promise.reject(error));
                 }));
         });
         return transaction;
@@ -128,12 +128,12 @@ utils = {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
             transaction.ops.push(models.Permission.forge(permission, internal).saveAsync()
-                .then(function (savedPerson) {
+                .then(function (savedPermission) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("permissions", [{_id : savedPerson._id}]);
+                    transaction.backup("permissions", {_id : savedPermission._id});
                 })
                 .catch(function (error) {
-                    return Promise.reject(error);
+                    transaction.ops.push(Promise.reject(error));
                 }));
         });
         return transaction;
@@ -147,12 +147,12 @@ utils = {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
             transaction.ops.push(models.Group.forge(group, internal).saveAsync()
-                .then(function (savedPerson) {
+                .then(function (savedGroup) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("groups", [{_id : savedPerson._id}]);
+                    transaction.backup("groups", {_id : savedGroup._id});
                 })
                 .catch(function (error) {
-                    return Promise.reject(error);
+                    transaction.ops.push(Promise.reject(error));
                 }));
         });
         return transaction;
@@ -166,12 +166,12 @@ utils = {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
             transaction.ops.push(models.Circle.forge(circle, internal).saveAsync()
-                .then(function (savedPerson) {
+                .then(function (savedCircle) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("circles", [{_id : savedPerson._id}]);
+                    transaction.backup("circles", {_id : savedCircle._id});
                 })
                 .catch(function (error) {
-                    return Promise.reject(error);
+                    transaction.ops.push(Promise.reject(error));
                 }));
         });
         return transaction;
@@ -185,12 +185,12 @@ utils = {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
             transaction.ops.push(models.Message.forge(message, internal).saveAsync()
-                .then(function (savedPerson) {
+                .then(function (savedMessage) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("messages", [{_id : savedPerson._id}]);
+                    transaction.backup("messages", {_id : savedMessage._id});
                 })
                 .catch(function (error) {
-                    return Promise.reject(error);
+                    transaction.ops.push(Promise.reject(error));
                 }));
         });
         return transaction;
@@ -204,12 +204,12 @@ utils = {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
             transaction.ops.push(models.Post.forge(post, internal).saveAsync()
-                .then(function (savedPerson) {
+                .then(function (savedPost) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("posts", [{_id : savedPerson._id}]);
+                    transaction.backup("posts", {_id : savedPost._id});
                 })
                 .catch(function (error) {
-                    return Promise.reject(error);
+                    transaction.ops.push(Promise.reject(error));
                 }));
         });
         return transaction;
@@ -223,12 +223,12 @@ utils = {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
             transaction.ops.push(models.Repost.forge(repost, internal).saveAsync()
-                .then(function (savedPerson) {
+                .then(function (savedRepost) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("reposts", [{_id : savedPerson._id}]);
+                    transaction.backup("reposts", {_id : savedRepost._id});
                 })
                 .catch(function (error) {
-                    return Promise.reject(error);
+                    transaction.ops.push(Promise.reject(error));
                 }));
         });
         return transaction;
@@ -242,12 +242,12 @@ utils = {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
             transaction.ops.push(models.Settings.forge(setting, internal).saveAsync()
-                .then(function (savedPerson) {
+                .then(function (savedSetting) {
                     //if the save function is success,we should save the _id member into transaction
-                    transaction.backup("settings", [{_id : savedPerson._id}]);
+                    transaction.backup("settings", {_id : savedSetting._id});
                 })
                 .catch(function (error) {
-                    return Promise.reject(error);
+                    transaction.ops.push(Promise.reject(error));
                 }));
         });
         return transaction;
