@@ -7,16 +7,16 @@ var Promise       = require('bluebird'),
     Models        = require('../../server/models'),
     SettingsAPI   = require('../../server/api/settings'),
     permissions   = require('../../server/permissions'),
-    permsFixtures = require('../../server/data/fixtures/permissions/permissions.json'),
+    permsFixtures = require('../../server/data/fixtures/fixtures.json'),
     DataGenerator = require('./fixtures/data-generator'),
     API           = require('./api'),
     fork          = require('./fork'),
     config        = require('../../server/config'),
+    DataUtils     = require('../../server/data/utils'),
 
     fixtures,
     getFixtureOps,
     toDoList,
-    postsInserted = 0,
 
     teardown,
     setup,
@@ -30,254 +30,89 @@ var Promise       = require('bluebird'),
 
 /** TEST FIXTURES **/
 fixtures = {
-    insertPosts: function insertPosts() {
-        var knex = config.database.knex;
-        return Promise.resolve(knex('posts').insert(DataGenerator.forKnex.posts)).then(function () {
-            return knex('tags').insert(DataGenerator.forKnex.tags);
-        }).then(function () {
-            return knex('posts_tags').insert(DataGenerator.forKnex.posts_tags);
-        });
-    },
-
-    insertMultiAuthorPosts: function insertMultiAuthorPosts(max) {
-        /*jshint unused:false*/
-        var knex = config.database.knex,
-            author,
-            authors,
-            i, j, k = postsInserted,
-            posts = [];
-
-        max = max || 50;
-        // insert users of different roles
-        return Promise.resolve(fixtures.createUsersWithRoles()).then(function () {
-            // create the tags
-            return knex('tags').insert(DataGenerator.forKnex.tags);
-        }).then(function () {
-            return knex('users').select('id');
-        }).then(function (results) {
-            authors = _.pluck(results, 'id');
-
-            // Let's insert posts with random authors
-            for (i = 0; i < max; i += 1) {
-                author = authors[i % authors.length];
-                posts.push(DataGenerator.forKnex.createGenericPost(k, null, null, author));
-                k = k + 1;
-            }
-
-            // Keep track so we can run this function again safely
-            postsInserted = k;
-
-            return sequence(_.times(posts.length, function (index) {
-                return function () {
-                    return knex('posts').insert(posts[index]);
-                };
-            }));
-        }).then(function () {
-            return Promise.all([
-                // PostgreSQL can return results in any order
-                knex('posts').orderBy('id', 'asc').select('id'),
-                knex('tags').select('id')
-            ]);
-        }).then(function (results) {
-            var posts = _.pluck(results[0], 'id'),
-                tags = _.pluck(results[1], 'id'),
-                promises = [],
-                i;
-
-            if (max > posts.length) {
-                throw new Error('Trying to add more posts_tags than the number of posts. ' + max + ' ' + posts.length);
-            }
-
-            for (i = 0; i < max; i += 1) {
-                promises.push(DataGenerator.forKnex.createPostsTags(posts[i], tags[i % tags.length]));
-            }
-
-            return sequence(_.times(promises.length, function (index) {
-                return function () {
-                    return knex('posts_tags').insert(promises[index]);
-                };
-            }));
-        });
-    },
-
-    insertMorePosts: function insertMorePosts(max) {
-        var lang,
-            status,
-            posts = [],
-            i, j, k = postsInserted,
-            knex = config.database.knex;
-
-        max = max || 50;
-
-        for (i = 0; i < 2; i += 1) {
-            lang = i % 2 ? 'en' : 'fr';
-            posts.push(DataGenerator.forKnex.createGenericPost(k, null, lang));
-            k = k + 1;
-
-            for (j = 0; j < max; j += 1) {
-                status = j % 2 ? 'draft' : 'published';
-                posts.push(DataGenerator.forKnex.createGenericPost(k, status, lang));
-                k = k + 1;
-            }
-        }
-
-        // Keep track so we can run this function again safely
-        postsInserted = k;
-
-        return sequence(_.times(posts.length, function (index) {
-            return function () {
-                return knex('posts').insert(posts[index]);
-            };
-        }));
-    },
-
-    insertMorePostsTags: function insertMorePostsTags(max) {
-        max = max || 50;
-
-        var knex = config.database.knex;
-
-        return Promise.all([
-            // PostgreSQL can return results in any order
-            knex('posts').orderBy('id', 'asc').select('id'),
-            knex('tags').select('id', 'name')
-        ]).then(function (results) {
-            var posts = _.pluck(results[0], 'id'),
-                injectionTagId = _.chain(results[1])
-                    .where({name: 'injection'})
-                    .pluck('id')
-                    .value()[0],
-                promises = [],
-                i;
-
-            if (max > posts.length) {
-                throw new Error('Trying to add more posts_tags than the number of posts.');
-            }
-
-            for (i = 0; i < max; i += 1) {
-                promises.push(DataGenerator.forKnex.createPostsTags(posts[i], injectionTagId));
-            }
-
-            return sequence(_.times(promises.length, function (index) {
-                return function () {
-                    return knex('posts_tags').insert(promises[index]);
-                };
-            }));
-        });
-    },
     insertRoles: function insertRoles() {
-        var knex = config.database.knex;
-        return knex('roles').insert(DataGenerator.forKnex.roles);
+        _.each(DataGenerator.forDB.roles, function (role) {
+            role._id = DataGenerator.next('roles');
+        });
+        return DataUtils.insertDocuments('roles', DataGenerator.forDB.roles);
     },
 
     initOwnerUser: function initOwnerUser() {
-        var user = DataGenerator.Content.users[0],
-            knex = config.database.knex;
+        var user = DataGenerator.Content.users[0];
 
-        user = DataGenerator.forKnex.createBasic(user);
-        user = _.extend({}, user, {status: 'inactive'});
+        user = DataGenerator.forDB.createBasic(user);
+        user = _.extend({}, user, {status: 'online'});
 
-        return knex('roles').insert(DataGenerator.forKnex.roles).then(function () {
-            return knex('users').insert(user);
-        }).then(function () {
-            return knex('roles_users').insert(DataGenerator.forKnex.roles_users[0]);
+        return DataUtils.insertDocuments('roles', DataGenerator.forDB.roles).then(function () {
+            return DataUtils.insertDocuments('users', user);
         });
     },
 
     insertOwnerUser: function insertOwnerUser() {
-        var user,
-            knex = config.database.knex;
+        var user;
 
-        user = DataGenerator.forKnex.createUser(DataGenerator.Content.users[0]);
+        user = DataGenerator.forDB.createUser(DataGenerator.Content.users[0]);
 
-        return knex('users').insert(user).then(function () {
-            return knex('roles_users').insert(DataGenerator.forKnex.roles_users[0]);
-        });
+        return DataUtils.insertDocuments('users', user);
     },
 
     overrideOwnerUser: function overrideOwnerUser() {
-        var user,
-            knex = config.database.knex;
+        var user;
 
-        user = DataGenerator.forKnex.createUser(DataGenerator.Content.users[0]);
+        user = DataGenerator.forDB.createUser(DataGenerator.Content.users[0]);
 
-        return knex('users')
-            .where('id', '=', '1')
-            .update(user);
+        return DataUtils.updateDocuments('users',
+            {'id': mongoose.Types.ObjectId('ffffffffffffffffffffffff')},
+            {$set: user});
     },
 
     createUsersWithRoles: function createUsersWithRoles() {
-        var knex = config.database.knex;
-        return knex('roles').insert(DataGenerator.forKnex.roles).then(function () {
-            return knex('users').insert(DataGenerator.forKnex.users);
-        }).then(function () {
-            return knex('roles_users').insert(DataGenerator.forKnex.roles_users);
+        return DataUtils.insertDocuments('roles', DataGenerator.forDB.roles).then(function () {
+            return DataUtils.insertDocuments('users', DataGenerator.forDB.users);
         });
     },
 
     createExtraUsers: function createExtraUsers() {
-        var knex = config.database.knex,
         // grab 3 more users
-            extraUsers = DataGenerator.Content.users.slice(2, 5);
+        var extraUsers = DataGenerator.Content.users.slice(2, 5);
 
         extraUsers = _.map(extraUsers, function (user) {
-            return DataGenerator.forKnex.createUser(_.extend({}, user, {
+            return DataGenerator.forDB.createUser(_.extend({}, user, {
                 email: 'a' + user.email,
                 slug: 'a' + user.slug
             }));
         });
 
-        return knex('users').insert(extraUsers).then(function () {
-            return knex('roles_users').insert([
-                {user_id: 5, role_id: 1},
-                {user_id: 6, role_id: 2},
-                {user_id: 7, role_id: 3}
-            ]);
-        });
+        return DataUtils.insertDocuments('users', extraUsers);
     },
 
     // Creates a client, and access and refresh tokens for user 3 (author)
     createTokensForUser: function createTokensForUser() {
-        var knex = config.database.knex;
-        return knex('clients').insert(DataGenerator.forKnex.clients).then(function () {
-            return knex('accesstokens').insert(DataGenerator.forKnex.createToken({user_id: 3}));
+        return DataUtils.insertDocuments('clients', DataGenerator.forDB.clients).then(function () {
+            return DataUtils.insertDocuments('accesstokens', DataGenerator.forDB.createToken({user_id: mongoose.Types.ObjectId('333333333333333333333333')}));
         }).then(function () {
-            return knex('refreshtokens').insert(DataGenerator.forKnex.createToken({user_id: 3}));
+            return DataUtils.insertDocuments('refreshtokens', DataGenerator.forDB.createToken({user_id: mongoose.Types.ObjectId('333333333333333333333333')}));
         });
     },
 
+    //TODO 需要处理ID自增长的可控问题，我们没办法做到自增长，只能写死，写一个全局的ID Generator？
     createInvitedUsers: function createInvitedUser() {
-        var knex = config.database.knex,
         // grab 3 more users
-            extraUsers = DataGenerator.Content.users.slice(2, 5);
+        var extraUsers = DataGenerator.Content.users.slice(2, 5);
 
         extraUsers = _.map(extraUsers, function (user) {
-            return DataGenerator.forKnex.createUser(_.extend({}, user, {
+            return DataGenerator.forDB.createUser(_.extend({}, user, {
                 email: 'inv' + user.email,
                 slug: 'inv' + user.slug,
                 status: 'invited-pending'
             }));
         });
 
-        return knex('users').insert(extraUsers).then(function () {
-            return knex('roles_users').insert([
-                {user_id: 8, role_id: 1},
-                {user_id: 9, role_id: 2},
-                {user_id: 10, role_id: 3}
-            ]);
-        });
+        return DataUtils.insertDocuments('users', extraUsers);
     },
 
     insertOne: function insertOne(obj, fn) {
-        var knex = config.database.knex;
-        return knex(obj)
-            .insert(DataGenerator.forKnex[fn](DataGenerator.Content[obj][0]));
-    },
-
-    insertApps: function insertApps() {
-        var knex = config.database.knex;
-        return knex('apps').insert(DataGenerator.forKnex.apps).then(function () {
-            return knex('app_fields').insert(DataGenerator.forKnex.app_fields);
-        });
+        return DataUtils.insertDocuments(obj, DataGenerator.forDB[fn](DataGenerator.Content[obj][0]));
     },
 
     getImportFixturePath: function (filename) {
@@ -307,22 +142,20 @@ fixtures = {
     },
 
     permissionsFor: function permissionsFor(obj) {
-        var knex = config.database.knex,
-            permsToInsert = permsFixtures.permissions[obj],
+        var permsToInsert = permsFixtures.permissions[obj],
             permsRolesToInsert = permsFixtures.permissions_roles,
             actions = [],
             permissionsRoles = [],
             roles = {
-                Administrator: 1,
-                Editor: 2,
-                Author: 3,
-                Owner: 4
+                SuperAdministrator: mongoose.Types.ObjectId('111111111111111111111111'),
+                Administrator: mongoose.Types.ObjectId('222222222222222222222222'),
+                iColleger: mongoose.Types.ObjectId('333333333333333333333333')
             };
 
         permsToInsert = _.map(permsToInsert, function (perms) {
             perms.object_type = obj;
             actions.push(perms.action_type);
-            return DataGenerator.forKnex.createBasic(perms);
+            return DataGenerator.forDB.createBasic(perms);
         });
 
         _.each(permsRolesToInsert, function (perms, role) {

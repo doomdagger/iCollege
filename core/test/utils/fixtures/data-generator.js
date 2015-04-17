@@ -118,9 +118,9 @@ DataGenerator.forDB = (function () {
     function createBasic(overrides) {
         return _.defaults(overrides, {
             uuid: uuid.v4(),
-            created_by: mongoose.Types.ObjectId('ffffffffffffffffffffffff'),
+            created_by: mongoose.Types.ObjectId('000000000000000000000000'),
             created_at: new Date(),
-            updated_by: mongoose.Types.ObjectId('ffffffffffffffffffffffff'),
+            updated_by: mongoose.Types.ObjectId('000000000000000000000000'),
             updated_at: new Date()
         });
     }
@@ -129,9 +129,9 @@ DataGenerator.forDB = (function () {
         return _.defaults(overrides, {
             uuid: uuid.v4(),
             status: 'offline',
-            created_by: mongoose.Types.ObjectId('ffffffffffffffffffffffff'),
+            created_by: mongoose.Types.ObjectId('000000000000000000000000'),
             created_at: new Date(),
-            updated_by: mongoose.Types.ObjectId('ffffffffffffffffffffffff'),
+            updated_by: mongoose.Types.ObjectId('000000000000000000000000'),
             updated_at: new Date()
         });
     }
@@ -149,7 +149,7 @@ DataGenerator.forDB = (function () {
     function createToken(overrides) {
         return _.defaults(overrides, {
             token: uuid.v4(),
-            client_id: mongoose.Types.ObjectId('ffffffffffffffffffffffff'),
+            client_id: mongoose.Types.ObjectId('000000000000000000000000'),
             expires: Date.now() + globalUtils.ONE_DAY_MS
         });
     }
@@ -212,5 +212,33 @@ DataGenerator.forModel = (function () {
         roles: roles
     };
 }());
+
+DataGenerator.next = (function () {
+    var counterMap = {};
+
+    return function (obj) {
+        var i,
+            code,
+            arr = [];
+        if (!!counterMap[obj]) {
+            // 如果已经超过了9，变成a
+            if (++counterMap[obj] == 58) {
+                counterMap[obj] = 97;
+            }
+            // 如果已经超过了f，变成0
+            if (counterMap[obj] == 103) {
+                counterMap[obj] = 48;
+            }
+            code = String.fromCharCode(counterMap[obj]);
+        } else {
+            code = '0';
+            counterMap[obj] = code.charCodeAt(0);
+        }
+        for (i = 0; i < 24; i++) {
+            arr.push(code);
+        }
+        return mongoose.Types.ObjectId(arr.join(''));
+    }
+})();
 
 module.exports = DataGenerator;
