@@ -11,7 +11,6 @@ var _            = require('lodash'),
     errors       = require('../../errors'),
     ImageHandler    = require('./handlers/image'),
     JSONHandler     = require('./handlers/json'),
-    MarkdownHandler = require('./handlers/markdown'),
     ImageImporter   = require('./importers/image'),
     DataImporter    = require('./importers/data'),
 
@@ -30,7 +29,7 @@ defaults = {
 
 function ImportManager() {
     this.importers = [ImageImporter, DataImporter];
-    this.handlers = [ImageHandler, JSONHandler, MarkdownHandler];
+    this.handlers = [ImageHandler, JSONHandler];
     // Keep track of files to cleanup at the end
     this.filesToDelete = [];
 }
