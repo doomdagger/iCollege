@@ -124,16 +124,15 @@ function doesCollectionExist (collectionName) {
 function safeDropCollections () {
     return collections().then(function (collections) {
         // filter out system collections, fill drop tasks
-        /* var tasks = */
-        _.map(_.filter(collections, function (collection) {
-            return collection.collectionName.indexOf("system.") !== 0;
-        }), function (collection) {
-            return function () {
-                return dropCollection(collection.collectionName);
-            };
-        });
+         var ops = _.map(_.filter(collections, function (collection) {
+             return collection.collectionName.indexOf("system.") !== 0;
+         }), function (collection) {
+             return function () {
+                 return dropCollection(collection.collectionName);
+             };
+         });
 
-        //return sequence(tasks);
+        return Promise.all(ops);
     });
 }
 
@@ -147,7 +146,7 @@ function safeDropCollections () {
  * @returns {Promise}
  */
 function insertDocuments (collectionName, docs, options) {
-    var collection = config.database.db.collection(collectionName),
+    var collection = config.database.db.collection(collectionName);
         options = options || {};
 
     return new Promise(function (resolve, reject) {
@@ -169,7 +168,7 @@ function insertDocuments (collectionName, docs, options) {
  * @returns {Promise}
  */
 function updateDocuments (collectionName, selector, document, options) {
-    var collection = config.database.db.collection(collectionName),
+    var collection = config.database.db.collection(collectionName);
         options = options || {};
 
     return new Promise(function (resolve, reject) {
@@ -191,8 +190,8 @@ function updateDocuments (collectionName, selector, document, options) {
  * @returns {Promise}
  */
 function removeDocuments (collectionName, selector, options) {
-    var collection = config.database.db.collection(collectionName),
-        selector = selector || {},
+    var collection = config.database.db.collection(collectionName);
+        selector = selector || {};
         options = options || {};
 
     return new Promise(function (resolve, reject) {
@@ -214,8 +213,8 @@ function removeDocuments (collectionName, selector, options) {
  * @returns {Promise}
  */
 function findDocuments (collectionName, query, options) {
-    var collection = config.database.db.collection(collectionName),
-        query = query || {},
+    var collection = config.database.db.collection(collectionName);
+        query = query || {};
         options = options || {};
 
     return new Promise(function (resolve, reject) {
