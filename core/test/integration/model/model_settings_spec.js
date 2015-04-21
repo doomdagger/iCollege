@@ -3,7 +3,7 @@
 var testUtils       = require('../../utils'),
     should          = require('should'),
 
-// Stuff we are testing
+    // Stuff we are testing
     SettingsModel   = require('../../../server/models/settings').Settings,
     config          = require('../../../server/config'),
     context         = testUtils.context.admin;

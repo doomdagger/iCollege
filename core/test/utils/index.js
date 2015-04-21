@@ -30,20 +30,35 @@ var Promise       = require('bluebird'),
 
 /** TEST FIXTURES **/
 fixtures = {
+    /**
+     * 加工Model Instance，目前仅仅是赋值id
+     * @param doc
+     * @param name
+     * @param [options]
+     */
+    amend: function amend(doc, name, options) {
+        var ret;
+        if (_.isArray(doc)) {
+            ret = _.map(DataGenerator.forDB[name], function (item) {
+                return _.extend({}, item, {_id: DataGenerator.next(name)}, options);
+            });
+        } else {
+            ret = _.extend({}, doc, {_id: DataGenerator.next(name)}, options);
+        }
+        return ret;
+    },
+
     insertRoles: function insertRoles() {
-        _.each(DataGenerator.forDB.roles, function (role) {
-            role._id = DataGenerator.next('roles');
-        });
-        return DataUtils.insertDocuments('roles', DataGenerator.forDB.roles);
+        return DataUtils.insertDocuments('roles', fixtures.amend(DataGenerator.forDB.roles, 'roles'));
     },
 
     initOwnerUser: function initOwnerUser() {
         var user = DataGenerator.Content.users[0];
 
         user = DataGenerator.forDB.createBasic(user);
-        user = _.extend({}, user, {status: 'online'});
+        user = fixtures.amend(user, 'users', {status: 'online', roles: [DataGenerator.Content.roles_users[0]]});
 
-        return DataUtils.insertDocuments('roles', DataGenerator.forDB.roles).then(function () {
+        return fixtures.insertRoles().then(function () {
             return DataUtils.insertDocuments('users', user);
         });
     },
@@ -52,6 +67,7 @@ fixtures = {
         var user;
 
         user = DataGenerator.forDB.createUser(DataGenerator.Content.users[0]);
+        user = fixtures.amend(user, 'users', {roles: [DataGenerator.Content.roles_users[0]]});
 
         return DataUtils.insertDocuments('users', user);
     },
@@ -62,13 +78,13 @@ fixtures = {
         user = DataGenerator.forDB.createUser(DataGenerator.Content.users[0]);
 
         return DataUtils.updateDocuments('users',
-            {'id': mongoose.Types.ObjectId('ffffffffffffffffffffffff')},
+            {'id': mongoose.Types.ObjectId('000000000000000000000000')},
             {$set: user});
     },
 
     createUsersWithRoles: function createUsersWithRoles() {
-        return DataUtils.insertDocuments('roles', DataGenerator.forDB.roles).then(function () {
-            return DataUtils.insertDocuments('users', DataGenerator.forDB.users);
+        return fixtures.insertRoles().then(function () {
+            return DataUtils.insertDocuments('users', fixtures.amend(DataGenerator.forDB.users, 'users'));
         });
     },
 
@@ -78,8 +94,10 @@ fixtures = {
 
         extraUsers = _.map(extraUsers, function (user) {
             return DataGenerator.forDB.createUser(_.extend({}, user, {
+                _id: DataGenerator.next('users'),
                 email: 'a' + user.email,
-                slug: 'a' + user.slug
+                slug: 'a' + user.slug,
+                roles: [mongoose.Types.ObjectId('222222222222222222222222')]
             }));
         });
 
@@ -88,23 +106,26 @@ fixtures = {
 
     // Creates a client, and access and refresh tokens for user 3 (author)
     createTokensForUser: function createTokensForUser() {
-        return DataUtils.insertDocuments('clients', DataGenerator.forDB.clients).then(function () {
-            return DataUtils.insertDocuments('accesstokens', DataGenerator.forDB.createToken({user_id: mongoose.Types.ObjectId('333333333333333333333333')}));
+        return DataUtils.insertDocuments('clients', fixtures.amend(DataGenerator.forDB.clients, 'clients')).then(function () {
+            return DataUtils.insertDocuments('accesstokens',
+                DataGenerator.forDB.createToken({_id: DataGenerator.next('accesstokens'), user_id: mongoose.Types.ObjectId('333333333333333333333333')}));
         }).then(function () {
-            return DataUtils.insertDocuments('refreshtokens', DataGenerator.forDB.createToken({user_id: mongoose.Types.ObjectId('333333333333333333333333')}));
+            return DataUtils.insertDocuments('refreshtokens',
+                DataGenerator.forDB.createToken({_id: DataGenerator.next('refreshtokens'), user_id: mongoose.Types.ObjectId('333333333333333333333333')}));
         });
     },
 
-    //TODO 需要处理ID自增长的可控问题，我们没办法做到自增长，只能写死，写一个全局的ID Generator？
     createInvitedUsers: function createInvitedUser() {
         // grab 3 more users
         var extraUsers = DataGenerator.Content.users.slice(2, 5);
 
         extraUsers = _.map(extraUsers, function (user) {
             return DataGenerator.forDB.createUser(_.extend({}, user, {
+                _id: DataGenerator.next('users'),
                 email: 'inv' + user.email,
                 slug: 'inv' + user.slug,
-                status: 'invited-pending'
+                status: 'invited-pending',
+                roles: [mongoose.Types.ObjectId('222222222222222222222222')]
             }));
         });
 
@@ -112,7 +133,7 @@ fixtures = {
     },
 
     insertOne: function insertOne(obj, fn) {
-        return DataUtils.insertDocuments(obj, DataGenerator.forDB[fn](DataGenerator.Content[obj][0]));
+        return DataUtils.insertDocuments(obj, fixtures.amend(DataGenerator.forDB[fn](DataGenerator.Content[obj][0]), obj));
     },
 
     getImportFixturePath: function (filename) {
@@ -147,33 +168,32 @@ fixtures = {
             actions = [],
             permissionsRoles = [],
             roles = {
-                SuperAdministrator: mongoose.Types.ObjectId('111111111111111111111111'),
-                Administrator: mongoose.Types.ObjectId('222222222222222222222222'),
-                iColleger: mongoose.Types.ObjectId('333333333333333333333333')
+                SuperAdministrator: mongoose.Types.ObjectId('000000000000000000000000'),
+                Administrator: mongoose.Types.ObjectId('111111111111111111111111'),
+                iColleger: mongoose.Types.ObjectId('222222222222222222222222')
             };
 
         permsToInsert = _.map(permsToInsert, function (perms) {
-            perms.object_type = obj;
             actions.push(perms.action_type);
-            return DataGenerator.forDB.createBasic(perms);
+            return fixtures.amend(DataGenerator.forDB.createBasic(perms), 'permissions', {object_type: obj});
         });
 
         _.each(permsRolesToInsert, function (perms, role) {
             if (perms[obj]) {
                 if (perms[obj] === 'all') {
                     _.each(actions, function (action, i) {
-                        permissionsRoles.push({permission_id: (i + 1), role_id: roles[role]});
+                        permissionsRoles.push(DataUtils.updateDocuments("roles", {id: roles[role]}, {$push: {permissions: permsToInsert[i]._id}}));
                     });
                 } else {
                     _.each(perms[obj], function (action) {
-                        permissionsRoles.push({permission_id: (_.indexOf(actions, action) + 1), role_id: roles[role]});
+                        permissionsRoles.push(DataUtils.updateDocuments("roles", {id: roles[role]}, {$push: {permissions: permsToInsert[_.indexOf(actions, action)]._id}}))
                     });
                 }
             }
         });
 
-        return knex('permissions').insert(permsToInsert).then(function () {
-            return knex('permissions_roles').insert(permissionsRoles);
+        return DataUtils.insertDocuments('permissions', permsToInsert).then(function () {
+            return Promise.all(permissionsRoles);
         });
     }
 };
@@ -189,27 +209,10 @@ clearData = function clearData() {
 };
 
 toDoList = {
-    app: function insertApp() { return fixtures.insertOne('apps', 'createApp'); },
-    app_field: function insertAppField() {
-        // TODO: use the actual app ID to create the field
-        return fixtures.insertOne('apps', 'createApp').then(function () {
-            return fixtures.insertOne('app_fields', 'createAppField');
-        });
-    },
-    app_setting: function insertAppSetting() {
-        // TODO: use the actual app ID to create the field
-        return fixtures.insertOne('apps', 'createApp').then(function () {
-            return fixtures.insertOne('app_settings', 'createAppSetting');
-        });
-    },
     permission: function insertPermission() { return fixtures.insertOne('permissions', 'createPermission'); },
     role: function insertRole() { return fixtures.insertOne('roles', 'createRole'); },
     roles: function insertRoles() { return fixtures.insertRoles(); },
-    tag: function insertTag() { return fixtures.insertOne('tags', 'createTag'); },
 
-    posts: function insertPosts() { return fixtures.insertPosts(); },
-    'posts:mu': function insertMultiAuthorPosts() { return fixtures.insertMultiAuthorPosts(); },
-    apps: function insertApps() { return fixtures.insertApps(); },
     settings: function populateSettings() {
         return Models.Settings.populateDefaults().then(function () { return SettingsAPI.updateSettingsCache(); });
     },
@@ -325,8 +328,8 @@ login = function login(request) {
     var user = DataGenerator.forModel.users[0];
 
     return new Promise(function (resolve, reject) {
-        request.post('/ghost/api/v0.1/authentication/token/')
-            .send({grant_type: 'password', username: user.email, password: user.password, client_id: 'ghost-admin'})
+        request.post('/icollege/api/v0.1/authentication/token/')
+            .send({grant_type: 'password', username: user.email, password: user.password, client_id: 'icollege-admin'})
             .end(function (err, res) {
                 if (err) {
                     return reject(err);
@@ -342,7 +345,7 @@ togglePermalinks = function togglePermalinks(request, toggle) {
 
     return new Promise(function (resolve, reject) {
         doAuth(request).then(function (token) {
-            request.put('/ghost/api/v0.1/settings/')
+            request.put('/icollege/api/v0.1/settings/')
                 .set('Authorization', 'Bearer ' + token)
                 .send({settings: [
                     {

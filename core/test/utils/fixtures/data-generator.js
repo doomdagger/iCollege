@@ -154,6 +154,13 @@ DataGenerator.forDB = (function () {
         });
     }
 
+    roles_users = [
+        mongoose.Types.ObjectId('000000000000000000000000'),
+        mongoose.Types.ObjectId('222222222222222222222222'),
+        mongoose.Types.ObjectId('222222222222222222222222'),
+        mongoose.Types.ObjectId('111111111111111111111111')
+    ];
+
     roles = [
         createBasic(DataGenerator.Content.roles[0]),
         createBasic(DataGenerator.Content.roles[1]),
@@ -161,21 +168,14 @@ DataGenerator.forDB = (function () {
     ];
 
     users = [
-        createUser(DataGenerator.Content.users[0]),
-        createUser(DataGenerator.Content.users[1]),
-        createUser(DataGenerator.Content.users[2]),
-        createUser(DataGenerator.Content.users[3])
+        createUser(_.extend({}, DataGenerator.Content.users[0], {roles: [roles_users[0]]})),
+        createUser(_.extend({}, DataGenerator.Content.users[1], {roles: [roles_users[1]]})),
+        createUser(_.extend({}, DataGenerator.Content.users[2], {roles: [roles_users[2]]})),
+        createUser(_.extend({}, DataGenerator.Content.users[3], {roles: [roles_users[3]]}))
     ];
 
     clients = [
         createBasic({name: 'iCollege Admin', slug: 'icollege-admin', secret: 'not_available'})
-    ];
-
-    roles_users = [
-        {user_id: 1, role_id: 4},
-        {user_id: 2, role_id: 1},
-        {user_id: 3, role_id: 2},
-        {user_id: 4, role_id: 3}
     ];
 
     return {
@@ -222,11 +222,11 @@ DataGenerator.next = (function () {
             arr = [];
         if (!!counterMap[obj]) {
             // 如果已经超过了9，变成a
-            if (++counterMap[obj] == 58) {
+            if (++counterMap[obj] === 58) {
                 counterMap[obj] = 97;
             }
             // 如果已经超过了f，变成0
-            if (counterMap[obj] == 103) {
+            if (counterMap[obj] === 103) {
                 counterMap[obj] = 48;
             }
             code = String.fromCharCode(counterMap[obj]);
