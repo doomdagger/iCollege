@@ -55,6 +55,7 @@ basetokenShelf = icollegeShelf.extend({
     // override for base function since we don't have
     // a updated_by field for sessions
     updating: function (next, criteria, doc, options) {
+        options = this.filterOptions(options, "update");
         next(criteria, doc, options);
     }
 

@@ -4,30 +4,28 @@
 var _          = require('lodash'),
     schema     = require('../data/schema'),
     mongoose   = require('mongoose'),
+    errors     = require('../errors'),
 
     Shelf;
 
 // ## 关于model模块层级划分的文档介绍
 // Shelf接受三个参数，分别为methods, statics, functions
 // 对应的为: Model.prototype, Model, Schema.prototype
-//
-//
-//
 
 /**
  * My Shelf Class: 单例！！
- * @param methods [Object] Model instance level
- * @param statics [Object] Model Level
- * @param functions [Object] Schema Level
+ * @param overwrite {Boolean} does this Shelf overwrite properties of Mongoose Components
+ * @param methods {Object} Model instance level
+ * @param statics {Object} Model Level
+ * @param functions {Object} Schema Level
  * @constructor
  */
-Shelf = function Shelf(methods, statics, functions) {
+Shelf = function Shelf(overwrite, methods, statics, functions) {
     // # options for parent schema, descendants will override these options
     // pay attention to some specific part
     this.options = {
         autoIndex: true,
         id: true,
-        //_id: false, // Note that currently you must disable the _id. After data is inserted, _id and id will be assigned
         toJSON: {
             getters: true,
             virtuals: false
@@ -38,24 +36,27 @@ Shelf = function Shelf(methods, statics, functions) {
         }
     };
 
-    // methods to inherit
-    this.methods = {};
-    // static methods to inherit
-    this.statics = {};
-    // functions to inherit
-    this.functions = {};
+    // 如果此Shelf将覆盖Mongoose，此Shelf不存储入参的任何变量
+    // 所以变量均直接用于覆盖Mongoose
+    if (overwrite) {
+        this.methods = {};
+        this.statics = {};
+        this.functions = {};
+
+        _.extend(this.Model.prototype, methods);
+        _.extend(this.Model, statics);
+        _.extend(this.Schema.prototype, functions);
+    } else {
+        // 如果此Shelf不覆盖Mongoose，此Shelf存储入参的所有变量
+        this.methods = methods || {};
+        this.statics = statics || {};
+        this.functions = functions || {};
+    }
 
     // add Model to our shelf
     this.Model = mongoose.Model;
     // add Schema to our shelf
     this.Schema = mongoose.Schema;
-
-    // 杜绝覆盖mongoose的核心方法，所以使用了_.defaults，而非_.extend
-    if (methods || statics || functions) {
-        _.defaults(this.Model.prototype, methods);
-        _.defaults(this.Model, statics);
-        _.defaults(this.Schema.prototype, functions);
-    }
 };
 
 /**
@@ -66,13 +67,13 @@ Shelf = function Shelf(methods, statics, functions) {
  * @returns {Shelf} return a brand new Shelf object
  */
 Shelf.prototype.extend = function(methods, statics, functions) {
-    var extended = new Shelf();
+    var extended = new Shelf(false, methods, statics, functions);
     // extend methods for default schema
-    _.extend(extended.methods, this.methods, methods);
+    _.extend(extended.methods, this.methods);
     // extend statics for default schema
-    _.extend(extended.statics, this.statics, statics);
+    _.extend(extended.statics, this.statics);
     // extend functions for default schema
-    _.extend(extended.functions, this.functions, functions);
+    _.extend(extended.functions, this.functions);
 
     return extended;
 };
@@ -80,9 +81,9 @@ Shelf.prototype.extend = function(methods, statics, functions) {
 /**
  * create schema object
  * @param {String} collectionName
- * @param {Object} methods - instance methods definition
- * @param {Object} statics - static methods definition
- * @param {Object} functions - functions for Schema level
+ * @param {Object} [methods] - instance methods definition
+ * @param {Object} [statics] - static methods definition
+ * @param {Object} [functions] - functions for Schema level
  * @returns {Mongoose.Schema} schema object
  */
 Shelf.prototype.schema = function (collectionName, methods, statics, functions) {
@@ -111,7 +112,7 @@ Shelf.prototype.schema = function (collectionName, methods, statics, functions) 
         defaultSchema.initialize();
     }
     else {
-        console.log("schema did not define initialize method");
+        errors.logInfo(collectionName, "did not define initialize method");
     }
 
     return defaultSchema;

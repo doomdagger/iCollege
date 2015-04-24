@@ -22,7 +22,7 @@ var _          = require('lodash'),
 
 // ### icollegeShelf
 // Initializes a new Shelf instance called icollegeShelf, for reference elsewhere in iCollege.
-icollegeShelf = new Shelf({
+icollegeShelf = new Shelf(true, {
     // #### Model Instance Level methods, Methods
     // Methods on Model Level means model instance can invoke
 
@@ -44,7 +44,7 @@ icollegeShelf = new Shelf({
     },
 
     // Get permitted attributes from server/data/schema.js, which is where the DB schema is defined
-    attributes: function () {
+    permittedAttributes: function () {
         return _.keys(schema.collections[this.schema.collectionName]);
     },
 
@@ -98,10 +98,13 @@ icollegeShelf = new Shelf({
         }
     },
 
-    // 我们需要统一options绑定到Model Instance上的行为
-    // 如果是Model类，请使用 Model.forge(data, options)
-    // 如果是Model实例（model），请使用 model.bindOptions(options)
-    //
+    /**
+     * 我们需要统一options绑定到Model Instance上的行为
+     * 如果是Model类(Model)，请使用 Model.forge(data, options)
+     * 如果是Model实例（model），请使用 model.bindOptions(options)
+     * @param options {Object}
+     * @param [force] {Boolean}
+     */
     bindOptions: function (options, force) {
         if (!!this.options && force) {
             // 如果事先有options，直接删除
@@ -138,35 +141,65 @@ icollegeShelf = new Shelf({
     // Methods on Model Level means Model Class can invoke
 
     /**
-     * Returns an array of keys permitted in every method's `options` hash.
-     * Can be overridden and added to by a model's `permittedOptions` method.
-     * @return {Array} Keys allowed in the `options` hash of every model's method.
-     */
-    permittedOptions: function () {
-        // terms to whitelist for all methods.
-        return ['context', 'include', 'transacting'];
-    },
-
-    /**
      * A simple helper function to instantiate a new Model without needing new
      * @param data
      * @param options
      * @returns {Model}
      */
     forge: function (data, options) {
-        var Self = this,
-            newObj;
-        // 没有uuid，为model instance补充
+        var inst,
+            obj;
+
         if (!data.uuid) {
             data.uuid = uuid.v4();
         }
 
-        newObj = new Self(data);
-        newObj.options = options;
+        inst = Object.create(this.prototype);
+        obj = this.call(inst, data);
 
-        return newObj;
+        obj.options = options;
+
+        return (Object(obj) === obj ? obj : inst);
     },
 
+    /**
+     * Returns an array of keys permitted in every method's `options` hash.
+     * Can be overridden and added to by a model's `permittedOptions` method.
+     * @param [methodName] method name
+     * @return {Array} Keys allowed in the `options` hash of every model's method.
+     */
+    permittedOptions: function (methodName) {
+        var options;
+
+        switch (methodName) {
+            case "update":
+                options = ['safe', 'upsert', 'multi', 'strict', 'overwrite'];
+                break;
+            case "find":
+                options = ['skip'];
+                break;
+            case "findByIdAndRemove":
+                options = ['sort', 'select'];
+                break;
+            case "findByIdAndUpdate":
+                options = ['new', 'upsert', 'sort', 'select'];
+                break;
+            default :
+                options = ['context'/*, 'transacting'*/];
+        }
+        return options;
+    },
+
+    /**
+     * Filters potentially unsafe model attributes, so you can pass them to Bookshelf / Knex.
+     * @param {Object} data Has keys representing the model's attributes/fields in the database.
+     * @return {Object} The filtered results of the passed in data, containing only what's allowed in the schema.
+     */
+    filterData: function (data) {
+        var permittedAttributes = this.prototype.permittedAttributes();
+
+        return _.pick(data, permittedAttributes);
+    },
 
     /**
      * Filters potentially unsafe `options` in a model method's arguments, so you can pass them to Bookshelf / Knex.
@@ -189,6 +222,7 @@ icollegeShelf = new Shelf({
      * @return {Promise} Collection of all Models
      */
     findAll:  function (options) {
+        options = this.filterOptions(options, 'find');
         return this.findAsync({}, null, options);
     },
 
@@ -298,7 +332,8 @@ icollegeShelf = new Shelf({
     // This 'this' is Model Object
     updating: function (next, criteria, doc, options) {
         _.merge(doc, {$set: {'updated_at': new Date(), 'updated_by': this.prototype.contextUser(options)}});
-        next(criteria, doc);
+        options = this.filterOptions(options, "update");
+        next(criteria, doc, options);
     }
 });
 
