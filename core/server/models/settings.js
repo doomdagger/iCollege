@@ -51,12 +51,7 @@ SettingSchema = icollegeShelf.schema('settings', {
             uuid: uuid.v4(),
             type: 'core'
         };
-    },
-
-    validateSettings: function () {
-        return validation.validateSettings(getDefaultSettings(), this);
     }
-
 
 }, {
     // #### Model Level methods, Statics
@@ -70,6 +65,30 @@ SettingSchema = icollegeShelf.schema('settings', {
         return Promise.resolve(icollegeShelf.Model.findOneAsync.call(this, conditions));
     },
 
+    edit: function (data, options) {
+        var self = this;
+        options = this.filterOptions(options, 'edit');
+
+        if (!Array.isArray(data)) {
+            data = [data];
+        }
+
+        return Promise.map(data, function (item) {
+            // Accept an array of models as input
+            if (item.toJSON) { item = item.toJSON(); }
+            if (!(_.isString(item.key) && item.key.length > 0)) {
+                return Promise.reject(new errors.ValidationError('Value in [settings.key] cannot be blank.'));
+            }
+
+            item = self.filterData(item);
+
+            return Settings.updateAsync({key: item.key}, {value: item.value}, options).then(function (ret) {
+                if (ret.nModified === 0) {
+                    return Promise.reject(new errors.NotFoundError('Unable to find setting to update: ' + item.key));
+                }
+            }, errors.logAndThrowError);
+        });
+    },
 
     populateDefault: function (key) {
         if (!getDefaultSettings()[key]) {
@@ -84,7 +103,7 @@ SettingSchema = icollegeShelf.schema('settings', {
             var defaultSetting = _.clone(getDefaultSettings()[key]);
             defaultSetting.value = defaultSetting.defaultValue;
 
-            return Settings.forge(defaultSetting, internal).saveAsync();
+            return Settings.forge(defaultSetting).saveAsync(internal);
         });
     },
 
@@ -101,7 +120,7 @@ SettingSchema = icollegeShelf.schema('settings', {
                 }
                 if (isMissingFromDB) {
                     defaultSetting.value = defaultSetting.defaultValue;
-                    insertOperations.push(Settings.forge(defaultSetting, internal).saveAsync());
+                    insertOperations.push(Settings.forge(defaultSetting).saveAsync(internal));
                 }
             });
 
@@ -109,6 +128,22 @@ SettingSchema = icollegeShelf.schema('settings', {
         });
     }
 
+}, {
+    // #### Schema instance level
+    initialize: function () {
+        icollegeShelf.Schema.prototype.initialize.apply(this, arguments);
+
+        // add validation for settings, hook in before validate
+        this.pre('validate', this.validating);
+    },
+
+    // This 'this' is model instance level
+    validating: function (next) {
+        if (validation.validateSettings(getDefaultSettings(), this)) {
+            return next();
+        }
+        errors.throwError(errors.ValidationError("Settings Validation Failed"));
+    }
 });
 
 Settings = icollegeShelf.model('Settings', SettingSchema);

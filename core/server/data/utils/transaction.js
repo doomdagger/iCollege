@@ -8,7 +8,9 @@
 var Promise     = require('bluebird'),
     _           = require('lodash'),
 
-    config      = require('../../config');
+    config      = require('../../config'),
+
+    Transaction;
 
 
 /**
@@ -27,7 +29,7 @@ Transaction = function Transaction () {
     //transaction state
     //when the transaction initialize,the value of state is true meaning the transaction is not working.
     //this.state = true;
-}
+};
 
 
 /**
@@ -40,14 +42,13 @@ Transaction = function Transaction () {
  * @param [doc] (Array) - the document we change before update..
  */
 Transaction.prototype.backup = function (collectionName, _id, doc) {
-
-    var doc = doc || {},
-        transaction = {
-            collectionName : collectionName,
-            _id : _id,
-            doc : doc
-        };
-
+    var transaction;
+    doc = doc || {};
+    transaction = {
+        collectionName : collectionName,
+        _id : _id,
+        doc : doc
+    };
     this.transArrary.push(transaction);
 };
 

@@ -22,9 +22,10 @@ basetokenShelf = icollegeShelf.extend({
 
     /**
      * ### destroyByUser
-     * @param  {[String]} userId userId is the user to destroy
+     * @param  {[type]} options has context and id. Context is the user doing the destroy, id is the user to destroy
      */
-    destroyByUser: function (userId) {
+    destroyByUser: function (options) {
+        var userId = options.id;
         if (userId) {
             return this.removeAsync({user_id: userId});
         }
@@ -35,9 +36,11 @@ basetokenShelf = icollegeShelf.extend({
 
     /**
      * ### destroyByToken
-     * @param  {[String]} options has token where token is the token to destroy
+     * @param  {[type]} options has token where token is the token to destroy
      */
-    destroyByToken: function (token) {
+    destroyByToken: function (options) {
+        var token = options.token;
+
         if (token) {
             return this.removeAsync({token: token});
         }
@@ -48,14 +51,14 @@ basetokenShelf = icollegeShelf.extend({
 }, {
     // override for base function since we don't have
     // a updated_by field for sessions
-    saving: function (next) {
-        next();
+    saving: function (next, options) {
+        /*jshint unused:false*/
+        next(options);
     },
 
     // override for base function since we don't have
     // a updated_by field for sessions
     updating: function (next, criteria, doc, options) {
-        options = this.filterOptions(options, "update");
         next(criteria, doc, options);
     }
 

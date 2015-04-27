@@ -17,9 +17,6 @@ var Promise        = require('bluebird'),
     tokenSecurity  = {},
     normalStates   = ['online', 'invisible', 'offline'],
 
-    //activeStates   = ['online', 'invisible', 'offline', 'locked', 'warn-1', 'warn-2', 'warn-3', 'warn-4'],
-    //invitedStates  = ['invited', 'invited-pending'],
-
     User,
     Users;
 
@@ -67,7 +64,21 @@ Users = icollegeShelf.schema('users', {
     // #### Model Level methods, Statics
     // Methods on Model Level means Model Class can invoke
 
-    setWarning: function (user) {
+    /**
+     * ### Find All
+     * @param {Object} [projection] string partitioned by space
+     * @param {Object} options
+     * @returns {*}
+     */
+    findAll:  function (projection, options) {
+        options = options || {};
+        return this.find({}, projection, options)
+            .populate("roles permissions")
+            .execAsync();
+    },
+
+
+    setWarning: function (user, options) {
         var status = user.get('status'),
             regexp = /warn-(\d+)/i,
             level;
@@ -84,7 +95,7 @@ Users = icollegeShelf.schema('users', {
             }
         }
 
-        return Promise.resolve(user.saveAsync()).then(function () {
+        return Promise.resolve(user.saveAsync(options)).then(function () {
             return 5 - level;
         });
     },
@@ -93,7 +104,7 @@ Users = icollegeShelf.schema('users', {
     check: function (object) {
         var self = this,
             s;
-        return this.findOneAsync({name: object.name}).then(function (user) {
+        return this.getByName(object.name).then(function (user) {
             if (!user) {
                 return Promise.reject(new errors.NotFoundError('There is no user with that name.'));
             }
@@ -123,7 +134,7 @@ Users = icollegeShelf.schema('users', {
                         });
                     }
 
-                    return Promise.resolve(user.set({status: 'online', last_login: new Date()}).saveAsync())
+                    return Promise.resolve(user.setMulti({status: 'online', last_login: new Date()}).saveAsync())
                         .catch(function (error) {
                             // If we get a validation or other error during this save, catch it and log it, but don't
                             // cause a login error because of it. The user validation is not important here.
@@ -186,7 +197,7 @@ Users = icollegeShelf.schema('users', {
 
             return generatePasswordHash(newPassword);
         }).then(function (hash) {
-            return user.set({password: hash}).saveAsync();
+            return user.setMulti({password: hash}).saveAsync();
         });
     },
 
@@ -297,8 +308,14 @@ Users = icollegeShelf.schema('users', {
             var foundUser = results[0],
                 passwordHash = results[1];
 
-            return foundUser.set({password: passwordHash, status: 'offline'}).saveAsync();
+            return foundUser.setMulti({password: passwordHash, status: 'offline'}).saveAsync();
         });
+    },
+
+    getByName: function (name, options) {
+        options = options || {};
+
+        return this.findOneAsync({name: name}, null, options);
     }
 
 }, {
@@ -319,7 +336,7 @@ Users = icollegeShelf.schema('users', {
             return icollegeShelf.Model.generateSlug(User, this.get('slug') || this.get('name'),
                 {shortSlug: !this.get('slug')})
                 .then(function (slug) {
-                    self.set({slug: slug});
+                    self.setMulti({slug: slug});
                 });
         }
         next();

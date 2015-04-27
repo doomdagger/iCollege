@@ -38,9 +38,9 @@ Roles = icollegeShelf.schema('roles', {
 
         if (action === 'assign' && loadedPermissions.user) {
             if (_.any(loadedPermissions.user.roles, {name: 'SuperAdministrator'})) {
-                checkAgainst = ['Administrator', 'iColleger'];
+                checkAgainst = ['SuperAdministrator', 'Administrator', 'iColleger'];
             } else if (_.any(loadedPermissions.user.roles, {name: 'Administrator'})) {
-                checkAgainst = ['iColleger'];
+                checkAgainst = ['Administrator', 'iColleger'];
             }
 
             // Role in the list of permissible roles

@@ -19,7 +19,7 @@ var config      = require('../../config'),
  */
 function collection (name) {
     return new Promise(function (resolve, reject) {
-        config.database.db.collection(function (err, collection) {
+        config.database.db.collection(name, function (err, collection) {
             if (err) {
                 return reject(err);
             }
@@ -36,7 +36,7 @@ function collection (name) {
  * @returns {Promise}
  */
 function createCollection (collectionName, options) {
-    var options = options || {};
+    options = options || {};
 
     return new Promise(function (resolve, reject) {
         config.database.db.createCollection(collectionName, options, function (err, collection) {
@@ -44,7 +44,7 @@ function createCollection (collectionName, options) {
                 return reject(err);
             }
             resolve(collection);
-        })
+        });
     });
 }
 
@@ -90,7 +90,7 @@ function collections () {
  * @returns {Promise}
  */
 function collectionNames (collectionName,options) {
-    var options = options || {};
+    options = options || {};
     return new Promise(function (resolve, reject) {
         config.database.db.collectionNames(collectionName, options, function (err, names) {
             if (err) {

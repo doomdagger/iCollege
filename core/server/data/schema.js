@@ -106,7 +106,7 @@ var db = {
         }],
         // 用户享有的权限
         permissions: [{
-            type: Schema.Types.ObjectId,
+            type: String,
             ref: 'Permission'
         }],
         // 太过于遥远，再说吧
@@ -186,7 +186,7 @@ var db = {
         uuid: {type: String, required: true}, // uuid
         name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger'], required: true},
         permissions: [{
-            type: Schema.Types.ObjectId,
+            type: String,
             ref: 'Permission'
         }],
         description: {type: String, trim: true, default: ""},

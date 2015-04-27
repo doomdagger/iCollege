@@ -36,6 +36,11 @@ Shelf = function Shelf(overwrite, methods, statics, functions) {
         }
     };
 
+    // add Model to our shelf
+    this.Model = mongoose.Model;
+    // add Schema to our shelf
+    this.Schema = mongoose.Schema;
+
     // 如果此Shelf将覆盖Mongoose，此Shelf不存储入参的任何变量
     // 所以变量均直接用于覆盖Mongoose
     if (overwrite) {
@@ -52,11 +57,6 @@ Shelf = function Shelf(overwrite, methods, statics, functions) {
         this.statics = statics || {};
         this.functions = functions || {};
     }
-
-    // add Model to our shelf
-    this.Model = mongoose.Model;
-    // add Schema to our shelf
-    this.Schema = mongoose.Schema;
 };
 
 /**
@@ -68,12 +68,13 @@ Shelf = function Shelf(overwrite, methods, statics, functions) {
  */
 Shelf.prototype.extend = function(methods, statics, functions) {
     var extended = new Shelf(false, methods, statics, functions);
+    // 之所以用defaults，是因为主要以extended的自定义为主
     // extend methods for default schema
-    _.extend(extended.methods, this.methods);
+    _.defaults(extended.methods, this.methods);
     // extend statics for default schema
-    _.extend(extended.statics, this.statics);
+    _.defaults(extended.statics, this.statics);
     // extend functions for default schema
-    _.extend(extended.functions, this.functions);
+    _.defaults(extended.functions, this.functions);
 
     return extended;
 };

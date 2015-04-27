@@ -28,7 +28,7 @@ icollegeShelf = new Shelf(true, {
 
     // we extend the set method of Mongoose
     // you can now also pass an object to instance, covering multiple attributes
-    set: function (key, value) {
+    setMulti: function (key, value) {
         if (arguments.length === 1) {
             if (_.isObject(key)) {
                 _.each(key, function (k, v) {
@@ -98,22 +98,6 @@ icollegeShelf = new Shelf(true, {
         }
     },
 
-    /**
-     * 我们需要统一options绑定到Model Instance上的行为
-     * 如果是Model类(Model)，请使用 Model.forge(data, options)
-     * 如果是Model实例（model），请使用 model.bindOptions(options)
-     * @param options {Object}
-     * @param [force] {Boolean}
-     */
-    bindOptions: function (options, force) {
-        if (!!this.options && force) {
-            // 如果事先有options，直接删除
-            delete this.options;
-        }
-        this.options = _.extend(this.options || {}, options);
-        return this;
-    },
-
     // format date before writing to DB, bools work
     format: function (attrs) {
         return this.fixDates(attrs);
@@ -143,51 +127,35 @@ icollegeShelf = new Shelf(true, {
     /**
      * A simple helper function to instantiate a new Model without needing new
      * @param data
-     * @param options
+     * @param [options]
      * @returns {Model}
      */
     forge: function (data, options) {
         var inst,
-            obj;
+            obj,
+            ret;
+
+        options = options || {};
 
         if (!data.uuid) {
             data.uuid = uuid.v4();
         }
-
         inst = Object.create(this.prototype);
         obj = this.call(inst, data);
 
-        obj.options = options;
-
-        return (Object(obj) === obj ? obj : inst);
+        ret = (Object(obj) === obj ? obj : inst);
+        ret.options = options;
+        return ret;
     },
 
     /**
      * Returns an array of keys permitted in every method's `options` hash.
      * Can be overridden and added to by a model's `permittedOptions` method.
-     * @param [methodName] method name
      * @return {Array} Keys allowed in the `options` hash of every model's method.
      */
-    permittedOptions: function (methodName) {
-        var options;
-
-        switch (methodName) {
-            case "update":
-                options = ['safe', 'upsert', 'multi', 'strict', 'overwrite'];
-                break;
-            case "find":
-                options = ['skip'];
-                break;
-            case "findByIdAndRemove":
-                options = ['sort', 'select'];
-                break;
-            case "findByIdAndUpdate":
-                options = ['new', 'upsert', 'sort', 'select'];
-                break;
-            default :
-                options = ['context'/*, 'transacting'*/];
-        }
-        return options;
+    permittedOptions: function () {
+        // terms to whitelist for all methods.
+        return ['context', 'include'];
     },
 
     /**
@@ -218,27 +186,67 @@ icollegeShelf = new Shelf(true, {
     /**
      * ### Find All
      * Naive find all fetches all the data for a particular model
-     * @param {Object} options (optional) mongoose options, not our options
+     * @param {Object} [projection] string partitioned by space
+     * @param {Object} [options] (optional) mongoose options
      * @return {Promise} Collection of all Models
      */
-    findAll:  function (options) {
-        options = this.filterOptions(options, 'find');
-        return this.findAsync({}, null, options);
+    findAll:  function (projection, options) {
+        options = this.filterOptions(options, 'findAll');
+        return this.findAsync({}, projection, options);
+    },
+
+
+    /**
+     * ### Edit
+     * Naive edit
+     * @param {Object} doc update criteria
+     * @param {Object} options (optional) put id in options
+     * @return {Promise} Edited Model
+     */
+    edit: function (doc, options) {
+        var id = options.id;
+        options = this.filterOptions(options, 'edit');
+
+        return this.updateAsync({id: id}, doc, options);
+    },
+
+    /**
+     * ### Add
+     * Naive add
+     * @param {Object} data
+     * @param {Object} options (optional)
+     * @return {Promise} Newly Added Model
+     */
+    add: function (data, options) {
+        data = this.filterData(data);
+        options = this.filterOptions(options, 'add');
+        return this.forge(data).saveAsync(options);
+    },
+
+    /**
+     * ### Destroy
+     * Naive destroy
+     * @return {Promise} Empty Model
+     */
+    destroy: function (options) {
+        var id = options.id;
+        // options = this.filterOptions(options, 'destroy');
+        return this.removeAsync({id: id});
     },
 
     /**
      * ### Generate Slug
      * Create a string to act as the permalink for an object.
-     * @param {ghostBookshelf.Model} Model Model type to generate a slug for
+     * @param {Model} Model Model type to generate a slug for
      * @param {String} base The string for which to generate a slug, usually a title or name
      * @param {Object} options Options to pass to findOne
-     * @return {Promise(String)} Resolves to a unique slug string
+     * @return {Promise} Resolves to a unique slug string
      */
     generateSlug: function (Model, base, options) {
         var slug,
             slugTryCount = 1,
             baseName = Model.schema.collectionName.replace(/s$/, ''),
-        // Look for a matching slug, append an incrementing number if so
+            // Look for a matching slug, append an incrementing number if so
             checkIfSlugExists, longSlug;
 
         checkIfSlugExists = function (slugToFind) {
@@ -318,21 +326,36 @@ icollegeShelf = new Shelf(true, {
         this.pre('update', this.updating);
     },
 
-    // This 'this' is Model Instance Object
-    saving: function (next) {
+    // ## Model Instance Level Hookup
+    // Document middleware is supported for the following document functions.
+    // * [init](http://mongoosejs.com/docs/api.html#document_Document-init)
+    // * [validate](http://mongoosejs.com/docs/api.html#document_Document-validate)
+    // * [save](http://mongoosejs.com/docs/api.html#model_Model-save)
+    // * [remove](http://mongoosejs.com/docs/api.html#model_Model-remove)
+    // 'this' is Model Instance Object
+
+    saving: function (next, options) {
+        var id = this.contextUser(options);
+
         if (!this.get('created_by')) {
-            this.set('created_by', this.contextUser(this.options));
+            this.set('created_by', id);
         }
-        this.set('updated_by', this.contextUser(this.options));
+        this.set('updated_by', id);
         this.set('updated_at', new Date());
-        next();
+
+        next(options);
     },
 
-    // Get options from args
-    // This 'this' is Model Object
+    // ## Model Level Hookup
+    // Query middleware is supported for the following Model and Query functions.
+    // * [count](http://mongoosejs.com/docs/api.html#query_Query-count)
+    // * [find](http://mongoosejs.com/docs/api.html#query_Query-find)
+    // * [findOne](http://mongoosejs.com/docs/api.html#query_Query-findOne)
+    // * [update](http://mongoosejs.com/docs/api.html#query_Query-update)
+    // 'this' is Model Object
+
     updating: function (next, criteria, doc, options) {
-        _.merge(doc, {$set: {'updated_at': new Date(), 'updated_by': this.prototype.contextUser(options)}});
-        options = this.filterOptions(options, "update");
+        _.merge(doc, {$set: {'updated_at': new Date(), 'updated_by': this.model.prototype.contextUser(options)}});
         next(criteria, doc, options);
     }
 });

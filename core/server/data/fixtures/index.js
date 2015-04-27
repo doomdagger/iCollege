@@ -48,7 +48,7 @@ addAllPermissions = function (options) {
         _.each(permissions, function (permission) {
             ops.push(function () {
                 permission.object_type = objectType;
-                return models.Permission.forge(permission, options).saveAsync();
+                return models.Permission.forge(permission).saveAsync(options);
             });
         });
     });
@@ -60,40 +60,39 @@ addAllRoles = function (options) {
     var ops = [];
     _.each(fixtures.roles, function (role) {
         ops.push(function () {
-            return models.Role.forge(role, options).saveAsync();
+            return models.Role.forge(role).saveAsync(options);
         });
     });
 
     return sequence(ops);
 };
 
-addRolesPermissionsForRole = function (roleName) {
-    var fixturesForRole = fixtures.permissions_roles[roleName],
-        permissionsToAdd;
+addRolesPermissionsForRole = function (roleName, options) {
+    var fixturesForRole = fixtures.permissions_roles[roleName];
 
-    return models.Permission.findAll().then(function (permissions) {
-        if (_.isObject(fixturesForRole)) {
-            permissionsToAdd = _.map(permissions, function (permission) {
-                var objectPermissions = fixturesForRole[permission.object_type];
-                if (objectPermissions === 'all') {
-                    return permission.id;
-                } else if (_.isArray(objectPermissions) && _.contains(objectPermissions, permission.action_type)) {
-                    return permission.id;
-                }
-                return null;
-            });
-        }
-
-        return models.Role.updateAsync({name: roleName}, {$push: {permission: {$each: _.compact(permissionsToAdd)}}});
+    return models.Role.findOneAsync({name: roleName}).then(function (role) {
+        return models.Permission.findAll().then(function (permissions) {
+            if (_.isObject(fixturesForRole)) {
+                _.each(permissions, function (permission) {
+                    var objectPermissions = fixturesForRole[permission.object_type];
+                    if (objectPermissions === 'all') {
+                        role.permissions.push(permission.id);
+                    } else if (_.isArray(objectPermissions) && _.contains(objectPermissions, permission.action_type)) {
+                        role.permissions.push(permission.id);
+                    }
+                });
+            }
+            return role.saveAsync(options);
+        });
     });
 };
 
-addAllRolesPermissions = function () {
+addAllRolesPermissions = function (options) {
     var roleNames = _.keys(fixtures.permissions_roles),
         ops = [];
 
     _.each(roleNames, function (roleName) {
-        ops.push(addRolesPermissionsForRole(roleName));
+        ops.push(addRolesPermissionsForRole(roleName, options));
     });
 
     return Promise.all(ops);
@@ -106,7 +105,7 @@ addAllUsers = function (options) {
             if (user.name === "admin") {
                 user._id = config.adminId;
             }
-            return models.User.forge(user, options).saveAsync();
+            return models.User.forge(user).saveAsync(options);
         });
     });
 
@@ -124,7 +123,7 @@ populate = function () {
         return addAllRoles(options);
     }).then(function () {
         // ### Ensure all roles_permissions are added
-        return addAllRolesPermissions();
+        return addAllRolesPermissions(options);
     }).then(function () {
         // ### Ensure all roles_permissions are added
         return addAllUsers(options);
