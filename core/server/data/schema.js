@@ -54,39 +54,39 @@ var db = {
         },
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId},
+        updated_by: {type: String},
 
         // 加入的群组
         groups: [{
-            group_id: {type: Schema.Types.ObjectId, ref: 'Group'},
+            group_id: {type: String, ref: 'Group'},
 
             message_alert: {type: Boolean, default: true},
             location_share: {type: Boolean, default: true},
             profile_visible: {type: Boolean, default: false},
 
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId},
+            created_by: {type: String},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId}
+            updated_by: {type: String}
         }],
         // 加入的圈子
         circles: [{
-            circle_id: {type: Schema.Types.ObjectId, ref: 'Circle'},
+            circle_id: {type: String, ref: 'Circle'},
 
             post_alert: {type: Boolean, default: true},
             location_share: {type: Boolean, default: true},
             profile_visible: {type: Boolean, default: false},
 
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId},
+            created_by: {type: String},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId}
+            updated_by: {type: String}
         }],
         // 添加的好友
         friends: [{
-            friend_id: {type: Schema.Types.ObjectId, ref: 'User'},
+            friend_id: {type: String, ref: 'User'},
             remark_name: {type: String, default: '', trim: true}, // 好友备注名称
             friend_group: {type: String, default: 'friends', trim: true}, // 好友所属分组， 这个灵活些~
             esp_care: {type: Boolean, default: false}, // 特别关心此好友吗
@@ -95,13 +95,13 @@ var db = {
             status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'}, // 已经成为好友了吗，好友记录会在好友申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由好友申请构建的好友系统消息不会消失
 
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId},
+            created_by: {type: String},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId}
+            updated_by: {type: String}
         }],
         // 用户角色
         roles: [{
-            type: Schema.Types.ObjectId,
+            type: String,
             ref: 'Role'
         }],
         // 用户享有的权限
@@ -111,27 +111,27 @@ var db = {
         }],
         // 太过于遥远，再说吧
         apps: [{
-            app_id: {type: Schema.Types.ObjectId, required: true, ref: 'App'},
+            app_id: {type: String, required: true, ref: 'App'},
             app_fields: [{
                 uuid: {type: String, required: true}, // uuid
                 key: {type: String, required: true},
                 value: {type: String, default: ""},
                 type: {type: String, enum: ['html', 'markdown'], default: 'html'},
-                relatable_id: {type: Schema.Types.ObjectId, required: true},
+                relatable_id: {type: String, required: true},
                 relatable_type: {type: String, enum: ['messages', 'posts', 'groups', 'circles'], default: 'posts'},
                 created_at: {type: Date, default: Date.now()},
-                created_by: {type: Schema.Types.ObjectId},
+                created_by: {type: String},
                 updated_at: {type: Date, default: Date.now()},
-                updated_by: {type: Schema.Types.ObjectId}
+                updated_by: {type: String}
             }],
             app_settings: [{
                 uuid: {type: String, required: true}, // uuid
                 key: {type: String, required: true},
                 value: {type: String, default: ""},
                 created_at: {type: Date, default: Date.now()},
-                created_by: {type: Schema.Types.ObjectId},
+                created_by: {type: String},
                 updated_at: {type: Date, default: Date.now()},
-                updated_by: {type: Schema.Types.ObjectId}
+                updated_by: {type: String}
             }]
         }]
     },
@@ -153,13 +153,13 @@ var db = {
         // 这个 app 需要哪些permission，安装时需争取到用户同意，方可继续安装
         // app 能够拥有的permission永远是user permission的子集，这点需要验证！！！
         permissions: [{
-            type: Schema.Types.ObjectId,
+            type: String,
             ref: 'Permission'
         }],
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: String}
     },
 
     // ### 通知，见于通知中心
@@ -167,17 +167,17 @@ var db = {
     notifications: {
         uuid: {type: String, required: true}, // uuid
 
-        to_user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
-        from_user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
+        to_user_id: {type: String, required: true, ref: 'User'},
+        from_user_id: {type: String, required: true, ref: 'User'},
 
         action_type: {type: String, enum: ['repost', 'favored', 'forward', 'at'], required: true},  // 这么几种类别: 回复，赞，转发，@ 这四种
         object_type: {type: String, enum: ['repost', 'post'], required: true},
-        object_id: {type: Schema.Types.ObjectId, required: true}, // 对应着以上通知的类别，跟通知有关的对象ID可能是，repost, post两种，记住，是原有对象，不是行为产生后的对象
+        object_id: {type: String, required: true}, // 对应着以上通知的类别，跟通知有关的对象ID可能是，repost, post两种，记住，是原有对象，不是行为产生后的对象
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: String}
     },
 
     // ### 角色
@@ -192,9 +192,9 @@ var db = {
         description: {type: String, trim: true, default: ""},
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: String}
     },
 
     // ### 权限
@@ -215,12 +215,12 @@ var db = {
                 'favor', 'importContent', 'deleteAllContent', 'browse', 'add', 'send', 'assign'],
             required: true
         },
-        object_id: {type: Schema.Types.ObjectId}, // 非必须的
+        object_id: {type: String}, // 非必须的
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: String}
     },
 
     // ### groups 群组实体
@@ -229,22 +229,22 @@ var db = {
         slug: {type: String, required: true, lowercase: true, trim: true},
         name: {type: String, required: true, trim: true}, // name, 使用名称生成slug，标记了群组的唯一性
 
-        owner_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'}, // user object id, who owns the group， 群主
+        owner_id: {type: String, required: true, ref: 'User'}, // user object id, who owns the group， 群主
 
         nickname: {type: String, required: true, trim: true}, // 可以随便起，用于显示
         avatar: {type: String}, // be what, for file storage, not sure
 
         // user list, 全部的用户列表，包含群主和管理员
         members: [{
-            member_id: {type: Schema.Types.ObjectId, required: true},
+            member_id: {type: String, required: true},
             member_name: {type: String, required: true, trim: true}, // 默认为用户昵称，可以改为想要的任何名称
             related: {type: Boolean, default: false}, // 是否为群管理员，群主也标记related为true
             status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'}, // 已经成为成员了吗，成员记录会在用户加入群组申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由成员申请构建生成的系统消息不会消失
 
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId},
+            created_by: {type: String},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId}
+            updated_by: {type: String}
         }],
         // we have a limited range of categories for user to select, but not listed here as enums
         // 兴趣爱好：影视，音乐，星座，动漫，运动，读书，摄影，其他
@@ -264,9 +264,9 @@ var db = {
             content: {type: String, trim: true, default: "New Group~ Say Something to Your Members"},
             author: {type: String, trim: true, required: true}, // 我们到时候只显示名称即可，存个字符串就行
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId},
+            created_by: {type: String},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId}
+            updated_by: {type: String}
         }],  // 群公告
         location: [{type: Number, index: '2dsphere', default: 0.0}],// longitude latitude
         location_info: {type: String, trim: true},// location name
@@ -285,15 +285,15 @@ var db = {
             path: {type: String}, // 文件路径
 
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId},
+            created_by: {type: String},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId}
+            updated_by: {type: String}
         }],
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: String}
     },
 
     // ---------------------------------------- 扩充以下的实体字段 注:根据mongoose标准添加，如果有default，就无需加上required ------------- //
@@ -305,22 +305,22 @@ var db = {
         slug: {type: String, required: true, lowercase: true, trim: true},
         name: {type: String, required: true, trim: true}, // name, 使用名称生成slug，标记了群组的唯一性
 
-        owner_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'}, // user object id, who owns the group， 群主
+        owner_id: {type: String, required: true, ref: 'User'}, // user object id, who owns the group， 群主
 
         nickname: {type: String, required: true, trim: true}, // 可以随便起，用于显示
         avatar: {type: String}, // be what, for file storage, not sure
 
         // user list, 全部的用户列表，包含圈主和管理员
         members: [{
-            member_id: {type: Schema.Types.ObjectId, required: true},
+            member_id: {type: String, required: true},
             member_name: {type: String, required: true, trim: true},
             related: {type: Boolean, default: false}, // 是否为圈子管理员，圈子主也标记related为true
             status: {type: String, enum: ['pending', 'refused', 'agreed', 'expired'], default: 'pending'}, // 已经成为成员了吗，成员记录会在用户加入群组申请提交后插入，但是状态为pending，但是一旦被refuse，该记录择日会被清除，但是由成员申请构建生成的系统消息不会消失
 
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId},
+            created_by: {type: String},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId}
+            updated_by: {type: String}
         }],
         // we have a limited range of categories for user to select, but not listed here as enums
         // 兴趣爱好：影视，音乐，星座，动漫，运动，读书，摄影，其他
@@ -341,9 +341,9 @@ var db = {
             content: {type: String, trim: true, default: "New Circle~ Say Something to Your Members"},
             author: {type: String, trim: true, required: true}, // 我们到时候只显示名称即可，存个字符串就行
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId},
+            created_by: {type: String},
             updated_at: {type: Date, default: Date.now()},
-            updated_by: {type: Schema.Types.ObjectId}
+            updated_by: {type: String}
         }],  // 圈子公告
         location: [{type: Number, index: '2dsphere'}], // longitude latitude
         location_info: {type: String, trim: true}, // location name
@@ -355,9 +355,9 @@ var db = {
         },
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: String}
     },
 
     // ### 消息实体 一定要考虑消息的共通性，系统消息和聊天消息
@@ -367,14 +367,14 @@ var db = {
         content: {type: String, required: true},
         source_category: {type: String, enum: ['friends', 'groups'], required: true}, // 消息来自于个人（好友或系统（系统也是一个人类账号）），还是群组
         content_category: {type: String, enum: ['media', 'text', 'system'], default: 'text'}, // 消息类型：多媒体消息（视频，纯图片，音频），富文本消息(html，谨防js注入)，其他类型的系统消息（好友请求，其他由系统relay的具有特殊格式的消息），
-        message_from: {type: Schema.Types.ObjectId, required: true}, // 从这也能看出来，账户必须有角色，角色具有权限分级，并预留一个账户具备超级管理员角色，可以赋予普通用户管理员角色
+        message_from: {type: String, required: true}, // 从这也能看出来，账户必须有角色，角色具有权限分级，并预留一个账户具备超级管理员角色，可以赋予普通用户管理员角色
         // to的多样性，用户，群组
-        message_to: {type: Schema.Types.ObjectId, required: true},
+        message_to: {type: String, required: true},
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId} // 消息的某些状态被改变，改变者为谁
+        updated_by: {type: String} // 消息的某些状态被改变，改变者为谁
     },
 
     // ### 帖子实体 一定要考虑帖子的共通性，发帖（日志）；存在或不存在于圈子里
@@ -384,8 +384,8 @@ var db = {
 
         title: {type: String, required: true},
 
-        author_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'}, // 用户Id，谁发的帖子
-        circle_id: {type: Schema.Types.ObjectId, ref: 'Circle'}, // 圈子Id，自己加入的朋友圈的ID, circle_id为空可认为此post发自于用户，并希望朋友看到，而不是发到某个圈子中，让圈友看到
+        author_id: {type: String, required: true, ref: 'User'}, // 用户Id，谁发的帖子
+        circle_id: {type: String, ref: 'Circle'}, // 圈子Id，自己加入的朋友圈的ID, circle_id为空可认为此post发自于用户，并希望朋友看到，而不是发到某个圈子中，让圈友看到
 
         // 帖子的来源，好友圈（默认），或是其他某一个圈子：好友圈这个圈子专属于自己，这个圈子包含了用户的所有好友
         source_category: {type: String, enum: ['friends', 'circles'], required: true}, // circle_id为空是有意义的，此字段也不算冗余，暂时保留
@@ -395,7 +395,7 @@ var db = {
         // ================== 转发信息 ==================
         forward_info: {     // 转发信息
             forward_message: {type: String, default: ''},
-            post_id: {type: Schema.Types.ObjectId, required: true, ref: "Post"}
+            post_id: {type: String, required: true, ref: "Post"}
         },
 
         // ================== 原创信息 ==================
@@ -409,43 +409,43 @@ var db = {
                 path: {type: String}, // 文件路径
 
                 created_at: {type: Date, default: Date.now()},
-                created_by: {type: Schema.Types.ObjectId},
+                created_by: {type: String},
                 updated_at: {type: Date, default: Date.now()},
-                updated_by: {type: Schema.Types.ObjectId}
+                updated_by: {type: String}
             }]
         },
 
         // ================ 转发，原创共享字段 ==============
         status: {type: String, enum: ['draft', 'published'], default: 'draft'}, // 帖子的状态，draft or published
-        at_users: [{type: Schema.Types.ObjectId, ref: 'User'}], // @user ids
+        at_users: [{type: String, ref: 'User'}], // @user ids
         favored_users: [{ // 点赞的用户
-            user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'}, // 用户ID
+            user_id: {type: String, required: true, ref: 'User'}, // 用户ID
             timestamp: {type: Date, required: true, default: Date.now()}   // 点赞的时间
         }],
         viewed_users: [{
-            user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'}, // 用户ID
+            user_id: {type: String, required: true, ref: 'User'}, // 用户ID
             timestamp: {type: Date, required: true, default: Date.now()}  // 浏览的时间
         }],
 
         published_at: {type: Date, default: Date.now()},
-        published_by: {type: Schema.Types.ObjectId, required: true},
+        published_by: {type: String, required: true},
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: String}
     },
 
     // ### 回帖实体
     reposts: {
         uuid: {type: String, required: true},
 
-        author_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'}, // 用户Id，谁发的帖子回复
-        circle_id: {type: Schema.Types.ObjectId, ref: 'Circle'}, // 圈子Id，回帖回的帖子属于哪个圈子？ 如果post不属于任何圈子，此字段可为空
+        author_id: {type: String, required: true, ref: 'User'}, // 用户Id，谁发的帖子回复
+        circle_id: {type: String, ref: 'Circle'}, // 圈子Id，回帖回的帖子属于哪个圈子？ 如果post不属于任何圈子，此字段可为空
 
-        to_post_id: {type: Schema.Types.ObjectId, ref: 'Post'}, // 回帖属于哪个post，无论是回复帖子，还是回帖，这个字段记录了根帖子是谁
+        to_post_id: {type: String, ref: 'Post'}, // 回帖属于哪个post，无论是回复帖子，还是回帖，这个字段记录了根帖子是谁
 
         repost_type: {type: String, enum: ['posts, reposts']}, // 回复是直接对帖子 还是 对回帖
-        to_user_id: {type: Schema.Types.ObjectId}, // 回复谁，回复对象为回帖时字段填值才有意义
+        to_user_id: {type: String}, // 回复谁，回复对象为回帖时字段填值才有意义
 
         // ================== 回帖内容 ==============
         html: {type: String}, // 帖子内容，谨防js注入
@@ -456,15 +456,15 @@ var db = {
             size: {type: Number, min: 0, default: 0},
             path: {type: String}, // 文件路径
             created_at: {type: Date, default: Date.now()},
-            created_by: {type: Schema.Types.ObjectId}
+            created_by: {type: String}
         }],
 
-        at_users: [{type: Schema.Types.ObjectId}], // @user ids
+        at_users: [{type: String}], // @user ids
 
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: String}
     },
 
     // ### 设置实体，相当于数据字典，也相当于一些系统级的默认配置
@@ -474,9 +474,9 @@ var db = {
         value: {type: String},
         type: {type: String, required: true, default: 'core', enum: ['core', 'user', 'app', 'group', 'circle', 'post']}, // TODO: add more setting types for icollege
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: String}
     },
 
     // ### client, oauth 2.0 client, an app and an user can both become a client
@@ -486,20 +486,20 @@ var db = {
         slug: {type: String, required: true, trim: true, lowercase: true},
         secret: {type: String, required: true, trim: true},
         created_at: {type: Date, default: Date.now()},
-        created_by: {type: Schema.Types.ObjectId},
+        created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},
-        updated_by: {type: Schema.Types.ObjectId}
+        updated_by: {type: String}
     },
     accesstokens: {
         token: {type: String, required: true, unique: true},
-        user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
-        client_id: {type: Schema.Types.ObjectId, required: true, ref: 'Client'},
+        user_id: {type: String, required: true, ref: 'User'},
+        client_id: {type: String, required: true, ref: 'Client'},
         expires: {type: Number, required: true, min: 0}
     },
     refreshtokens: {
         token: {type: String, required: true, unique: true},
-        user_id: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
-        client_id: {type: Schema.Types.ObjectId, required: true, ref: 'Client'},
+        user_id: {type: String, required: true, ref: 'User'},
+        client_id: {type: String, required: true, ref: 'Client'},
         expires: {type: Number, required: true, min: 0}
     }
 
