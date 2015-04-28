@@ -1,4 +1,4 @@
-/*globals describe, it, before, beforeEach, afterEach */
+/*globals describe, it, before, beforeEach, afterEach, after */
 /*jshint expr:true*/
 var should         = require('should'),
     sinon          = require('sinon'),
@@ -8,23 +8,33 @@ var should         = require('should'),
     _              = require('lodash'),
     rewire         = require('rewire'),
 
+    testUtils      = require('../utils'),
+
 // Thing we are testing
     defaultConfig  = require('../../../config.example')[process.env.NODE_ENV],
     config         = require('../../server/config'),
+    origConfig     = _.cloneDeep(config),
 // storing current environment
     currentEnv     = process.env.NODE_ENV;
 
 // To stop jshint complaining
 should.equal(true, true);
 
+function resetConfig() {
+    config.set(_.merge({}, origConfig, defaultConfig));
+}
+
 describe('Config', function () {
+    after(function () {
+        resetConfig();
+    });
 
     describe('Index', function () {
         afterEach(function () {
             // Make a copy of the default config file
             // so we can restore it after every test.
             // Using _.merge to recursively apply every property.
-            config.set(_.merge({}, config));
+            resetConfig();
         });
 
         it('should have exactly the right keys', function () {
@@ -62,17 +72,17 @@ describe('Config', function () {
         });
 
         it('should handle subdirectories properly', function () {
-            config.set({url: 'http://icollege.com/social'});
-            config.paths.should.have.property('subdir', '/social');
+            config.set({url: 'http://icollege.com/blog'});
+            config.paths.should.have.property('subdir', '/blog');
 
-            config.set({url: 'http://icollege.com/social/'});
-            config.paths.should.have.property('subdir', '/social');
+            config.set({url: 'http://icollege.com/blog/'});
+            config.paths.should.have.property('subdir', '/blog');
 
-            config.set({url: 'http://icollege.com/my/social'});
-            config.paths.should.have.property('subdir', '/my/social');
+            config.set({url: 'http://icollege.com/my/blog'});
+            config.paths.should.have.property('subdir', '/my/blog');
 
-            config.set({url: 'http://icollege.com/my/social/'});
-            config.paths.should.have.property('subdir', '/my/social');
+            config.set({url: 'http://icollege.com/my/blog/'});
+            config.paths.should.have.property('subdir', '/my/blog');
         });
 
         it('should allow specific properties to be user defined', function () {
@@ -91,6 +101,107 @@ describe('Config', function () {
             config.paths.should.have.property('imagesPath', contentPath + 'images');
         });
     });
+
+    describe('urlFor', function () {
+        before(function () {
+            resetConfig();
+        });
+
+        afterEach(function () {
+            resetConfig();
+        });
+
+        it('should return the home url with no options', function () {
+            config.urlFor().should.equal('/');
+            config.set({url: 'http://icollege.com/blog'});
+            config.urlFor().should.equal('/blog/');
+        });
+
+        it('should return home url when asked for', function () {
+            var testContext = 'home';
+
+            config.set({url: 'http://icollege.com'});
+            config.urlFor(testContext).should.equal('/');
+            config.urlFor(testContext, true).should.equal('http://icollege.com/');
+
+            config.set({url: 'http://icollege.com/blog'});
+            config.urlFor(testContext).should.equal('/blog/');
+            config.urlFor(testContext, true).should.equal('http://icollege.com/blog/');
+        });
+
+        it('should return rss url when asked for', function () {
+            var testContext = 'rss';
+
+            config.set({url: 'http://icollege.com'});
+            config.urlFor(testContext).should.equal('/rss/');
+            config.urlFor(testContext, true).should.equal('http://icollege.com/rss/');
+
+            config.set({url: 'http://icollege.com/blog'});
+            config.urlFor(testContext).should.equal('/blog/rss/');
+            config.urlFor(testContext, true).should.equal('http://icollege.com/blog/rss/');
+        });
+
+        it('should return url for a random path when asked for', function () {
+            var testContext = {relativeUrl: '/about/'};
+
+            config.set({url: 'http://icollege.com'});
+            config.urlFor(testContext).should.equal('/about/');
+            config.urlFor(testContext, true).should.equal('http://icollege.com/about/');
+
+            config.set({url: 'http://icollege.com/blog'});
+            config.urlFor(testContext).should.equal('/blog/about/');
+            config.urlFor(testContext, true).should.equal('http://icollege.com/blog/about/');
+        });
+
+        //it('should return url for a post from post object', function () {
+        //    var testContext = 'post',
+        //        testData = {post: testUtils.DataGenerator.Content.posts[2]};
+        //
+        //    // url is now provided on the postmodel, permalinkSetting tests are in the model_post_spec.js test
+        //    testData.post.url = '/short-and-sweet/';
+        //    config.set({url: 'http://icollege.com'});
+        //    config.urlFor(testContext, testData).should.equal('/short-and-sweet/');
+        //    config.urlFor(testContext, testData, true).should.equal('http://icollege.com/short-and-sweet/');
+        //
+        //    config.set({url: 'http://icollege.com/blog'});
+        //    config.urlFor(testContext, testData).should.equal('/blog/short-and-sweet/');
+        //    config.urlFor(testContext, testData, true).should.equal('http://icollege.com/blog/short-and-sweet/');
+        //});
+    });
+
+    //describe('urlPathForPost', function () {
+    //    it('should output correct url for post', function () {
+    //        var permalinkSetting = '/:slug/',
+    //        /*jshint unused:false*/
+    //            testData = testUtils.DataGenerator.Content.posts[2],
+    //            postLink = '/short-and-sweet/';
+    //
+    //        // next test
+    //        config.urlPathForPost(testData, permalinkSetting).should.equal(postLink);
+    //    });
+    //
+    //    it('should output correct url for post with date permalink', function () {
+    //        var permalinkSetting = '/:year/:month/:day/:slug/',
+    //        /*jshint unused:false*/
+    //            testData = testUtils.DataGenerator.Content.posts[2],
+    //            today = new Date(),
+    //            dd = ('0' + today.getDate()).slice(-2),
+    //            mm = ('0' + (today.getMonth() + 1)).slice(-2),
+    //            yyyy = today.getFullYear(),
+    //            postLink = '/' + yyyy + '/' + mm + '/' + dd + '/short-and-sweet/';
+    //        // next test
+    //        config.urlPathForPost(testData, permalinkSetting).should.equal(postLink);
+    //    });
+    //
+    //    it('should output correct url for page with date permalink', function () {
+    //        var permalinkSetting = '/:year/:month/:day/:slug/',
+    //        /*jshint unused:false*/
+    //            testData = testUtils.DataGenerator.Content.posts[5],
+    //            postLink = '/static-page-test/';
+    //        // next test
+    //        config.urlPathForPost(testData, permalinkSetting).should.equal(postLink);
+    //    });
+    //});
 
     describe('File', function () {
         var sandbox,
@@ -114,6 +225,7 @@ describe('Config', function () {
 
         afterEach(function () {
             config = rewire('../../server/config');
+            resetConfig();
             sandbox.restore();
         });
 
@@ -133,6 +245,7 @@ describe('Config', function () {
             config.load().then(function (config) {
                 config.url.should.equal(defaultConfig.url);
                 config.database.mongodb.connection.should.eql(defaultConfig.database.mongodb.connection);
+                config.database.redis.connection.should.eql(defaultConfig.database.redis.connection);
                 config.server.host.should.equal(defaultConfig.server.host);
                 config.server.port.should.equal(defaultConfig.server.port);
 
@@ -147,6 +260,7 @@ describe('Config', function () {
             config.load(path.join(originalConfig.paths.appRoot, 'config.example.js')).then(function (config) {
                 config.url.should.equal(defaultConfig.url);
                 config.database.mongodb.connection.should.eql(defaultConfig.database.mongodb.connection);
+                config.database.redis.connection.should.eql(defaultConfig.database.redis.connection);
                 config.server.host.should.equal(defaultConfig.server.host);
                 config.server.port.should.equal(defaultConfig.server.port);
 
@@ -263,8 +377,8 @@ describe('Config', function () {
             }).catch(done);
         });
 
-        it('does not permit the word ghost as a url path', function (done) {
-            overrideConfig({url: 'http://example.com/ghost/'});
+        it('does not permit the word icollege as a url path', function (done) {
+            overrideConfig({url: 'http://example.com/icollege/'});
 
             config.load().then(function () {
                 done(expectedError);
@@ -276,8 +390,8 @@ describe('Config', function () {
             }).catch(done);
         });
 
-        it('does not permit the word ghost to be a component in a url path', function (done) {
-            overrideConfig({url: 'http://example.com/blog/ghost/'});
+        it('does not permit the word icollege to be a component in a url path', function (done) {
+            overrideConfig({url: 'http://example.com/blog/icollege/'});
 
             config.load().then(function () {
                 done(expectedError);
@@ -289,8 +403,8 @@ describe('Config', function () {
             }).catch(done);
         });
 
-        it('does not permit the word ghost to be a component in a url path', function (done) {
-            overrideConfig({url: 'http://example.com/ghost/blog/'});
+        it('does not permit the word icollege to be a component in a url path', function (done) {
+            overrideConfig({url: 'http://example.com/icollege/blog/'});
 
             config.load().then(function () {
                 done(expectedError);
@@ -347,21 +461,45 @@ describe('Config', function () {
         it('allows server to use a socket', function (done) {
             overrideConfig({server: {socket: 'test'}});
 
-            config.load().then(function (localConfig) {
-                should.exist(localConfig);
-                localConfig.server.socket.should.equal('test');
+            config.load().then(function () {
+                var socketConfig = config.getSocket();
+
+                socketConfig.should.be.an.Object;
+                socketConfig.path.should.equal('test');
+                socketConfig.permissions.should.equal('660');
+
+                done();
+            }).catch(done);
+        });
+
+        it('allows server to use a socket and user-defined permissions', function (done) {
+            overrideConfig({
+                server: {
+                    socket: {
+                        path: 'test',
+                        permissions: '666'
+                    }
+                }
+            });
+
+            config.load().then(function () {
+                var socketConfig = config.getSocket();
+
+                socketConfig.should.be.an.Object;
+                socketConfig.path.should.equal('test');
+                socketConfig.permissions.should.equal('666');
 
                 done();
             }).catch(done);
         });
 
         it('allows server to have a host and a port', function (done) {
-            overrideConfig({server: {host: '127.0.0.1', port: '2368'}});
+            overrideConfig({server: {host: '127.0.0.1', port: '1222'}});
 
             config.load().then(function (localConfig) {
                 should.exist(localConfig);
                 localConfig.server.host.should.equal('127.0.0.1');
-                localConfig.server.port.should.equal('2368');
+                localConfig.server.port.should.equal('1222');
 
                 done();
             }).catch(done);
@@ -381,7 +519,7 @@ describe('Config', function () {
         });
 
         it('rejects server if there is a port but no host', function (done) {
-            overrideConfig({server: {port: '2368'}});
+            overrideConfig({server: {port: '1222'}});
 
             config.load().then(function () {
                 done(expectedError);

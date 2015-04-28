@@ -6,9 +6,6 @@ var assert          = require('assert'),
     middleware      = require('../../server/middleware').middleware;
 
 describe('Middleware', function () {
-    // TODO: needs new test for ember admin
-    // describe('redirectToDashboard', function () {
-    //     var req, res;
 
     //     beforeEach(function () {
     //         req = {
@@ -76,11 +73,11 @@ describe('Middleware', function () {
     });
 
     describe('whenEnabled', function () {
-        var cbFn, blogApp;
+        var cbFn, app;
 
         beforeEach(function () {
             cbFn = sinon.spy();
-            blogApp = {
+            app = {
                 enabled: function (setting) {
                     if (setting === 'enabled') {
                         return true;
@@ -89,7 +86,7 @@ describe('Middleware', function () {
                     }
                 }
             };
-            middleware.cacheBlogApp(blogApp);
+            middleware.cacheApp(app);
         });
 
         it('should call function if setting is enabled', function (done) {
@@ -112,62 +109,4 @@ describe('Middleware', function () {
         });
     });
 
-    describe('staticTheme', function () {
-        beforeEach(function () {
-            sinon.stub(middleware, 'forwardToExpressStatic').yields();
-        });
-
-        afterEach(function () {
-            middleware.forwardToExpressStatic.restore();
-        });
-
-        it('should call next if hbs file type', function (done) {
-            var req = {
-                url: 'mytemplate.hbs'
-            };
-
-            middleware.staticTheme(null)(req, null, function (a) {
-                should.not.exist(a);
-                middleware.forwardToExpressStatic.calledOnce.should.be.false;
-                done();
-            });
-        });
-
-        it('should call next if md file type', function (done) {
-            var req = {
-                url: 'README.md'
-            };
-
-            middleware.staticTheme(null)(req, null, function (a) {
-                should.not.exist(a);
-                middleware.forwardToExpressStatic.calledOnce.should.be.false;
-                done();
-            });
-        });
-
-        it('should call next if json file type', function (done) {
-            var req = {
-                url: 'sample.json'
-            };
-
-            middleware.staticTheme(null)(req, null, function (a) {
-                should.not.exist(a);
-                middleware.forwardToExpressStatic.calledOnce.should.be.false;
-                done();
-            });
-        });
-
-        it('should call express.static if valid file type', function (done) {
-            var req = {
-                    url: 'myvalidfile.css'
-                };
-
-            middleware.staticTheme(null)(req, null, function (reqArg, res, next) {
-                /*jshint unused:false */
-                middleware.forwardToExpressStatic.calledOnce.should.be.true;
-                assert.deepEqual(middleware.forwardToExpressStatic.args[0][0], req);
-                done();
-            });
-        });
-    });
 });

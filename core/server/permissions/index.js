@@ -223,7 +223,7 @@ init = refresh = function () {
             'create': ['post', 'user', 'page']
         }
         */
-        _.each(perms.models, function (perm) {
+        _.each(perms, function (perm) {
             var actionType = perm.get('action_type'),
                 objectType = perm.get('object_type');
 

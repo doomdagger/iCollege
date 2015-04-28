@@ -135,30 +135,7 @@ readSettingsResult = function (settingsModels) {
             }
 
             return memo;
-        }, {}),
-        themes = config.paths.availableThemes,
-        apps = config.paths.availableApps,
-        res;
-
-    if (settings.activeTheme && themes) {
-        res = filterPaths(themes, settings.activeTheme.value);
-
-        settings.availableThemes = {
-            key: 'availableThemes',
-            value: res,
-            type: 'theme'
-        };
-    }
-
-    if (settings.activeApps && apps) {
-        res = filterPaths(apps, JSON.parse(settings.activeApps.value));
-
-        settings.availableApps = {
-            key: 'availableApps',
-            value: res,
-            type: 'app'
-        };
-    }
+        }, {});
 
     return settings;
 };

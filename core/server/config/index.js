@@ -11,8 +11,7 @@ var path          = require('path'),
     mongoose      = require('mongoose'),
     validator     = require('validator'),
     errors        = require('../errors'),
-    //TODO: 我们需要一个工具模块生成url吗
-    //configUrl     = require('./url'),
+    configUrl     = require('./url'),
     packageInfo   = require('../../../package.json'),
     appRoot       = path.resolve(__dirname, '../../../'),
     corePath      = path.resolve(appRoot, 'core/'),
@@ -27,9 +26,8 @@ function ConfigManager(config) {
      */
     this._config = {};
 
-    //TODO: 如果我们为config模块增加了其他文件，请将功能统一并入此类下
-    //this.urlFor = configUrl.urlFor;
-    //this.urlPathForPost = configUrl.urlPathForPost;
+    this.urlFor = configUrl.urlFor;
+    this.urlPathForPost = configUrl.urlPathForPost;
 
     // If we're given an initial config object then we can set it.
     if (config && _.isObject(config)) {
@@ -39,11 +37,29 @@ function ConfigManager(config) {
 
 // Are we using sockets? Custom socket or the default?
 ConfigManager.prototype.getSocket = function () {
+    var socketConfig,
+        values = {
+            path: path.join(this._config.paths.contentPath, process.env.NODE_ENV + '.socket'),
+            permissions: '660'
+        };
+
     if (this._config.server.hasOwnProperty('socket')) {
-        return _.isString(this._config.server.socket) ?
-            this._config.server.socket :
-            path.join(this._config.paths.contentPath, process.env.NODE_ENV + '.socket');
+        socketConfig = this._config.server.socket;
+
+        if (_.isString(socketConfig)) {
+            values.path = socketConfig;
+
+            return values;
+        }
+
+        if (_.isObject(socketConfig)) {
+            values.path = socketConfig.path || values.path;
+            values.permissions = socketConfig.permissions || values.permissions;
+
+            return values;
+        }
     }
+
     return false;
 };
 
@@ -150,14 +166,13 @@ ConfigManager.prototype.set = function (config) {
             extensions: ['.jpg', '.jpeg', '.gif', '.png', '.svg', '.svgz'],
             contentTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml']
         },
-        deprecatedItems: ['mail.fromaddress']
+        deprecatedItems: ['updateCheck', 'mail.fromaddress']
     });
 
-    //TODO: config模块的扩展模块如此设定依赖，依赖于this._config
     // Also pass config object to
     // configUrl object to maintain
     // clean dependency tree
-    //configUrl.setConfig(this._config);
+    configUrl.setConfig(this._config);
 
     // For now we're going to copy the current state of this._config
     // so it's directly accessible on the instance.

@@ -27,11 +27,13 @@ describe('Permissions', function () {
 
     beforeEach(function () {
         var permissions = _.map(testUtils.DataGenerator.Content.permissions, function (testPerm) {
-            return testUtils.DataGenerator.forKnex.createPermission(testPerm);
+            return testUtils.DataGenerator.forDB.createPermission(testPerm);
         });
 
         sandbox.stub(Models.Permission, 'findAll', function () {
-            return Promise.resolve(Models.Permissions.forge(permissions));
+            return Promise.resolve(_.map(permissions, function (testPerm) {
+                return Models.Permission.forge(testPerm);
+            }));
         });
     });
 
@@ -39,7 +41,7 @@ describe('Permissions', function () {
         permissions.init().then(function (actionsMap) {
             should.exist(actionsMap);
 
-            actionsMap.edit.sort().should.eql(['post', 'tag', 'user', 'page'].sort());
+            actionsMap.edit.sort().should.eql(['post', 'user', 'page'].sort());
 
             actionsMap.should.equal(permissions.actionsMap);
 
