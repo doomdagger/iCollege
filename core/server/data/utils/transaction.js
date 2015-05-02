@@ -9,6 +9,7 @@ var Promise     = require('bluebird'),
     _           = require('lodash'),
 
     config      = require('../../config'),
+    utils       = require('./index');
 
     Transaction;
 
@@ -23,12 +24,8 @@ Transaction = function Transaction () {
     //The type of array's member is ObjectId.
     this.transArrary = [];
 
-    //ops save Promise.reject solution
-    this.ops = [];
-
-    //transaction state
-    //when the transaction initialize,the value of state is true meaning the transaction is not working.
-    //this.state = true;
+    //flag is the symbol that whether rollback
+    this.flag = false;
 };
 
 
@@ -53,50 +50,62 @@ Transaction.prototype.backup = function (collectionName, _id, doc) {
 };
 
 /**
- * rollback data to database.
+ * ### rollback data to database.
  */
 Transaction.prototype.rollback = function () {
-    var self = this;
-    return new Promise(function (reslove, reject) {
-        if (self.ops.length > 0) {
-            //lock the rollback function,so only one rollback function working..
-            //this.state = false;
+    var self = this,
+        promises = [];
 
-            _.each(self.transArrary, function (transaction, index) {
-                var collection = config.database.db.collection(transaction.collectionName);
+    if (self.flag === true) {
+        // if the value of flag is equal with true, we should rollback all of documents that save in transaction array
+        // Step 1 : reset flag
+        self.flag = false;
 
-                if (_.isEmpty(transaction.doc)) {
-                    //If doc have only one member,it must be "_id".
-                    //In this situation,the member of transaction is insert,so we just remove it.
-                    collection.remove(transaction.doc, function (err/*, result*/) {
-                        if (err) {
-                            //If it has problems while transaction,
-                            //we should rollback again until documents recover.
-                            //this.state = true;
-                            reject(err);
+        // Step 2 : rollback all of documents one by one
+        promises = _.map(self.transArrary, function (transaction) {
+            var collection = config.database.db.collection(transaction.collectionName);
 
-                            //if the function is fail,we should delete the array member.
-                            self.transArrary.splice(0, index + 1);
-                            self.rollback();
-                            return;
-                        }
+            if (_.isEmpty(transaction.doc)) {
+
+                // If doc have only one member,it must be "_id".
+                // In this situation,the member of transaction is insert,so we just remove it.
+
+                return utils.removeDocuments(collection, transraction.doc).then(function () {
+
+                    // if removing the document is success,
+                    // remove the document from transaction array
+                    _.filter(self.transArrary, function () {
+                        return self.transArrary.collectionName !== transraction.collectionName &&
+                            self.transArrary._id !== transraction._id;
                     });
-                }
-                else {
-                    collection.update({_id : transaction._id}, transaction.doc, function (err/*, result*/) {
-                        if (err) {
-                            //the same reason.
-                            //this.state = true;
-                            reject(err);
-                            self.transArrary.splice(0, index + 1);
-                            self.rollback();
-                            return;
-                        }
-                    });
-                }
 
-            });
-        }
+                }, function () {
+                    // if removing is fail, change flag state
+                    self.flag = true;
+                });
+            }
+            else {
+                utils.updateDocuments(collection, {_id : transaction._id}, transaction.doc).then(function () {
+
+                    // if updating the document is success,
+                    // remove the document from transaction array
+
+                    _.filter(self.transArrary, function () {
+                        return self.transArrary.collectionName !== transraction.collectionName &&
+                            self.transArrary._id !== transraction._id;
+                    });
+
+                }, function () {
+                    // if updating is fail, change flag state
+                    self.flag = true;
+                });
+            }
+
+        });
+    }
+
+    return Promise.all(promises).catch(function () {
+        self.rollback();
     });
 };
 

@@ -47,13 +47,8 @@ DataImporter.prototype.doImport = function (data) {
         utils.importSettings(t, tableData.settings);
     }).then(function () {
         //check if data which add to database is fail.
-        t.ops.forEach(function (p) {
-            if (p.isRejected()) {
-                errors = errors.concat(p.reason());
-            }
-        });
 
-        if (errors.length !== 0) {
+        if (t.flag === true) {
             t.rollback();
         }
 
