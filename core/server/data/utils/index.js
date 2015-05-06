@@ -84,20 +84,18 @@ function collections () {
 
 /**
  * ### Fetch collection
- * Get the list of all collection names for the specified config.database.db
- * @param [collectionName] (string) – the collection name we wish to filter by.
- * @param [options] (object) – additional options during update.
+ * Get the list of all collection names expect system for the specified config.database.db
  * @returns {Promise}
  */
-function collectionNames (collectionName,options) {
-    options = options || {};
-    return new Promise(function (resolve, reject) {
-        config.database.db.collectionNames(collectionName, options, function (err, names) {
-            if (err) {
-                return reject(err);
-            }
-            resolve(names);
+function collectionNames () {
+    return collections().then(function (collections) {
+        var arr_names = _.filter(_.map(collections, function (collection) {
+            return collection.s.name;
+        }), function (collectionName) {
+            return collectionName.indexOf('system.') !== 0;
         });
+
+        return arr_names;
     });
 }
 
@@ -122,11 +120,10 @@ function doesCollectionExist (collectionName) {
  * @returns {Promise|*}
  */
 function safeDropCollections () {
+    var self = this;
     return collections().then(function (collections) {
         // filter out system collections, fill drop tasks
-         var ops = _.map(_.filter(collections, function (collection) {
-             return collection.collectionName.indexOf("system.") !== 0;
-         }), function (collection) {
+         var ops = _.map(self.collectionNames, function (collection) {
              return function () {
                  return dropCollection(collection.collectionName);
              };
@@ -216,6 +213,8 @@ function findDocuments (collectionName, query, options) {
     var collection = config.database.db.collection(collectionName);
         query = query || {};
         options = options || {};
+
+    console.log(collectionName);
 
     return new Promise(function (resolve, reject) {
         collection.find(query, options).toArray(function(err, result) {

@@ -12,7 +12,7 @@ var testUtils   = require('../utils/index'),
     sandbox = sinon.sandbox.create();
 
 describe('Exporter', function () {
-    before(testUtils.teardown);
+    //before(testUtils.teardown);
     afterEach(testUtils.teardown);
     afterEach(function () {
         sandbox.restore();
@@ -24,12 +24,12 @@ describe('Exporter', function () {
     it('exports data', function (done) {
         // Stub migrations to return 000 as the current database version
         var versioningStub = sandbox.stub(versioning, 'getDatabaseVersion', function () {
-            return Promise.resolve('003');
+            return Promise.resolve('000');
         });
 
         exporter().then(function (exportData) {
-            var tables = ['posts', 'users', 'roles', 'roles_users', 'permissions', 'permissions_roles',
-                'permissions_users', 'settings', 'tags', 'posts_tags'],
+            var tables = ['apps', 'circles', 'groups', 'messages', 'notifications',
+                'permissions', 'posts', 'reposts', 'roles', 'settings', 'users'],
                 dbVersionSetting;
 
             should.exist(exportData);
@@ -37,13 +37,14 @@ describe('Exporter', function () {
             should.exist(exportData.meta);
             should.exist(exportData.data);
 
-            exportData.meta.version.should.equal('003');
+            exportData.meta.version.should.equal('000');
 
             dbVersionSetting = _.findWhere(exportData.data.settings, {key: 'databaseVersion'});
 
             should.exist(dbVersionSetting);
 
-            dbVersionSetting.value.should.equal('003');
+            dbVersionSetting.value.should.equal('000');
+
 
             _.each(tables, function (name) {
                 should.exist(exportData.data[name]);
@@ -55,4 +56,9 @@ describe('Exporter', function () {
             done();
         }).catch(done);
     });
+
+    it('export file name', function () {
+        var datetime = (new Date()).toJSON().substring(0, 10);
+        exporter.fileName().should.equal("icollege" + datetime + ".json");
+    })
 });

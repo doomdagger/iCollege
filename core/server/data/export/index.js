@@ -9,7 +9,7 @@ var _           = require('lodash'),
     Promise     = require('bluebird'),
     versioning  = require('../versioning'),
     utils       = require('../utils'),
-    serverUtils = require('../../utils'),
+    //serverUtils = require('../../utils'),
     errors      = require('../../errors'),
     settings    = require('../../api/settings'),
 
@@ -21,27 +21,17 @@ exportFileName = function () {
     var datetime = (new Date()).toJSON().substring(0, 10),
         title = '';
 
-    // TODO: add read for setting api, test permission then
-    return settings.read({key: 'title', context: {internal: true}}).then(function (result) {
-        if (result) {
-            title = serverUtils.safeString(result.settings[0].value) + '.';
-        }
-        return title + 'ghost.' + datetime + '.json';
-    }).catch(function (err) {
-        errors.logError(err);
-        return 'ghost.' + datetime + '.json';
-    });
+    return 'icollege' + datetime + '.json';
 };
 
 
 exporter = function () {
-    return Promise.join(versioning.getDatabaseVersion(), utils.collections()).then(function (results) {
+    return Promise.join(versioning.getDatabaseVersion(), utils.collectionNames()).then(function (results) {
         var version = results[0],
             tables = results[1],
             selectOps = _.map(tables, function (name) {
                 if (excludedTables.indexOf(name) < 0) {
                     return utils.findDocuments(name);
-                    //return config.database.knex(name).select();
                 }
             });
 
@@ -57,7 +47,7 @@ exporter = function () {
             };
 
             _.each(tables, function (name, i) {
-                exportData.data[name] = tableData[i];
+                exportData.data[tables[i]] = tableData[i];
             });
 
             return exportData;
