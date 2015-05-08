@@ -20,7 +20,6 @@ DataImporter.prototype.importData = function (data) {
 
 DataImporter.prototype.doImport = function (data) {
     var tableData = data.data,
-        errors = [],
         t = new Transaction();
 
     return Promise.settle(function () {

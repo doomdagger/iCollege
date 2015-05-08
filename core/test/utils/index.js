@@ -371,7 +371,7 @@ togglePermalinks = function togglePermalinks(request, toggle) {
 };
 
 teardown = function teardown(done) {
-    migration.reset().then(function () {
+    migration.safeReset().then(function () {
         done();
     }).catch(done);
 };

@@ -7,7 +7,8 @@
  * Edited by Xie Wei on 2015/2/16
  */
 
-var Promise     = require('bluebird'),
+var
+    //Promise     = require('bluebird'),
     _           = require('lodash'),
     models       = require('../../models'),
     //globalUtils = require('../../utils'),
@@ -56,7 +57,7 @@ utils = {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("users", {_id : savedUser._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                });
         });
@@ -75,7 +76,7 @@ utils = {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("apps", {_id : savedApp._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                 });
         });
@@ -87,14 +88,14 @@ utils = {
             jsonData = stripProperties(strip, jsonData);
         }
         _.each(jsonData, function (notification) {
-            // add pass-through error handling so that bluebird doesn't think we've dropped it
+            // add pass-through  handling so that bluebird doesn't think we've dropped it
 
             models.Notification.forge(notification, internal).saveAsync()
                 .then(function (savedNotification) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("notifications", {_id : savedNotification._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                 });
         });
@@ -113,7 +114,7 @@ utils = {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("roles", {_id : savedRole._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                 });
         });
@@ -132,7 +133,7 @@ utils = {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("permissions", {_id : savedPermission._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                 });
         });
@@ -151,7 +152,7 @@ utils = {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("groups", {_id : savedGroup._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                 });
         });
@@ -170,7 +171,7 @@ utils = {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("circles", {_id : savedCircle._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                 });
         });
@@ -189,7 +190,7 @@ utils = {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("messages", {_id : savedMessage._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                 });
         });
@@ -208,7 +209,7 @@ utils = {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("posts", {_id : savedPost._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                 });
         });
@@ -227,7 +228,7 @@ utils = {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("reposts", {_id : savedRepost._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                 });
         });
@@ -246,7 +247,7 @@ utils = {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("settings", {_id : savedSetting._id});
                 })
-                .catch(function (error) {
+                .catch(function () {
                     transaction.flag = true;
                 });
         });
