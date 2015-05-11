@@ -22,7 +22,7 @@ DataImporter.prototype.doImport = function (data) {
     var tableData = data.data,
         t = new Transaction();
 
-    return Promise.settle(function () {
+    return Promise.resolve().then(function () {
         utils.importUsers(t, tableData.users);
     }).then(function () {
         utils.importApps(t, tableData.apps);

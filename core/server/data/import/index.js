@@ -7,13 +7,10 @@
 
 var Promise         = require('bluebird'),
     _               = require('lodash'),
-    validation      = require('../validation'),
     errors          = require('../../errors'),
     importer        = require('./data-importer'),
-    validate,
     handleErrors,
     checkDuplicateAttributes,
-    sanitize,
     cleanError;
 
 cleanError = function cleanError(error) {
@@ -80,52 +77,9 @@ checkDuplicateAttributes = function checkDuplicateAttributes(data, comparedValue
     });
 };
 
-sanitize = function sanitize() {
-    // TODO do we have some sanitize logic for importing data?
-};
-
-validate = function validate(data) {
-    var validateOps = [];
-
-    _.each(_.keys(data.data), function (tableName) {
-        _.each(data.data[tableName], function (importValues) {
-            validateOps.push(validation.validateSchema(tableName, importValues));
-        });
-    });
-
-    return Promise.settle(validateOps).then(function (descriptors) {
-        var errorList = [];
-
-        _.each(descriptors, function (d) {
-            if (d.isRejected()) {
-                errorList = errorList.concat(d.reason());
-            }
-        });
-
-        if (!_.isEmpty(errorList)) {
-            return Promise.reject(errorList);
-        }
-    });
-};
-
-
-
 module.exports.doImport = function (data) {
 
     //TODO : we don't need this function at this time
-    //var sanitizeResults = sanitize(data);
-    //data = sanitizeResults.data;
-
-    //return validate(data).then(function () {
-    //    return importer.importData(data);
-    //})
-    //    .then(function () {
-    //    return sanitizeResults;
-    //})
-    //    .catch(function (result) {
-    //    return handleErrors(result);
-    //});
-
     return importer.importData(data).catch(function (result) {
         return handleErrors(result);
     });

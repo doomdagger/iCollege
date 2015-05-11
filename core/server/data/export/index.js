@@ -9,17 +9,14 @@ var _           = require('lodash'),
     Promise     = require('bluebird'),
     versioning  = require('../versioning'),
     utils       = require('../utils'),
-    //serverUtils = require('../../utils'),
     errors      = require('../../errors'),
-    settings    = require('../../api/settings'),
 
     excludedTables = ['accesstokens', 'refreshtokens', 'clients'],
     exporter,
     exportFileName;
 
 exportFileName = function () {
-    var datetime = (new Date()).toJSON().substring(0, 10),
-        title = '';
+    var datetime = (new Date()).toJSON().substring(0, 10);
 
     return 'icollege' + datetime + '.json';
 };

@@ -9,7 +9,7 @@ var Promise     = require('bluebird'),
     _           = require('lodash'),
 
     config      = require('../../config'),
-    utils       = require('./index');
+    utils       = require('./index'),
 
     Transaction;
 
@@ -18,7 +18,7 @@ var Promise     = require('bluebird'),
  * Transaction Class
  * @constructor
  */
-Transaction = function Transaction () {
+Transaction = function Transaction() {
 
     //It is the array of transaction for saving all of database operations.
     //The type of array's member is ObjectId.
@@ -70,18 +70,15 @@ Transaction.prototype.rollback = function () {
                 // If doc have only one member,it must be "_id".
                 // In this situation,the member of transaction is insert,so we just remove it.
 
-                return utils.removeDocuments(collection, transraction.doc).then(function () {
+                return utils.removeDocuments(collection, transaction.doc).then(function () {
 
                     // if removing the document is success,
                     // remove the document from transaction array
                     _.filter(self.transArrary, function () {
-                        return self.transArrary.collectionName !== transraction.collectionName &&
-                            self.transArrary._id !== transraction._id;
+                        return self.transArrary.collectionName !== transaction.collectionName &&
+                            self.transArrary._id !== transaction._id;
                     });
 
-                }, function () {
-                    // if removing is fail, change flag state
-                    self.flag = true;
                 });
             }
             else {
@@ -91,13 +88,10 @@ Transaction.prototype.rollback = function () {
                     // remove the document from transaction array
 
                     _.filter(self.transArrary, function () {
-                        return self.transArrary.collectionName !== transraction.collectionName &&
-                            self.transArrary._id !== transraction._id;
+                        return self.transArrary.collectionName !== transaction.collectionName &&
+                            self.transArrary._id !== transaction._id;
                     });
 
-                }, function () {
-                    // if updating is fail, change flag state
-                    self.flag = true;
                 });
             }
 
@@ -105,6 +99,7 @@ Transaction.prototype.rollback = function () {
     }
 
     return Promise.all(promises).catch(function () {
+        self.flag = true;
         self.rollback();
     });
 };

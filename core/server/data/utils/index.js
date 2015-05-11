@@ -120,15 +120,12 @@ function doesCollectionExist (collectionName) {
  * @returns {Promise|*}
  */
 function safeDropCollections () {
-    var self = this;
-    return collections().then(function (collections) {
-        // filter out system collections, fill drop tasks
-         var ops = _.map(self.collectionNames, function (collection) {
-             return function () {
-                 return dropCollection(collection.collectionName);
-             };
-         });
-
+    return collectionNames().then(function (collectionNames) {
+        var ops = _.map(collectionNames, function (collection) {
+            return function () {
+                return dropCollection(collection.collectionName);
+            };
+        });
         return Promise.all(ops);
     });
 }
@@ -205,7 +202,7 @@ function removeDocuments (collectionName, selector, options) {
  * ### Find Document
  * Creates a cursor for a query that can be used to iterate over results from mongodb.
  * @param collectionName (string) – the collection name we wish to find documents.
- * @param query (object) – query object to locate the object to modify
+ * @param [query] (object) – query object to locate the object to modify
  * @param [options]  (object) – additional options during update.
  * @returns {Promise}
  */
@@ -213,8 +210,6 @@ function findDocuments (collectionName, query, options) {
     var collection = config.database.db.collection(collectionName);
         query = query || {};
         options = options || {};
-
-    console.log(collectionName);
 
     return new Promise(function (resolve, reject) {
         collection.find(query, options).toArray(function(err, result) {
