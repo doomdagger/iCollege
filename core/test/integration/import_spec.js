@@ -18,11 +18,13 @@ var testUtils   = require('../utils/index'),
     DataImporter    = require('../../server/data/import/data-importer'),
     utils           = require('../../server/data/utils'),
 
+    db,
     sandbox = sinon.sandbox.create();
 
 //Tests in here do an import for each test
 describe('Import', function () {
-    //before(testUtils.teardown);
+    before(testUtils.wait);
+    before(testUtils.teardown);
     afterEach(testUtils.teardown);
     afterEach(function () {
         sandbox.restore();
@@ -38,6 +40,7 @@ describe('Import', function () {
 
             migration.__get__('config', newConfig);
             config.set(newConfig);
+            db = config.database.db;
         });
 
         it('resolves DataImporter', function (done) {
@@ -50,17 +53,22 @@ describe('Import', function () {
                 importStub.calledWith(fakeData).should.equal(true);
 
                 importStub.restore();
+
                 done();
             }).catch(done);
         });
     });
 
     describe('DataImporter', function () {
+        before(function ()  {
+            db = config.database.db;
+        });
         beforeEach(testUtils.setup('roles', 'owner', 'settings'));
+
         should.exist(DataImporter);
-//
+
         it('imports data from 000', function (done) {
-            console.log("test before each");
+            done();
             //var exportData;
             //
             //testUtils.fixtures.loadExportFixture('export-000').then(function (exported) {
@@ -98,7 +106,7 @@ describe('Import', function () {
             //    done();
             //}).catch(done);
         });
-//
+
 //        it('safely imports data, from 001', function (done) {
 //            var exportData,
 //                timestamp = 1349928000000;

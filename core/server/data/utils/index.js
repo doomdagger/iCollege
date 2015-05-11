@@ -122,9 +122,7 @@ function doesCollectionExist (collectionName) {
 function safeDropCollections () {
     return collectionNames().then(function (collectionNames) {
         var ops = _.map(collectionNames, function (collection) {
-            return function () {
-                return dropCollection(collection.collectionName);
-            };
+            return dropCollection(collection);
         });
         return Promise.all(ops);
     });

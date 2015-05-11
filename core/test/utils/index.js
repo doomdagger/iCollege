@@ -26,7 +26,9 @@ var Promise       = require('bluebird'),
 
     initFixtures,
     initData,
-    clearData;
+    clearData,
+
+    wait;
 
 /** TEST FIXTURES **/
 fixtures = {
@@ -56,7 +58,7 @@ fixtures = {
         var user = DataGenerator.Content.users[0];
 
         user = DataGenerator.forDB.createBasic(user);
-        user = fixtures.amend(user, 'users', {status: 'online', roles: [DataGenerator.Content.roles_users[0]]});
+        user = fixtures.amend(user, 'users', {status: 'online', roles: [DataGenerator.forDB.roles_users[0]]});
 
         return fixtures.insertRoles().then(function () {
             return DataUtils.insertDocuments('users', user);
@@ -67,7 +69,7 @@ fixtures = {
         var user;
 
         user = DataGenerator.forDB.createUser(DataGenerator.Content.users[0]);
-        user = fixtures.amend(user, 'users', {roles: [DataGenerator.Content.roles_users[0]]});
+        user = fixtures.amend(user, 'users', {roles: [DataGenerator.forDB.roles_users[0]]});
 
         return DataUtils.insertDocuments('users', user);
     },
@@ -376,6 +378,12 @@ teardown = function teardown(done) {
     }).catch(done);
 };
 
+wait = function wait(done) {
+    setTimeout(function () {
+        done();
+    }, 500);
+};
+
 module.exports = {
     teardown: teardown,
     setup: setup,
@@ -386,6 +394,8 @@ module.exports = {
     initFixtures: initFixtures,
     initData: initData,
     clearData: clearData,
+
+    wait: wait,
 
     fixtures: fixtures,
 

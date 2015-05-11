@@ -16,8 +16,6 @@
 // 8. default: value
 // 9. get: function - should receive a value and return a tweaked value to get
 
-var Schema = require("mongoose").Schema;
-
 // ## DB Design
 var db = {
     // ### users 用户实体

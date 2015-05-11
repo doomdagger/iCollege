@@ -72,7 +72,16 @@ ConfigManager.prototype.init = function (rawConfig) {
     // just the object appropriate for this NODE_ENV
     self.set(rawConfig);
 
-    return Promise.resolve(self._config);
+    return new Promise(function (resolve, reject) {
+
+        mongoose.connection.on('error', function (err) {
+            reject(err);
+        });
+
+        mongoose.connection.once('open', function () {
+            resolve(self._config);
+        });
+    });
 };
 
 function configureDriver() {
