@@ -240,7 +240,7 @@ DataGenerator.next = function (obj) {
         code = '0';
         counterMap[obj] = code.charCodeAt(0);
     }
-    for (i = 0; i < 24; i++) {
+    for (i = 0; i < 24; i += 1) {
         arr.push(code);
     }
     return mongoose.Types.ObjectId(arr.join(''));

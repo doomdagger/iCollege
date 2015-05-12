@@ -12,7 +12,8 @@ var testUtils   = require('../utils/index'),
     sandbox = sinon.sandbox.create();
 
 describe('Exporter', function () {
-    //before(testUtils.teardown);
+    before(testUtils.wait);
+    before(testUtils.teardown);
     afterEach(testUtils.teardown);
     afterEach(function () {
         sandbox.restore();
@@ -59,6 +60,6 @@ describe('Exporter', function () {
 
     it('export file name', function () {
         var datetime = (new Date()).toJSON().substring(0, 10);
-        exporter.fileName().should.equal("icollege" + datetime + ".json");
-    })
+        exporter.fileName().should.equal('icollege' + datetime + '.json');
+    });
 });

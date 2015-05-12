@@ -1,4 +1,4 @@
-/*globals describe, beforeEach, afterEach, it*/
+/*globals describe, beforeEach, it*/
 /*jshint expr:true*/
 var assert          = require('assert'),
     should          = require('should'),

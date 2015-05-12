@@ -5,7 +5,7 @@ var testUtils       = require('../../utils'),
 
     // Stuff we are testing
     SettingsModel   = require('../../../server/models/settings').Settings,
-    config          = require('../../../server/config'),
+    //config          = require('../../../server/config'),
     dataUtils       = require('../../../server/data/utils'),
     context         = testUtils.context.superAdmin;
 
@@ -128,7 +128,7 @@ describe('Settings Model', function () {
         });
 
         it('can destroy', function (done) {
-            var settingToDestroy = {key: "description"};
+            var settingToDestroy = {key: 'description'};
             SettingsModel.findOneAsync(settingToDestroy).then(function (results) {
                 should.exist(results);
                 results.key.should.equal(settingToDestroy.key);

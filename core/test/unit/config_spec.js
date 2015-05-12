@@ -8,7 +8,7 @@ var should         = require('should'),
     _              = require('lodash'),
     rewire         = require('rewire'),
 
-    testUtils      = require('../utils'),
+    //testUtils      = require('../utils'),
 
 // Thing we are testing
     defaultConfig  = require('../../../config.example')[process.env.NODE_ENV],

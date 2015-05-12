@@ -59,7 +59,7 @@ describe('Permission Model', function () {
             action_type: 'test'
         };
 
-        // 返回的是数组~~~
+        // return array~~~
         PermissionModel.add(newPerm, context).then(function (createdPerms) {
             should.exist(createdPerms[0]);
             createdPerms[0].name.should.equal(newPerm.name);

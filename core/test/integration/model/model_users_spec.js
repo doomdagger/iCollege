@@ -4,13 +4,13 @@ var testUtils   = require('../../utils'),
     should      = require('should'),
     Promise     = require('bluebird'),
     sinon       = require('sinon'),
-    uuid        = require('node-uuid'),
-    _           = require('lodash'),
+    //uuid        = require('node-uuid'),
+    //_           = require('lodash'),
 
     // Stuff we are testing
-    utils       = require('../../../server/utils'),
+    //utils       = require('../../../server/utils'),
     UserModel   = require('../../../server/models/user').User,
-    RoleModel   = require('../../../server/models/role').Role,
+    //RoleModel   = require('../../../server/models/role').Role,
     context     = testUtils.context.superAdmin,
     sandbox     = sinon.sandbox.create();
 

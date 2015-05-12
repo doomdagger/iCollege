@@ -1,12 +1,12 @@
 /*globals describe, it*/
 /*jshint expr:true*/
 var should          = require('should'),
-    _               = require('lodash'),
-    crypto          = require('crypto'),
+    //_               = require('lodash'),
+    //crypto          = require('crypto'),
 
 // Stuff we are testing
-    defaultSettings = require('../../server/data/default-settings'),
-    schema          = require('../../server/data/schema');
+    defaultSettings = require('../../server/data/default-settings');
+    //schema          = require('../../server/data/schema');
 
 // To stop jshint complaining
 should.equal(true, true);

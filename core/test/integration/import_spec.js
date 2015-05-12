@@ -1,13 +1,13 @@
-///*globals describe, before, beforeEach, afterEach, after, it */
-///*jshint expr:true*/
+/*globals describe, before, beforeEach, afterEach, it */
+/*jshint expr:true*/
 var testUtils   = require('../utils/index'),
     should      = require('should'),
     sinon       = require('sinon'),
     Promise     = require('bluebird'),
-    assert      = require('assert'),
+    //assert      = require('assert'),
     _           = require('lodash'),
     rewire      = require('rewire'),
-    validator   = require('validator'),
+    //validator   = require('validator'),
 
     // Stuff we are testing
     config          = rewire('../../server/config'),
@@ -16,7 +16,7 @@ var testUtils   = require('../utils/index'),
     exporter        = require('../../server/data/export'),
     importer        = require('../../server/data/import'),
     DataImporter    = require('../../server/data/import/data-importer'),
-    utils           = require('../../server/data/utils'),
+    //utils           = require('../../server/data/utils'),
 
     db,
     sandbox = sinon.sandbox.create();
