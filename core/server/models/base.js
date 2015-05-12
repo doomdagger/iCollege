@@ -26,23 +26,6 @@ icollegeShelf = new Shelf(true, {
     // #### Model Instance Level methods, Methods
     // Methods on Model Level means model instance can invoke
 
-    // we extend the set method of Mongoose
-    // you can now also pass an object to instance, covering multiple attributes
-    setMulti: function (key, value) {
-        if (arguments.length === 1) {
-            if (_.isObject(key)) {
-                _.each(key, function (k, v) {
-                    this.set(k, v);
-                });
-                return this;
-            }
-            return this[key];
-        } else {
-            this[key] = value;
-            return this;
-        }
-    },
-
     // Get permitted attributes from server/data/schema.js, which is where the DB schema is defined
     permittedAttributes: function () {
         return _.keys(schema.collections[this.schema.collectionName]);
@@ -199,15 +182,20 @@ icollegeShelf = new Shelf(true, {
     /**
      * ### Edit
      * Naive edit
-     * @param {Object} doc update criteria
+     * @param {Object} data update criteria
      * @param {Object} options (optional) put id in options
      * @return {Promise} Edited Model
      */
-    edit: function (doc, options) {
+    edit: function (data, options) {
         var id = options.id;
+        data = this.filterData(data);
         options = this.filterOptions(options, 'edit');
 
-        return this.updateAsync({id: id}, doc, options);
+        return this.findOneAsync({_id: id}).then(function (object) {
+            if (object) {
+                return object.setMulti(data).saveAsync(options);
+            }
+        });
     },
 
     /**
@@ -231,7 +219,7 @@ icollegeShelf = new Shelf(true, {
     destroy: function (options) {
         var id = options.id;
         // options = this.filterOptions(options, 'destroy');
-        return this.removeAsync({id: id});
+        return this.removeAsync({_id: id});
     },
 
     /**
@@ -354,9 +342,9 @@ icollegeShelf = new Shelf(true, {
     // * [update](http://mongoosejs.com/docs/api.html#query_Query-update)
     // 'this' is Model Object
 
-    updating: function (next, criteria, doc, options) {
-        _.merge(doc, {$set: {'updated_at': new Date(), 'updated_by': this.model.prototype.contextUser(options)}});
-        next(criteria, doc, options);
+    updating: function (next) {
+        errors.logWarn("Using update method on collection: " + this.model.schema.collectionName + ", probably losing updated context!");
+        next();
     }
 });
 

@@ -5,12 +5,14 @@ var testUtils       = require('../../utils'),
 
     // Stuff we are testing
     PermissionModel = require('../../../server/models/permission').Permission,
-    context         = testUtils.context.admin;
+    context         = testUtils.context.superAdmin;
 
 describe('Permission Model', function () {
     // Keep the DB clean
+    before(testUtils.wait);
     before(testUtils.teardown);
     afterEach(testUtils.teardown);
+    beforeEach(testUtils.DataGenerator.resetCounter);
     beforeEach(testUtils.setup('permission'));
 
     before(function () {
@@ -20,15 +22,14 @@ describe('Permission Model', function () {
     it('can findAll', function (done) {
         PermissionModel.findAll().then(function (foundPermissions) {
             should.exist(foundPermissions);
-
-            foundPermissions.models.length.should.be.above(0);
+            foundPermissions.length.should.be.above(0);
 
             done();
         }).catch(done);
     });
 
     it('can findOne', function (done) {
-        PermissionModel.findOne({id: 1}).then(function (foundPermission) {
+        PermissionModel.findOneAsync({_id: '000000000000000000000000'}).then(function (foundPermission) {
             should.exist(foundPermission);
             foundPermission.get('created_at').should.be.an.instanceof(Date);
 
@@ -37,12 +38,11 @@ describe('Permission Model', function () {
     });
 
     it('can edit', function (done) {
-        PermissionModel.findOne({id: 1}).then(function (foundPermission) {
+        PermissionModel.findOneAsync({_id: '000000000000000000000000'}).then(function (foundPermission) {
             should.exist(foundPermission);
-
-            return foundPermission.set({name: 'updated'}).save(null, context);
+            return foundPermission.set({name: 'updated'}).saveAsync(context);
         }).then(function () {
-            return PermissionModel.findOne({id: 1});
+            return PermissionModel.findOneAsync({_id: '000000000000000000000000'});
         }).then(function (updatedPermission) {
             should.exist(updatedPermission);
 
@@ -59,26 +59,26 @@ describe('Permission Model', function () {
             action_type: 'test'
         };
 
-        PermissionModel.add(newPerm, context).then(function (createdPerm) {
-            should.exist(createdPerm);
-
-            createdPerm.attributes.name.should.equal(newPerm.name);
+        // 返回的是数组~~~
+        PermissionModel.add(newPerm, context).then(function (createdPerms) {
+            should.exist(createdPerms[0]);
+            createdPerms[0].name.should.equal(newPerm.name);
 
             done();
         }).catch(done);
     });
 
     it('can destroy', function (done) {
-        var firstPermission = {id: 1};
+        var firstPermission = {_id: '000000000000000000000000'};
 
-        PermissionModel.findOne(firstPermission).then(function (foundPermission) {
+        PermissionModel.findOneAsync(firstPermission).then(function (foundPermission) {
             should.exist(foundPermission);
-            foundPermission.attributes.id.should.equal(firstPermission.id);
+            foundPermission.id.should.equal(firstPermission._id);
 
-            return PermissionModel.destroy(firstPermission);
+            return PermissionModel.destroy({id: foundPermission.id});
         }).then(function (response) {
-            response.toJSON().should.be.empty;
-            return PermissionModel.findOne(firstPermission);
+            response.toJSON().should.eql({ ok: 1, n: 1 });
+            return PermissionModel.findOneAsync(firstPermission);
         }).then(function (newResults) {
             should.equal(newResults, null);
 

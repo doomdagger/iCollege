@@ -2,7 +2,11 @@ var _ = require('lodash'),
     uuid = require('node-uuid'),
     mongoose = require('mongoose'),
     globalUtils = require('../../../server/utils'),
+
+    counterMap = {},
+
     DataGenerator = {};
+
 /*jshint quotmark:false*/
 // jscs:disable validateQuoteMarks, requireCamelCaseOrUpperCaseIdentifiers
 DataGenerator.Content = {
@@ -198,7 +202,7 @@ DataGenerator.forModel = (function () {
         roles;
 
     users = _.map(DataGenerator.Content.users, function (user) {
-        user = _.pick(user, 'name');
+        user = _.pick(user, 'name', 'email', 'nickname');
 
         return _.defaults({
             password: 'Sl1m3rson'
@@ -213,32 +217,34 @@ DataGenerator.forModel = (function () {
     };
 }());
 
-DataGenerator.next = (function () {
-    var counterMap = {};
+DataGenerator.resetCounter = function () {
+    counterMap = {};
+};
 
-    return function (obj) {
-        var i,
-            code,
-            arr = [];
-        if (!!counterMap[obj]) {
-            // 如果已经超过了9，变成a
-            if (++counterMap[obj] === 58) {
-                counterMap[obj] = 97;
-            }
-            // 如果已经超过了f，变成0
-            if (counterMap[obj] === 103) {
-                counterMap[obj] = 48;
-            }
-            code = String.fromCharCode(counterMap[obj]);
-        } else {
-            code = '0';
-            counterMap[obj] = code.charCodeAt(0);
+// change param: counterMap to global scope
+DataGenerator.next = function (obj) {
+    var i,
+        code,
+        arr = [];
+    if (!!counterMap[obj]) {
+        // 如果已经超过了9，变成a
+        if (++counterMap[obj] === 58) {
+            counterMap[obj] = 97;
         }
-        for (i = 0; i < 24; i++) {
-            arr.push(code);
+        // 如果已经超过了f，变成0
+        if (counterMap[obj] === 103) {
+            counterMap[obj] = 48;
         }
-        return mongoose.Types.ObjectId(arr.join(''));
+        code = String.fromCharCode(counterMap[obj]);
+    } else {
+        code = '0';
+        counterMap[obj] = code.charCodeAt(0);
     }
-})();
+    for (i = 0; i < 24; i++) {
+        arr.push(code);
+    }
+    return mongoose.Types.ObjectId(arr.join(''));
+};
+
 
 module.exports = DataGenerator;

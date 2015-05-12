@@ -6,12 +6,15 @@ var testUtils       = require('../../utils'),
     // Stuff we are testing
     SettingsModel   = require('../../../server/models/settings').Settings,
     config          = require('../../../server/config'),
-    context         = testUtils.context.admin;
+    dataUtils       = require('../../../server/data/utils'),
+    context         = testUtils.context.superAdmin;
 
 describe('Settings Model', function () {
     // Keep the DB clean
+    before(testUtils.wait);
     before(testUtils.teardown);
     afterEach(testUtils.teardown);
+    beforeEach(testUtils.DataGenerator.resetCounter);
     beforeEach(testUtils.setup('settings'));
 
     before(function () {
@@ -37,13 +40,13 @@ describe('Settings Model', function () {
 
                 results.length.should.be.above(0);
 
-                firstSetting = results.models[0];
+                firstSetting = results[0];
 
-                return SettingsModel.findOne(firstSetting.attributes.key);
+                return SettingsModel.findOneAsync(firstSetting.key);
             }).then(function (found) {
                 should.exist(found);
 
-                should(found.get('value')).equal(firstSetting.attributes.value);
+                should(found.get('value')).equal(firstSetting.value);
                 found.get('created_at').should.be.an.instanceof(Date);
 
                 done();
@@ -62,10 +65,10 @@ describe('Settings Model', function () {
 
                 edited.length.should.equal(1);
 
-                edited = edited[0];
+                edited = edited[0][0];
 
-                edited.attributes.key.should.equal('description');
-                edited.attributes.value.should.equal('new value');
+                edited.key.should.equal('description');
+                edited.value.should.equal('new value');
 
                 done();
             }).catch(done);
@@ -90,15 +93,15 @@ describe('Settings Model', function () {
 
                 edited.length.should.equal(2);
 
-                editedModel = edited[0];
+                editedModel = edited[0][0];
 
-                editedModel.attributes.key.should.equal(model1.key);
-                editedModel.attributes.value.should.equal(model1.value);
+                editedModel.key.should.equal(model1.key);
+                editedModel.value.should.equal(model1.value);
 
-                editedModel = edited[1];
+                editedModel = edited[1][0];
 
-                editedModel.attributes.key.should.equal(model2.key);
-                editedModel.attributes.value.should.equal(model2.value);
+                editedModel.key.should.equal(model2.key);
+                editedModel.value.should.equal(model2.value);
 
                 done();
             }).catch(done);
@@ -112,27 +115,27 @@ describe('Settings Model', function () {
 
             SettingsModel.add(newSetting, context).then(function (createdSetting) {
                 should.exist(createdSetting);
-                createdSetting.has('uuid').should.equal(true);
-                createdSetting.attributes.key.should.equal(newSetting.key, 'key is correct');
-                createdSetting.attributes.value.should.equal(newSetting.value, 'value is correct');
-                createdSetting.attributes.type.should.equal('core');
+
+                createdSetting = createdSetting[0];
+
+                should(createdSetting.uuid).be.a.String;
+                createdSetting.key.should.equal(newSetting.key, 'key is correct');
+                createdSetting.value.should.equal(newSetting.value, 'value is correct');
+                createdSetting.type.should.equal('core');
 
                 done();
             }).catch(done);
         });
 
         it('can destroy', function (done) {
-            // dont't use id 1, since it will delete databaseversion
-            var settingToDestroy = {id: 2};
-
-            SettingsModel.findOne(settingToDestroy).then(function (results) {
+            var settingToDestroy = {key: "description"};
+            SettingsModel.findOneAsync(settingToDestroy).then(function (results) {
                 should.exist(results);
-                results.attributes.id.should.equal(settingToDestroy.id);
+                results.key.should.equal(settingToDestroy.key);
 
-                return SettingsModel.destroy(settingToDestroy);
+                return SettingsModel.destroy({id: results.id});
             }).then(function (response) {
-                response.toJSON().should.be.empty;
-
+                response.result.should.eql({ ok: 1, n: 1 });
                 return SettingsModel.findOne(settingToDestroy);
             }).then(function (newResults) {
                 should.equal(newResults, null);
@@ -144,7 +147,7 @@ describe('Settings Model', function () {
 
     describe('populating defaults from settings.json', function () {
         beforeEach(function (done) {
-            config.database.knex('settings').truncate().then(function () {
+            dataUtils.removeDocuments('settings', {}).then(function () {
                 done();
             });
         });
@@ -158,11 +161,11 @@ describe('Settings Model', function () {
             }).then(function (allSettings) {
                 allSettings.length.should.be.above(0);
 
-                return SettingsModel.findOne('description');
+                return SettingsModel.findOneAsync('description');
             }).then(function (descriptionSetting) {
                 // Testing against the actual value in default-settings.json feels icky,
                 // but it's easier to fix the test if that ever changes than to mock out that behaviour
-                descriptionSetting.get('value').should.equal('Just a blogging platform.');
+                descriptionSetting.get('value').should.equal('I am iColleger');
                 done();
             }).catch(done);
         });
@@ -171,7 +174,7 @@ describe('Settings Model', function () {
             SettingsModel.add({key: 'description', value: 'Adam\'s Blog'}, context).then(function () {
                 return SettingsModel.populateDefaults();
             }).then(function () {
-                return SettingsModel.findOne('description');
+                return SettingsModel.findOneAsync('description');
             }).then(function (descriptionSetting) {
                 descriptionSetting.get('value').should.equal('Adam\'s Blog');
                 done();

@@ -58,8 +58,8 @@ basetokenShelf = icollegeShelf.extend({
 
     // override for base function since we don't have
     // a updated_by field for sessions
-    updating: function (next, criteria, doc, options) {
-        next(criteria, doc, options);
+    updating: function (next) {
+        next();
     }
 
 });

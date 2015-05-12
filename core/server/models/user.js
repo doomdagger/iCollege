@@ -8,7 +8,11 @@ var Promise        = require('bluebird'),
     utils          = require('../utils'),
     config         = require('../config'),
     validator      = require('validator'),
+    request        = require('request'),
     _              = require('lodash'),
+
+    // inter-require for different models
+    mongoose           = require('mongoose'),
 
     bcryptGenSalt  = Promise.promisify(bcrypt.genSalt),
     bcryptHash     = Promise.promisify(bcrypt.hash),
@@ -77,6 +81,80 @@ Users = icollegeShelf.schema('users', {
             .execAsync();
     },
 
+    /**
+     * ## Add
+     * Naive user add
+     * Hashes the password provided before saving to the database.
+     *
+     * @param {object} data
+     * @param {object} options
+     * @extends icollegeShelf.Model.add to manage all aspects of user signup
+     * **See:** [icollegeShelf.Model.add](base.js.html#Add)
+     */
+    add: function (data, options) {
+        var self = this,
+            userData = this.filterData(data);
+
+        options = this.filterOptions(options, 'add');
+
+        // check for too many roles
+        if (data.roles && data.roles.length > 1) {
+            return Promise.reject(new errors.ValidationError('Only one role per user is supported at the moment.'));
+        }
+
+        if (!validatePasswordLength(userData.password)) {
+            return Promise.reject(new errors.ValidationError('Your password must be at least 8 characters long.'));
+        }
+
+        function getICollegerRole() {
+            return mongoose.model('Role').findOneAsync({name: 'iColleger'}).then(function (icollegerRole) {
+                return [icollegerRole.get('id')];
+            });
+        }
+
+        data.roles = data.roles || getICollegerRole();
+
+        return generatePasswordHash(userData.password).then(function (results) {
+            // Assign the hashed password
+            userData.password = results[1];
+            // LookupGravatar
+            return self.gravatarLookup(userData);
+        }).then(function (userData) {
+            // Save the user with the hashed password
+            return icollegeShelf.Model.add.call(self, userData, options);
+        }).then(function (addedUser) {
+            // Assign the userData to our created user so we can pass it back
+            userData = addedUser[0];
+            // find and return the added user
+            return self.findOneAsync({_id: userData.id});
+        });
+    },
+
+    gravatarLookup: function (userData) {
+        var gravatarUrl = '//www.gravatar.com/avatar/' +
+            crypto.createHash('md5').update(userData.email.toLowerCase().trim()).digest('hex') +
+            '?s=250';
+
+        return new Promise(function (resolve) {
+            if (config.isPrivacyDisabled('useGravatar')) {
+                return resolve(userData);
+            }
+
+            request({url: 'http:' + gravatarUrl + '&d=404&r=x', timeout: 2000}, function (err, response) {
+                if (err) {
+                    // just resolve with no image url
+                    return resolve(userData);
+                }
+
+                if (response.statusCode !== 404) {
+                    gravatarUrl += '&d=mm&r=x';
+                    userData.avatar = gravatarUrl;
+                }
+
+                resolve(userData);
+            });
+        });
+    },
 
     setWarning: function (user, options) {
         var status = user.get('status'),
@@ -134,7 +212,7 @@ Users = icollegeShelf.schema('users', {
                         });
                     }
 
-                    return Promise.resolve(user.setMulti({status: 'online', last_login: new Date()}).saveAsync())
+                    return Promise.resolve(user.set({status: 'online', last_login: new Date()}).saveAsync())
                         .catch(function (error) {
                             // If we get a validation or other error during this save, catch it and log it, but don't
                             // cause a login error because of it. The user validation is not important here.
@@ -197,7 +275,7 @@ Users = icollegeShelf.schema('users', {
 
             return generatePasswordHash(newPassword);
         }).then(function (hash) {
-            return user.setMulti({password: hash}).saveAsync();
+            return user.set({password: hash}).saveAsync();
         });
     },
 
@@ -308,7 +386,7 @@ Users = icollegeShelf.schema('users', {
             var foundUser = results[0],
                 passwordHash = results[1];
 
-            return foundUser.setMulti({password: passwordHash, status: 'offline'}).saveAsync();
+            return foundUser.set({password: passwordHash, status: 'offline'}).saveAsync();
         });
     },
 
@@ -336,7 +414,8 @@ Users = icollegeShelf.schema('users', {
             return icollegeShelf.Model.generateSlug(User, this.get('slug') || this.get('name'),
                 {shortSlug: !this.get('slug')})
                 .then(function (slug) {
-                    self.setMulti({slug: slug});
+                    self.set({slug: slug});
+                    next();
                 });
         }
         next();

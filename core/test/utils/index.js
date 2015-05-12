@@ -407,28 +407,27 @@ module.exports = {
     // Helpers to make it easier to write tests which are easy to read
     context: {
         internal:   {context: {internal: true}},
-        owner:      {context: {user: 1}},
-        admin:      {context: {user: 2}},
-        editor:     {context: {user: 3}},
-        author:     {context: {user: 4}}
+        superAdmin:      {context: {user: '000000000000000000000000'}},
+        admin:      {context: {user: '333333333333333333333333'}},
+        icolleger1:     {context: {user: '111111111111111111111111'}},
+        icolleger2:     {context: {user: '222222222222222222222222'}}
     },
     users: {
         ids: {
-            owner: 1,
-            admin: 2,
-            editor: 3,
-            author: 4,
-            admin2: 5,
-            editor2: 6,
-            author2: 7
+            superAdmin: '000000000000000000000000',
+            admin: '333333333333333333333333',
+            icolleger1: '111111111111111111111111',
+            icolleger2: '222222222222222222222222',
+            icolleger3: '444444444444444444444444',
+            icolleger4: '555555555555555555555555',
+            icolleger5: '666666666666666666666666'
         }
     },
     roles: {
         ids: {
-            owner: 4,
-            admin: 1,
-            editor: 2,
-            author: 3
+            superAdmin: '000000000000000000000000',
+            admin: '111111111111111111111111',
+            icolleger: '222222222222222222222222'
         }
     },
 

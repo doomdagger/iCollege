@@ -82,10 +82,12 @@ SettingSchema = icollegeShelf.schema('settings', {
 
             item = self.filterData(item);
 
-            return Settings.updateAsync({key: item.key}, {value: item.value}, options).then(function (ret) {
-                if (ret.nModified === 0) {
-                    return Promise.reject(new errors.NotFoundError('Unable to find setting to update: ' + item.key));
+            return Settings.findOneAsync({key: item.key}).then(function (setting) {
+                if (setting) {
+                    return setting.set({value: item.value}).saveAsync(options);
                 }
+
+                return Promise.reject(new errors.NotFoundError('Unable to find setting to update: ' + item.key));
             }, errors.logAndThrowError);
         });
     },

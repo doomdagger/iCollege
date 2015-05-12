@@ -1,14 +1,13 @@
 {
-    "core": {
-        "databaseVersion": {
-            "defaultValue": "000",
-            "validations": {
-                "isNull": false
-            }
-        }
-    },
+  "core": {
+    "databaseVersion": {
+      "defaultValue": "000",
+      "validations": {
+        "isNull": false
+      }
+    }
+  },
   "message": {
-
   },
   "post": {
     "permalinks": {
@@ -17,6 +16,18 @@
         "matches": "^(\/:?[a-z0-9_-]+){1,5}\/$",
         "matches": "(:id|:slug|:year|:month|:day)",
         "notContains": "/ghost/"
+      }
+    },
+    "description": {
+      "defaultValue": "I am iColleger",
+      "validations": {
+        "isNull": false
+      }
+    },
+    "title": {
+      "defaultValue": "iColleger",
+      "validations": {
+        "isNull": false
       }
     }
   }

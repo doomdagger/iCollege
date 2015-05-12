@@ -203,14 +203,14 @@ var db = {
         object_type: {
             type: String,
             enum: ['db', 'user', 'app', 'notification', 'role', 'permission', 'group_member', 'circle_member',
-                'group', 'circle', 'message', 'post', 'repost', 'setting', 'mail', 'slug'],
+                'group', 'circle', 'message', 'post', 'repost', 'setting', 'mail', 'slug', 'test'],
             required: true
         },
         // action_types map the operations of each sub-module
         action_type: {
             type: String,
             enum: ['edit', 'destroy', 'create', 'read', 'generate', 'exportContent', 'remove',
-                'favor', 'importContent', 'deleteAllContent', 'browse', 'add', 'send', 'assign'],
+                'favor', 'importContent', 'deleteAllContent', 'browse', 'add', 'send', 'assign', 'test'],
             required: true
         },
         object_id: {type: String}, // 非必须的
