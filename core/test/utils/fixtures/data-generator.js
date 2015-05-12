@@ -159,10 +159,10 @@ DataGenerator.forDB = (function () {
     }
 
     roles_users = [
-        mongoose.Types.ObjectId('000000000000000000000000'),
-        mongoose.Types.ObjectId('222222222222222222222222'),
-        mongoose.Types.ObjectId('222222222222222222222222'),
-        mongoose.Types.ObjectId('111111111111111111111111')
+        mongoose.Types.ObjectId('000000000000000000000000') + '',
+        mongoose.Types.ObjectId('222222222222222222222222') + '',
+        mongoose.Types.ObjectId('222222222222222222222222') + '',
+        mongoose.Types.ObjectId('111111111111111111111111') + ''
     ];
 
     roles = [

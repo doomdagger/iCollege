@@ -172,51 +172,51 @@ describe('User Model', function run() {
         });
     });
 
-    //describe('Basic Operations', function () {
-    //    beforeEach(testUtils.setup('users:roles'));
-    //
-    //    it('sets last login time on successful login', function (done) {
-    //        var userData = testUtils.DataGenerator.forModel.users[0];
-    //
-    //        UserModel.check({email: userData.email, password: userData.password}).then(function (activeUser) {
-    //            should.exist(activeUser.get('last_login'));
-    //            done();
-    //        }).catch(done);
-    //    });
-    //
-    //    it('converts fetched dateTime fields to Date objects', function (done) {
-    //        var userData = testUtils.DataGenerator.forModel.users[0];
-    //
-    //        UserModel.check({email: userData.email, password: userData.password}).then(function (user) {
-    //            return UserModel.findOne({id: user.id});
-    //        }).then(function (user) {
-    //            var lastLogin,
-    //                createdAt,
-    //                updatedAt;
-    //
-    //            should.exist(user);
-    //
-    //            lastLogin = user.get('last_login');
-    //            createdAt = user.get('created_at');
-    //            updatedAt = user.get('updated_at');
-    //
-    //            lastLogin.should.be.an.instanceof(Date);
-    //            createdAt.should.be.an.instanceof(Date);
-    //            updatedAt.should.be.an.instanceof(Date);
-    //
-    //            done();
-    //        }).catch(done);
-    //    });
-    //
-    //    it('can findAll', function (done) {
-    //        UserModel.findAll().then(function (results) {
-    //            should.exist(results);
-    //            results.length.should.equal(4);
-    //
-    //            done();
-    //        }).catch(done);
-    //    });
-    //
+    describe('Basic Operations', function () {
+        beforeEach(testUtils.setup('users:roles'));
+
+        it('sets last login time on successful login', function (done) {
+            var userData = testUtils.DataGenerator.forModel.users[0];
+
+            UserModel.check({name: userData.name, password: userData.password}).then(function (activeUser) {
+                should.exist(activeUser[0].get('last_login'));
+                done();
+            }).catch(done);
+        });
+
+        it('converts fetched dateTime fields to Date objects', function (done) {
+            var userData = testUtils.DataGenerator.forModel.users[0];
+
+            UserModel.check({name: userData.name, password: userData.password}).then(function (user) {
+                return UserModel.findOneAsync({_id: user[0].id});
+            }).then(function (user) {
+                var lastLogin,
+                    createdAt,
+                    updatedAt;
+
+                should.exist(user);
+
+                lastLogin = user.get('last_login');
+                createdAt = user.get('created_at');
+                updatedAt = user.get('updated_at');
+
+                lastLogin.should.be.an.instanceof(Date);
+                createdAt.should.be.an.instanceof(Date);
+                updatedAt.should.be.an.instanceof(Date);
+
+                done();
+            }).catch(done);
+        });
+
+        it('can findAll', function (done) {
+            UserModel.findAll().then(function (results) {
+                should.exist(results);
+                results.length.should.equal(4);
+
+                done();
+            }).catch(done);
+        });
+
     //    it('can findPage (default)', function (done) {
     //        UserModel.findPage().then(function (results) {
     //            should.exist(results);
@@ -365,7 +365,7 @@ describe('User Model', function run() {
     //            done();
     //        }).catch(done);
     //    });
-    //});
+    });
 
     //describe('Password Reset', function () {
     //    beforeEach(testUtils.setup('users:roles'));
