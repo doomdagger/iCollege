@@ -243,7 +243,7 @@ Users = icollegeShelf.schema('users', {
                     return qb.count();
                 }
 
-                return Promise.join(fetchCollection(), fetchPaginationData())
+                return Promise.join(fetchCollection(), fetchPaginationData());
             })
             // Format response of data
             .then(function (results) {

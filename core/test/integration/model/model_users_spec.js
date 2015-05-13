@@ -303,7 +303,7 @@ describe('User Model', function run() {
         });
 
         it('can edit', function (done) {
-            var firstUser = "000000000000000000000000";
+            var firstUser = '000000000000000000000000';
 
             UserModel.findOneAsync({_id: firstUser}).then(function (results) {
                 var user;
