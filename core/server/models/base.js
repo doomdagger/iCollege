@@ -108,9 +108,9 @@ icollegeShelf = new Shelf(true, {
     // Methods on Model Level means Model Class can invoke
 
     /**
-     * A simple helper function to instantiate a new Model without needing new
+     * A simple helper function to instantiate a new Model without needing using new Model
      * @param data
-     * @param [options]
+     * @param [options] options is optional, and using options here is deprecated
      * @returns {Model}
      */
     forge: function (data, options) {
@@ -128,17 +128,23 @@ icollegeShelf = new Shelf(true, {
 
         ret = (Object(obj) === obj ? obj : inst);
         ret.options = options;
+
         return ret;
     },
 
     /**
      * Returns an array of keys permitted in every method's `options` hash.
      * Can be overridden and added to by a model's `permittedOptions` method.
+     * ```
+     * context  who commit the operation
+     * include  projection
+     * withRelated  populate path
+     * ```
      * @return {Array} Keys allowed in the `options` hash of every model's method.
      */
     permittedOptions: function () {
         // terms to whitelist for all methods.
-        return ['context', 'include'];
+        return ['context', 'include', 'withRelated'];
     },
 
     /**
@@ -169,15 +175,46 @@ icollegeShelf = new Shelf(true, {
     /**
      * ### Find All
      * Naive find all fetches all the data for a particular model
-     * @param {Object} [projection] string partitioned by space
      * @param {Object} [options] (optional) mongoose options
      * @return {Promise} Collection of all Models
      */
-    findAll:  function (projection, options) {
+    findAll:  function (options) {
         options = this.filterOptions(options, 'findAll');
-        return this.findAsync({}, projection, options);
+
+        var include = (options.include !== undefined) ? options.include.join(' ') : null,
+            query = this.find({}, include);
+
+        if (options.withRelated) {
+            _.each(options.withRelated, function (n) {
+                query.populate(n);
+            });
+        }
+
+        return query.execAsync();
     },
 
+    /**
+     * ### Find Single
+     * Naive find one where data determines what to match on
+     * @param {Object} [data]
+     * @param {Object} [options] (optional)
+     * @return {Promise} Single Model
+     */
+    findSingle: function (data, options) {
+        options = this.filterOptions(options, 'findSingle');
+
+        var include = (options.include !== undefined) ? options.include.join(' ') : null,
+            query = this.findOne(data, include);
+
+        if (options.withRelated) {
+            _.each(options.withRelated, function (n) {
+                query.populate(n);
+            });
+        }
+
+        // We pass include to forge so that toJSON has access
+        return query.execAsync();
+    },
 
     /**
      * ### Edit
@@ -187,11 +224,12 @@ icollegeShelf = new Shelf(true, {
      * @return {Promise} Edited Model
      */
     edit: function (data, options) {
+        // you use id or mistakenly use _id, we both accept!
         var id = options.id || options._id;
         data = this.filterData(data);
         options = this.filterOptions(options, 'edit');
 
-        return this.findOneAsync({_id: id}).then(function (object) {
+        return this.findSingle({_id: id}, options).then(function (object) {
             if (object) {
                 return object.set(data).saveAsync(options);
             }
@@ -208,7 +246,11 @@ icollegeShelf = new Shelf(true, {
     add: function (data, options) {
         data = this.filterData(data);
         options = this.filterOptions(options, 'add');
-        return this.forge(data).saveAsync(options);
+        var model = this.forge(data);
+        // We allow you to disable timestamps when importing posts so that the new posts `updated_at` value is the same
+        // as the import json blob.
+
+        return model.saveAsync(options);
     },
 
     /**
@@ -217,6 +259,7 @@ icollegeShelf = new Shelf(true, {
      * @return {Promise} Empty Model
      */
     destroy: function (options) {
+        // you use id or mistakenly use _id, we both accept!
         var id = options.id || options._id;
         // options = this.filterOptions(options, 'destroy');
         return this.removeAsync({_id: id});
