@@ -25,7 +25,7 @@ basetokenShelf = icollegeShelf.extend({
      * @param  {[type]} options has context and id. Context is the user doing the destroy, id is the user to destroy
      */
     destroyByUser: function (options) {
-        var userId = options.id;
+        var userId = options.id || options._id;
         if (userId) {
             return this.removeAsync({user_id: userId});
         }

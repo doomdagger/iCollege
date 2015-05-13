@@ -19,7 +19,9 @@ var Promise        = require('bluebird'),
     bcryptCompare  = Promise.promisify(bcrypt.compare),
 
     tokenSecurity  = {},
-    normalStates   = ['online', 'invisible', 'offline'],
+    activeStates   = ['active', 'warn-1', 'warn-2', 'warn-3', 'warn-4', 'locked'],
+    invitedStates  = ['invited', 'invited-pending'],
+    //loginStates   = ['online', 'invisible', 'offline'],
 
     User,
     Users;
@@ -69,6 +71,32 @@ Users = icollegeShelf.schema('users', {
     // Methods on Model Level means Model Class can invoke
 
     /**
+     * Returns an array of keys permitted in a method's `options` hash, depending on the current method.
+     * @param {String} methodName The name of the method to check valid options for.
+     * @return {Array} Keys allowed in the `options` hash of the model's method.
+     */
+    permittedOptions: function (methodName) {
+        var options = icollegeShelf.Model.permittedOptions(),
+
+        // whitelists for the `options` hash argument on methods, by method name.
+        // these are the only options that can be passed to Bookshelf / Knex.
+            validOptions = {
+                findOne: ['withRelated', 'status'],
+                findAll: ['withRelated'],
+                setup: ['id'],
+                add: ['withRelated'],
+                edit: ['withRelated', 'id'],
+                findPage: ['page', 'limit', 'status', 'where', 'whereIn', 'role', 'withRelated']
+            };
+
+        if (validOptions[methodName]) {
+            options = options.concat(validOptions[methodName]);
+        }
+
+        return options;
+    },
+
+    /**
      * ### Find All
      * @param {Object} [projection] string partitioned by space
      * @param {Object} options
@@ -79,6 +107,185 @@ Users = icollegeShelf.schema('users', {
         return this.find({}, projection, options)
             .populate("roles permissions")
             .execAsync();
+    },
+
+    /**
+     * #### findPage
+     * Find results by page - returns an object containing the
+     * information about the request (page, limit), along with the
+     * info needed for pagination (pages, total).
+     *
+     * **response:**
+     *
+     *     {
+     *         users: [
+     *              {...}, {...}, {...}
+     *          ],
+     *          meta: {
+     *              page: __,
+     *              limit: __,
+     *              pages: __,
+     *              total: __
+     *         }
+     *     }
+     *
+     * @param {Object} options
+     */
+    findPage: function (options) {
+        options = options || {};
+
+        var userCollection = User.find(),
+            roleInstance = options.role !== undefined;
+
+        if (options.limit && options.limit !== 'all') {
+            options.limit = parseInt(options.limit, 10) || 15;
+        }
+
+        if (options.page) {
+            options.page = parseInt(options.page, 10) || 1;
+        }
+
+        options = this.filterOptions(options, 'findPage');
+
+        // Set default settings for options
+        options = _.extend({
+            page: 1, // pagination page
+            limit: 15,
+            status: 'active',
+            where: {},
+            whereIn: {}
+        }, options);
+
+        // TODO: there are multiple statuses that make a user "active" or "invited" - we a way to translate/map them:
+        // TODO (cont'd from above): * valid "active" statuses: active, warn-1, warn-2, warn-3, warn-4, locked
+        // TODO (cont'd from above): * valid "invited" statuses" invited, invited-pending
+
+        // Filter on the status.  A status of 'all' translates to no filter since we want all statuses
+        if (options.status && options.status !== 'all') {
+            // make sure that status is valid
+            // TODO: need a better way of getting a list of statuses other than hard-coding them...
+            options.status = _.indexOf(
+                ['active', 'warn-1', 'warn-2', 'warn-3', 'warn-4', 'locked', 'invited', 'inactive'],
+                options.status) !== -1 ? options.status : 'active';
+        }
+
+        if (options.status === 'active') {
+            userCollection.where('status').in(activeStates);
+        } else if (options.status === 'invited') {
+            userCollection.where('status').in(invitedStates);
+        } else if (options.status !== 'all') {
+            options.where.status = options.status;
+        }
+
+        // If there are where conditionals specified, add those
+        // to the query.
+        if (options.where) {
+            _.each(options.where, function (n, key) {
+                userCollection.where(key).equals(n);
+            });
+        }
+
+        // Add related objects
+        options.withRelated = options.withRelated || [];
+
+        // only include a limit-query if a numeric limit is provided
+        if (_.isNumber(options.limit)) {
+            userCollection
+                .skip(options.limit * (options.page - 1))
+                .limit(options.limit);
+        }
+
+        function fetchRoleQuery() {
+            if (roleInstance) {
+                return mongoose.model('Role').findOneAsync({name: options.role});
+            }
+            return false;
+        }
+
+        return Promise.resolve(fetchRoleQuery())
+            .then(function (fetchedRole) {
+                roleInstance = fetchedRole;
+
+                function fetchCollection() {
+                    if (roleInstance) {
+                        userCollection
+                            .elemMatch('roles', {$eq: roleInstance.id});
+                    }
+
+                    if (options.withRelated) {
+                        _.each(options.withRelated, function (n) {
+                            userCollection.populate(n);
+                        });
+                    }
+
+                    return userCollection
+                        .sort({ last_login: 'desc', name: 'asc', created_at: 'desc' })
+                        .execAsync();
+                }
+
+                function fetchPaginationData() {
+                    var qb;
+
+                    // After we're done, we need to figure out what
+                    // the limits are for the pagination values.
+                    qb = User.where();
+
+                    if (options.where) {
+                        _.each(options.where, function (n, key) {
+                            qb.where(key).equals(n);
+                        });
+                    }
+
+                    if (roleInstance) {
+                        qb.elemMatch('roles', {$eq: roleInstance.id});
+                    }
+
+                    return qb.count();
+                }
+
+                return Promise.join(fetchCollection(), fetchPaginationData())
+            })
+            // Format response of data
+            .then(function (results) {
+                var totalUsers = parseInt(results[1], 10),
+                    calcPages = Math.ceil(totalUsers / options.limit) || 0,
+                    pagination = {},
+                    meta = {},
+                    data = {};
+
+                pagination.page = options.page;
+                pagination.limit = options.limit;
+                pagination.pages = calcPages === 0 ? 1 : calcPages;
+                pagination.total = totalUsers;
+                pagination.next = null;
+                pagination.prev = null;
+
+
+                data.users = _.map(results[0], function (n) {
+                    return n.jsonify();
+                });
+                data.meta = meta;
+                meta.pagination = pagination;
+
+                if (pagination.pages > 1) {
+                    if (pagination.page === 1) {
+                        pagination.next = pagination.page + 1;
+                    } else if (pagination.page === pagination.pages) {
+                        pagination.prev = pagination.page - 1;
+                    } else {
+                        pagination.next = pagination.page + 1;
+                        pagination.prev = pagination.page - 1;
+                    }
+                }
+
+                if (roleInstance) {
+                    meta.filters = {};
+                    meta.filters.roles = [roleInstance.jsonify()];
+                }
+
+                return data;
+            })
+            .catch(errors.logAndThrowError);
     },
 
     /**
@@ -96,6 +303,9 @@ Users = icollegeShelf.schema('users', {
             userData = this.filterData(data);
 
         options = this.filterOptions(options, 'add');
+
+        // Add related objects
+        options.withRelated = options.withRelated || [];
 
         // check for too many roles
         if (data.roles && data.roles.length > 1) {
@@ -125,9 +335,37 @@ Users = icollegeShelf.schema('users', {
         }).then(function (addedUser) {
             // Assign the userData to our created user so we can pass it back
             userData = addedUser[0];
+
+            var query = self.findOne({_id: userData.id});
+
+            if (options.withRelated) {
+                _.each(options.withRelated, function (n) {
+                    query.populate(n);
+                });
+            }
+
             // find and return the added user
-            return self.findOneAsync({_id: userData.id});
+            return query.execAsync();
         });
+    },
+
+    /**
+     * ### Edit
+     * @extends icollegeShelf.Model.edit to handle returning the full object
+     * **See:** [icollegeShelf.Model.edit](base.js.html#edit)
+     */
+    edit: function (data, options) {
+        var self = this;
+
+        if (data.roles && data.roles.length > 1) {
+            return Promise.reject(
+                new errors.ValidationError('Only one role per user is supported at the moment.')
+            );
+        }
+
+        options = options || {};
+
+        return icollegeShelf.Model.edit.call(self, data, options);
     },
 
     gravatarLookup: function (userData) {
@@ -161,7 +399,7 @@ Users = icollegeShelf.schema('users', {
             regexp = /warn-(\d+)/i,
             level;
 
-        if (_.contains(normalStates, status)) {
+        if (status === 'active') {
             user.set('status', 'warn-1');
             level = 1;
         } else {
@@ -212,7 +450,7 @@ Users = icollegeShelf.schema('users', {
                         });
                     }
 
-                    return Promise.resolve(user.set({status: 'online', last_login: new Date()}).saveAsync())
+                    return Promise.resolve(user.set({status: 'active', login_status: 'online', last_login: new Date()}).saveAsync())
                         .catch(function (error) {
                             // If we get a validation or other error during this save, catch it and log it, but don't
                             // cause a login error because of it. The user validation is not important here.
@@ -374,7 +612,7 @@ Users = icollegeShelf.schema('users', {
         return self.validateToken(utils.decodeBase64URLsafe(token), dbHash).then(function (name) {
             // Fetch the user by name, and hash the password at the same time.
             return Promise.join(
-                this.findOneAsync({name: name}),
+                self.findOneAsync({name: name}),
                 generatePasswordHash(newPassword)
             );
         }).then(function (results) {
@@ -386,7 +624,7 @@ Users = icollegeShelf.schema('users', {
             var foundUser = results[0],
                 passwordHash = results[1];
 
-            return foundUser.set({password: passwordHash, status: 'offline'}).saveAsync();
+            return foundUser.set({password: passwordHash, status: 'active'}).saveAsync();
         });
     },
 

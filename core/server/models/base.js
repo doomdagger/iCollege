@@ -187,13 +187,13 @@ icollegeShelf = new Shelf(true, {
      * @return {Promise} Edited Model
      */
     edit: function (data, options) {
-        var id = options.id;
+        var id = options.id || options._id;
         data = this.filterData(data);
         options = this.filterOptions(options, 'edit');
 
         return this.findOneAsync({_id: id}).then(function (object) {
             if (object) {
-                return object.setMulti(data).saveAsync(options);
+                return object.set(data).saveAsync(options);
             }
         });
     },
@@ -217,7 +217,7 @@ icollegeShelf = new Shelf(true, {
      * @return {Promise} Empty Model
      */
     destroy: function (options) {
-        var id = options.id;
+        var id = options.id || options._id;
         // options = this.filterOptions(options, 'destroy');
         return this.removeAsync({_id: id});
     },

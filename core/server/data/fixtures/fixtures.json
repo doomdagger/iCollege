@@ -7,7 +7,7 @@
       "password": "123456",
       "email": "admin@icollege.com",
       "phone": "18877776666",
-      "status": "offline",
+      "status": "active",
       "location": [0.0, 0.0]
     },
     {
@@ -17,7 +17,7 @@
       "password": "123456",
       "email": "admin2@icollege.com",
       "phone": "18877775555",
-      "status": "offline",
+      "status": "active",
       "location": [0.0, 0.0]
     },
     {
@@ -27,7 +27,7 @@
       "password": "123456",
       "email": "icolleger@icollege.com",
       "phone": "18877774444",
-      "status": "offline",
+      "status": "active",
       "location": [0.0, 0.0]
     }
   ],

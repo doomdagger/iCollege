@@ -40,10 +40,11 @@ var db = {
         location_info: {type: String, trim: true}, // 地址位置文字描述
         tags: [{type: String, trim: true}], // 用户个性标签
         // inactive states: invited, invited-pending, inactive
-        // active-usable states: online, invisible, offline
+        // active-usable states: active
         // active-unusable states: locked
         // 记录密码输入错误： 'warn-1', 'warn-2', 'warn-3', 'warn-4'
-        status: {type: String, enum: ['online', 'invisible', 'offline', 'invited', 'invited-pending', 'inactive', 'locked', 'warn-1', 'warn-2', 'warn-3', 'warn-4'], default: 'inactive', required: true}, // online offline or ...
+        status: {type: String, enum: ['active', 'invited', 'invited-pending', 'inactive', 'locked', 'warn-1', 'warn-2', 'warn-3', 'warn-4'], default: 'inactive', required: true},
+        login_status: {type: String, enum: ['online', 'invisible', 'offline'], default: 'offline'},// online offline or ...
         last_login: {type: Date},
 
         settings: {

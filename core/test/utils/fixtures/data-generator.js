@@ -132,7 +132,7 @@ DataGenerator.forDB = (function () {
     function createUser(overrides) {
         return _.defaults(overrides, {
             uuid: uuid.v4(),
-            status: 'offline',
+            status: 'active',
             created_by: mongoose.Types.ObjectId('000000000000000000000000'),
             created_at: new Date(),
             updated_by: mongoose.Types.ObjectId('000000000000000000000000'),

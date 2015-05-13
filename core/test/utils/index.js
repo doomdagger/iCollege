@@ -98,9 +98,10 @@ fixtures = {
         extraUsers = _.map(extraUsers, function (user) {
             return DataGenerator.forDB.createUser(_.extend({}, user, {
                 _id: DataGenerator.next('users'),
+                name: 'a' + user.name,
                 email: 'a' + user.email,
                 slug: 'a' + user.slug,
-                roles: [mongoose.Types.ObjectId('222222222222222222222222')]
+                roles: [mongoose.Types.ObjectId('222222222222222222222222') + '']
             }));
         });
 
@@ -111,10 +112,10 @@ fixtures = {
     createTokensForUser: function createTokensForUser() {
         return DataUtils.insertDocuments('clients', fixtures.amend(DataGenerator.forDB.clients, 'clients')).then(function () {
             return DataUtils.insertDocuments('accesstokens',
-                DataGenerator.forDB.createToken({_id: DataGenerator.next('accesstokens'), user_id: mongoose.Types.ObjectId('333333333333333333333333')}));
+                DataGenerator.forDB.createToken({_id: DataGenerator.next('accesstokens'), user_id: mongoose.Types.ObjectId('333333333333333333333333') + ''}));
         }).then(function () {
             return DataUtils.insertDocuments('refreshtokens',
-                DataGenerator.forDB.createToken({_id: DataGenerator.next('refreshtokens'), user_id: mongoose.Types.ObjectId('333333333333333333333333')}));
+                DataGenerator.forDB.createToken({_id: DataGenerator.next('refreshtokens'), user_id: mongoose.Types.ObjectId('333333333333333333333333') + ''}));
         });
     },
 
@@ -128,7 +129,7 @@ fixtures = {
                 email: 'inv' + user.email,
                 slug: 'inv' + user.slug,
                 status: 'invited-pending',
-                roles: [mongoose.Types.ObjectId('222222222222222222222222')]
+                roles: [mongoose.Types.ObjectId('222222222222222222222222') + '']
             }));
         });
 
