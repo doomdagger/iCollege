@@ -81,12 +81,10 @@ Users = icollegeShelf.schema('users', {
         // whitelists for the `options` hash argument on methods, by method name.
         // these are the only options that can be passed to Bookshelf / Knex.
             validOptions = {
-                findOne: ['withRelated', 'status'],
-                findAll: ['withRelated'],
-                setup: ['id'],
-                add: ['withRelated'],
-                edit: ['withRelated', 'id'],
-                findPage: ['page', 'limit', 'status', 'where', 'whereIn', 'role', 'withRelated']
+                findSingle: ['status'],
+                setup: ['id', '_id'],
+                edit: ['id', '_id'],
+                findPage: ['page', 'limit', 'status', 'where', 'whereIn', 'role']
             };
 
         if (validOptions[methodName]) {
@@ -98,15 +96,13 @@ Users = icollegeShelf.schema('users', {
 
     /**
      * ### Find All
-     * @param {Object} [projection] string partitioned by space
      * @param {Object} options
      * @returns {*}
      */
-    findAll:  function (projection, options) {
+    findAll:  function (options) {
         options = options || {};
-        return this.find({}, projection, options)
-            .populate("roles permissions")
-            .execAsync();
+        options.withRelated = _.union(options.withRelated, options.include);
+        return icollegeShelf.Model.findAll.call(this, options);
     },
 
     /**
@@ -186,7 +182,7 @@ Users = icollegeShelf.schema('users', {
         }
 
         // Add related objects
-        options.withRelated = options.withRelated || [];
+        options.withRelated = _.union(options.withRelated, options.include);
 
         // only include a limit-query if a numeric limit is provided
         if (_.isNumber(options.limit)) {
@@ -197,7 +193,7 @@ Users = icollegeShelf.schema('users', {
 
         function fetchRoleQuery() {
             if (roleInstance) {
-                return mongoose.model('Role').findOneAsync({name: options.role});
+                return mongoose.model('Role').findSingle({name: options.role});
             }
             return false;
         }
@@ -220,7 +216,7 @@ Users = icollegeShelf.schema('users', {
 
                     return userCollection
                         .sort({ last_login: 'desc', name: 'asc', created_at: 'desc' })
-                        .execAsync();
+                        .exec();
                 }
 
                 function fetchPaginationData() {
@@ -289,64 +285,61 @@ Users = icollegeShelf.schema('users', {
     },
 
     /**
-     * ## Add
-     * Naive user add
-     * Hashes the password provided before saving to the database.
-     *
-     * @param {object} data
-     * @param {object} options
-     * @extends icollegeShelf.Model.add to manage all aspects of user signup
-     * **See:** [icollegeShelf.Model.add](base.js.html#Add)
+     * ### Find One
+     * @extends icollegeShelf.Model.findSingle to include roles
+     * **See:** [icollegeShelf.Model.findSingle](base.js.html#Find%20One)
      */
-    add: function (data, options) {
-        var self = this,
-            userData = this.filterData(data);
+    findSingle: function (data, options) {
+        var query,
+            status,
+            include;
 
-        options = this.filterOptions(options, 'add');
+        data = _.extend({
+            status: 'active'
+        }, data || {});
 
-        // Add related objects
-        options.withRelated = options.withRelated || [];
+        status = data.status;
+        delete data.status;
 
-        // check for too many roles
-        if (data.roles && data.roles.length > 1) {
-            return Promise.reject(new errors.ValidationError('Only one role per user is supported at the moment.'));
-        }
+        options = this.filterOptions(options, 'findSingle');
+        options.withRelated = _.union(options.withRelated, options.include);
 
-        if (!validatePasswordLength(userData.password)) {
-            return Promise.reject(new errors.ValidationError('Your password must be at least 8 characters long.'));
-        }
-
-        function getICollegerRole() {
-            return mongoose.model('Role').findOneAsync({name: 'iColleger'}).then(function (icollegerRole) {
-                return [icollegerRole.get('id')];
-            });
-        }
-
-        data.roles = data.roles || getICollegerRole();
-
-        return generatePasswordHash(userData.password).then(function (results) {
-            // Assign the hashed password
-            userData.password = results[1];
-            // LookupGravatar
-            return self.gravatarLookup(userData);
-        }).then(function (userData) {
-            // Save the user with the hashed password
-            return icollegeShelf.Model.add.call(self, userData, options);
-        }).then(function (addedUser) {
-            // Assign the userData to our created user so we can pass it back
-            userData = addedUser[0];
-
-            var query = self.findOne({_id: userData.id});
-
-            if (options.withRelated) {
-                _.each(options.withRelated, function (n) {
-                    query.populate(n);
-                });
+        function fetchRoleQuery() {
+            if (data.role) {
+                return mongoose.model('Role').findSingle({name: data.role});
             }
+            return false;
+        }
 
-            // find and return the added user
-            return query.execAsync();
-        });
+        return Promise.resolve(fetchRoleQuery())
+            .then(function (fetchedRole) {
+                data = this.filterData(data);
+                include = (options.include !== undefined) ? options.include.join(' ') : null;
+
+                query = this.find(data, include);
+
+                // Support finding by role
+                if (fetchedRole) {
+                    options.withRelated.push('roles');
+                    query.elemMatch('roles', {$eq: fetchedRole.id});
+                }
+
+                if (status === 'active') {
+                    query.where('status').in(activeStates);
+                } else if (status === 'invited') {
+                    query.where('status').in(invitedStates);
+                } else if (status !== 'all') {
+                    query.where('status').equals(options.status);
+                }
+
+                if (options.withRelated) {
+                    _.each(options.withRelated, function (n) {
+                        query.populate(n);
+                    });
+                }
+
+                return query.exec();
+            });
     },
 
     /**
@@ -364,10 +357,109 @@ Users = icollegeShelf.schema('users', {
         }
 
         options = options || {};
+        options.withRelated = _.union(options.withRelated, options.include);
 
         return icollegeShelf.Model.edit.call(self, data, options);
     },
 
+    /**
+     * ## Add
+     * Naive user add
+     * Hashes the password provided before saving to the database.
+     *
+     * @param {object} data
+     * @param {object} options
+     * @extends icollegeShelf.Model.add to manage all aspects of user signup
+     * **See:** [icollegeShelf.Model.add](base.js.html#Add)
+     */
+    add: function (data, options) {
+        var self = this,
+            userData = this.filterData(data),
+            roles;
+
+        options = this.filterOptions(options, 'add');
+        options.withRelated = _.union(options.withRelated, options.include);
+
+        // check for too many roles
+        if (data.roles && data.roles.length > 1) {
+            return Promise.reject(new errors.ValidationError('Only one role per user is supported at the moment.'));
+        }
+
+        if (!validatePasswordLength(userData.password)) {
+            return Promise.reject(new errors.ValidationError('Your password must be at least 8 characters long.'));
+        }
+
+        function getICollegerRole() {
+            return mongoose.model('Role').findAll({name: 'iColleger'}).then(function (icollegerRole) {
+                return [icollegerRole.get('id')];
+            });
+        }
+
+        roles = data.roles || getICollegerRole();
+        delete data.roles;
+
+        return generatePasswordHash(userData.password).then(function (results) {
+            // Assign the hashed password
+            userData.password = results[1];
+            // LookupGravatar
+            return self.gravatarLookup(userData);
+        }).then(function (userData) {
+            // if we are given a "role" object, only pass in the role ID in place of the full object
+            return Promise.resolve(roles).then(function (roles) {
+                roles = _.map(roles, function (role) {
+                    return role.get('id');
+                });
+                userData.roles = roles;
+            }).then(function () {
+                // Save the user with the hashed password
+                return icollegeShelf.Model.add.call(self, userData, options);
+            });
+        }).then(function (addedUser) {
+            // Assign the userData to our created user so we can pass it back
+            userData = addedUser;
+
+            // find and return the added user
+            return self.findSingle({_id: userData.id, status: 'all'}, options);
+        });
+    },
+
+    /**
+     * setup user
+     * @param data
+     * @param options
+     * @returns {*}
+     */
+    setup: function (data, options) {
+        var self = this,
+            userData = this.filterData(data);
+
+        if (!validatePasswordLength(userData.password)) {
+            return Promise.reject(new errors.ValidationError('Your password must be at least 8 characters long.'));
+        }
+
+        options = this.filterOptions(options, 'setup');
+        options.withRelated = _.union(options.withRelated, options.include);
+        options.shortSlug = true;
+
+        return generatePasswordHash(data.password).then(function (hash) {
+            // Assign the hashed password
+            userData.password = hash;
+
+            return Promise.join(self.gravatarLookup(userData),
+                icollegeShelf.Model.generateSlug.call(this, User, userData.name, options));
+        }).then(function (results) {
+            userData = results[0];
+            userData.slug = results[1];
+
+            return self.edit.call(self, userData, options);
+        });
+    },
+
+    /**
+     * look gravatar on the internet
+     * @param userData
+     * @returns {Promise|exports|module.exports}
+     */
     gravatarLookup: function (userData) {
         var gravatarUrl = '//www.gravatar.com/avatar/' +
             crypto.createHash('md5').update(userData.email.toLowerCase().trim()).digest('hex') +
@@ -411,7 +503,7 @@ Users = icollegeShelf.schema('users', {
             }
         }
 
-        return Promise.resolve(user.saveAsync(options)).then(function () {
+        return Promise.resolve(user.__save(options)).then(function () {
             return 5 - level;
         });
     },
@@ -450,7 +542,7 @@ Users = icollegeShelf.schema('users', {
                         });
                     }
 
-                    return Promise.resolve(user.set({status: 'active', login_status: 'online', last_login: new Date()}).saveAsync())
+                    return Promise.resolve(user.set({status: 'active', login_status: 'online', last_login: new Date()}).__save())
                         .catch(function (error) {
                             // If we get a validation or other error during this save, catch it and log it, but don't
                             // cause a login error because of it. The user validation is not important here.
@@ -499,7 +591,7 @@ Users = icollegeShelf.schema('users', {
             return Promise.reject(new errors.ValidationError('Your password must be at least 8 characters long.'));
         }
 
-        return self.findOneAsync({id: userId}).then(function (_user) {
+        return self.findOne({_id: userId}).then(function (_user) {
             user = _user;
             if (userId === options.context.user) {
                 return bcryptCompare(oldPassword, user.get('password'));
@@ -513,12 +605,12 @@ Users = icollegeShelf.schema('users', {
 
             return generatePasswordHash(newPassword);
         }).then(function (hash) {
-            return user.set({password: hash}).saveAsync();
+            return user.set({password: hash}).__save();
         });
     },
 
     generateResetToken: function (name, expires, dbHash) {
-        return this.findOneAsync({name: name}).then(function (foundUser) {
+        return this.getByName(name).then(function (foundUser) {
             if (!foundUser) {
                 return Promise.reject(new errors.NotFoundError('There is no user with that name.'));
             }
@@ -612,7 +704,7 @@ Users = icollegeShelf.schema('users', {
         return self.validateToken(utils.decodeBase64URLsafe(token), dbHash).then(function (name) {
             // Fetch the user by name, and hash the password at the same time.
             return Promise.join(
-                self.findOneAsync({name: name}),
+                self.getByName(name),
                 generatePasswordHash(newPassword)
             );
         }).then(function (results) {
@@ -624,14 +716,16 @@ Users = icollegeShelf.schema('users', {
             var foundUser = results[0],
                 passwordHash = results[1];
 
-            return foundUser.set({password: passwordHash, status: 'active'}).saveAsync();
+            return foundUser.set({password: passwordHash, status: 'active'}).__save();
         });
     },
 
+    // Get the user by name, enforces case sensitivity
     getByName: function (name, options) {
         options = options || {};
 
-        return this.findOneAsync({name: name}, null, options);
+        // user findSingle from icollegeShelf to make the fetch process simple
+        return icollegeShelf.Model.findSingle.call(this, {name: name}, options);
     }
 
 }, {

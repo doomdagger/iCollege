@@ -99,6 +99,20 @@ icollegeShelf = new Shelf(true, {
         return icollegeShelf.Model.prototype.toJSON.apply(this, arguments);
     },
 
+    /**
+     * it's private method for saveAsync
+     * we want to add a layer to decorate the return value of saveAsync
+     * @see icollegeShelf.Model.edit
+     * @private
+     */
+    __save: function (options) {
+        var self = this;
+        self.saveAsync(options).then(function (saved) {
+            // TODO: It's Odd for saveAsync to return an array
+            return saved[0];
+        });
+    },
+
     sanitize: function (attr) {
         return sanitize(this.get(attr)).xss();
     }
@@ -190,7 +204,7 @@ icollegeShelf = new Shelf(true, {
             });
         }
 
-        return query.execAsync();
+        return query.exec();
     },
 
     /**
@@ -213,12 +227,14 @@ icollegeShelf = new Shelf(true, {
         }
 
         // We pass include to forge so that toJSON has access
-        return query.execAsync();
+        return query.exec();
     },
 
     /**
      * ### Edit
      * Naive edit
+     * if the Model has sub document, make sure data use String array, not Object array
+     * otherwise, it gonna be disastrous
      * @param {Object} data update criteria
      * @param {Object} options (optional) put id in options
      * @return {Promise} Edited Model
@@ -231,7 +247,7 @@ icollegeShelf = new Shelf(true, {
 
         return this.findSingle({_id: id}, options).then(function (object) {
             if (object) {
-                return object.set(data).saveAsync(options);
+                return object.set(data).__save(options);
             }
         });
     },
@@ -239,6 +255,8 @@ icollegeShelf = new Shelf(true, {
     /**
      * ### Add
      * Naive add
+     * if the Model has sub document, make sure data use String array, not Object array
+     * otherwise, it gonna be disastrous
      * @param {Object} data
      * @param {Object} options (optional)
      * @return {Promise} Newly Added Model
@@ -250,7 +268,7 @@ icollegeShelf = new Shelf(true, {
         // We allow you to disable timestamps when importing posts so that the new posts `updated_at` value is the same
         // as the import json blob.
 
-        return model.saveAsync(options);
+        return model.__save(options);
     },
 
     /**
@@ -262,7 +280,9 @@ icollegeShelf = new Shelf(true, {
         // you use id or mistakenly use _id, we both accept!
         var id = options.id || options._id;
         // options = this.filterOptions(options, 'destroy');
-        return this.removeAsync({_id: id});
+        return this.remove({_id: id}).then(function (res) {
+            return res.result;
+        });
     },
 
     /**
