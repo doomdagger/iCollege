@@ -302,11 +302,11 @@ icollegeShelf = new Shelf(true, {
 
         checkIfSlugExists = function (slugToFind) {
             var args = {slug: slugToFind};
-            // status is needed for posts
+            // status is needed for posts, users
             if (options && options.status) {
                 args.status = options.status;
             }
-            return Model.findOneAsync(args).then(function (found) {
+            return Model.findSingle(args, options).then(function (found) {
                 var trimSpace;
 
                 if (!found) {

@@ -28,7 +28,7 @@ Roles = icollegeShelf.schema('roles', {
             // Grab the original args without the first one
             origArgs = _.toArray(arguments).slice(1);
             // Get the actual post model
-            return this.findOneAsync({id: roleModelOrId}).then(function (foundRoleModel) {
+            return this.findSingle({_id: roleModelOrId}).then(function (foundRoleModel) {
                 // Build up the original args but substitute with actual model
                 var newArgs = [foundRoleModel].concat(origArgs);
 

@@ -57,12 +57,12 @@ SettingSchema = icollegeShelf.schema('settings', {
     // #### Model Level methods, Statics
     // Methods on Model Level means Model Class can invoke
 
-    findOneAsync: function (conditions) {
+    findSingle: function (options) {
         // Allow for just passing the key instead of attributes
-        if (!_.isObject(conditions)) {
-            conditions = {key: conditions};
+        if (!_.isObject(options)) {
+            options = {key: options};
         }
-        return Promise.resolve(icollegeShelf.Model.findOneAsync.call(this, conditions));
+        return Promise.resolve(icollegeShelf.Model.findSingle.call(this, options));
     },
 
     edit: function (data, options) {
@@ -82,9 +82,9 @@ SettingSchema = icollegeShelf.schema('settings', {
 
             item = self.filterData(item);
 
-            return Settings.findOneAsync({key: item.key}).then(function (setting) {
+            return Settings.findOne({key: item.key}).then(function (setting) {
                 if (setting) {
-                    return setting.set({value: item.value}).saveAsync(options);
+                    return setting.set({value: item.value}).__save(options);
                 }
 
                 return Promise.reject(new errors.NotFoundError('Unable to find setting to update: ' + item.key));
@@ -97,7 +97,7 @@ SettingSchema = icollegeShelf.schema('settings', {
             return Promise.reject(new errors.NotFoundError('Unable to find default setting: ' + key));
         }
 
-        return this.findOneAsync({key: key}).then(function (foundSetting) {
+        return this.findSingle({key: key}).then(function (foundSetting) {
             if (foundSetting) {
                 return foundSetting;
             }
@@ -105,7 +105,7 @@ SettingSchema = icollegeShelf.schema('settings', {
             var defaultSetting = _.clone(getDefaultSettings()[key]);
             defaultSetting.value = defaultSetting.defaultValue;
 
-            return Settings.forge(defaultSetting).saveAsync(internal);
+            return Settings.forge(defaultSetting).__save(internal);
         });
     },
 
@@ -122,7 +122,7 @@ SettingSchema = icollegeShelf.schema('settings', {
                 }
                 if (isMissingFromDB) {
                     defaultSetting.value = defaultSetting.defaultValue;
-                    insertOperations.push(Settings.forge(defaultSetting).saveAsync(internal));
+                    insertOperations.push(Settings.forge(defaultSetting).__save(internal));
                 }
             });
 
