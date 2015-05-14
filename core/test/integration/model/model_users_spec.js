@@ -189,7 +189,7 @@ describe('User Model', function run() {
             var userData = testUtils.DataGenerator.forModel.users[0];
 
             UserModel.check({name: userData.name, password: userData.password}).then(function (user) {
-                return UserModel.findOneAsync({_id: user[0].id});
+                return UserModel.findSingle({_id: user[0].id});
             }).then(function (user) {
                 var lastLogin,
                     createdAt,
@@ -293,7 +293,7 @@ describe('User Model', function run() {
                 results.length.should.be.above(0);
                 firstUser = results[0];
 
-                return UserModel.findOne({email: firstUser.email});
+                return UserModel.findSingle({email: firstUser.email});
             }).then(function (found) {
                 should.exist(found);
                 found.name.should.equal(firstUser.name);
@@ -305,7 +305,7 @@ describe('User Model', function run() {
         it('can edit', function (done) {
             var firstUser = '000000000000000000000000';
 
-            UserModel.findOneAsync({_id: firstUser}).then(function (results) {
+            UserModel.findSingle({_id: firstUser}).then(function (results) {
                 var user;
                 should.exist(results);
                 user = results;
@@ -314,7 +314,6 @@ describe('User Model', function run() {
 
                 return UserModel.edit({website: 'http://some.newurl.com'}, {id: firstUser});
             }).then(function (edited) {
-                edited = edited[0];
                 should.exist(edited);
                 edited.website.should.equal('http://some.newurl.com');
 
@@ -329,7 +328,7 @@ describe('User Model', function run() {
                 return Promise.resolve(userData);
             });
 
-            RoleModel.findOneAsync().then(function (role) {
+            RoleModel.findSingle().then(function (role) {
                 userData.roles = [role.get('id')];
 
                 return UserModel.add(userData, _.extend({}, context, {withRelated: ['roles']}));
@@ -348,7 +347,7 @@ describe('User Model', function run() {
             var firstUser = {_id: '000000000000000000000000'};
 
             // Test that we have the user we expect
-            UserModel.findOneAsync(firstUser).then(function (results) {
+            UserModel.findSingle(firstUser).then(function (results) {
                 var user;
                 should.exist(results);
                 user = results;
@@ -360,7 +359,7 @@ describe('User Model', function run() {
                 response.result.should.eql({ ok: 1, n: 1 });
 
                 // Double check we can't find the user again
-                return UserModel.findOneAsync(firstUser);
+                return UserModel.findSingle(firstUser);
             }).then(function (newResults) {
                 should.equal(newResults, null);
 

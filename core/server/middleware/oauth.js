@@ -20,7 +20,7 @@ oauth = {
         // application issues an access token on behalf of the user who authorized the code.
         oauthServer.exchange(oauth2orize.exchange.password(function (client, username, password, scope, done) {
             // Validate the client
-            models.Client.findOne({slug: client.slug})
+            models.Client.findSingle({slug: client.slug})
                 .then(function (client) {
                     if (!client) {
                         return done(new errors.NoPermissionError('Invalid client.'), false);
@@ -33,8 +33,8 @@ oauth = {
                             accessExpires = Date.now() + utils.ONE_HOUR_MS,
                             refreshExpires = Date.now() + utils.ONE_DAY_MS;
 
-                        return models.Accesstoken.create({token: accessToken, user_id: user.id, client_id: client.id, expires: accessExpires}).then(function () {
-                            return models.Refreshtoken.create({token: refreshToken, user_id: user.id, client_id: client.id, expires: refreshExpires});
+                        return models.Accesstoken.createAsync({token: accessToken, user_id: user.id, client_id: client.id, expires: accessExpires}).then(function () {
+                            return models.Refreshtoken.createAsync({token: refreshToken, user_id: user.id, client_id: client.id, expires: refreshExpires});
                         }).then(function () {
                             resetSpamCounter(username);
                             return done(null, accessToken, refreshToken, {expires_in: utils.ONE_HOUR_S});
@@ -52,7 +52,7 @@ oauth = {
         // for verification. If these values are validated, the application issues an
         // access token on behalf of the user who authorized the code.
         oauthServer.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken, scope, done) {
-            models.Refreshtoken.findOne({token: refreshToken})
+            models.Refreshtoken.findSingle({token: refreshToken})
                 .then(function (model) {
                     if (!model) {
                         return done(new errors.NoPermissionError('Invalid refresh token.'), false);
@@ -63,7 +63,7 @@ oauth = {
                             refreshExpires = Date.now() + utils.ONE_DAY_MS;
 
                         if (token.expires > Date.now()) {
-                            models.Accesstoken.create({
+                            models.Accesstoken.createAsync({
                                 token: accessToken,
                                 user_id: token.user_id,
                                 client_id: token.client_id,

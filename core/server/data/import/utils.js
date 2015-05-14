@@ -52,7 +52,7 @@ utils = {
         _.each(jsonData, function (user) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-           models.User.forge(user, internal).saveAsync()
+           models.User.forge(user, internal).__save()
                .then(function (savedUser) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("users", {_id : savedUser._id});
@@ -71,7 +71,7 @@ utils = {
         _.each(jsonData, function (app) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            models.App.forge(app, internal).saveAsync()
+            models.App.forge(app, internal).__save()
                 .then(function (savedApp) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("apps", {_id : savedApp._id});
@@ -90,7 +90,7 @@ utils = {
         _.each(jsonData, function (notification) {
             // add pass-through  handling so that bluebird doesn't think we've dropped it
 
-            models.Notification.forge(notification, internal).saveAsync()
+            models.Notification.forge(notification, internal).__save()
                 .then(function (savedNotification) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("notifications", {_id : savedNotification._id});
@@ -109,7 +109,7 @@ utils = {
         _.each(jsonData, function (role) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            models.Role.forge(role, internal).saveAsync()
+            models.Role.forge(role, internal).__save()
                 .then(function (savedRole) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("roles", {_id : savedRole._id});
@@ -128,7 +128,7 @@ utils = {
         _.each(jsonData, function (permission) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            models.Permission.forge(permission, internal).saveAsync()
+            models.Permission.forge(permission, internal).__save()
                 .then(function (savedPermission) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("permissions", {_id : savedPermission._id});
@@ -147,7 +147,7 @@ utils = {
         _.each(jsonData, function (group) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            models.Group.forge(group, internal).saveAsync()
+            models.Group.forge(group, internal).__save()
                 .then(function (savedGroup) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("groups", {_id : savedGroup._id});
@@ -166,7 +166,7 @@ utils = {
         _.each(jsonData, function (circle) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            models.Circle.forge(circle, internal).saveAsync()
+            models.Circle.forge(circle, internal).__save()
                 .then(function (savedCircle) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("circles", {_id : savedCircle._id});
@@ -185,7 +185,7 @@ utils = {
         _.each(jsonData, function (message) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            models.Message.forge(message, internal).saveAsync()
+            models.Message.forge(message, internal).__save()
                 .then(function (savedMessage) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("messages", {_id : savedMessage._id});
@@ -204,7 +204,7 @@ utils = {
         _.each(jsonData, function (post) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            models.Post.forge(post, internal).saveAsync()
+            models.Post.forge(post, internal).__save()
                 .then(function (savedPost) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("posts", {_id : savedPost._id});
@@ -223,7 +223,7 @@ utils = {
         _.each(jsonData, function (repost) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            models.Repost.forge(repost, internal).saveAsync()
+            models.Repost.forge(repost, internal).__save()
                 .then(function (savedRepost) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("reposts", {_id : savedRepost._id});
@@ -242,7 +242,7 @@ utils = {
         _.each(jsonData, function (setting) {
             // add pass-through error handling so that bluebird doesn't think we've dropped it
 
-            models.Settings.forge(setting, internal).saveAsync()
+            models.Settings.forge(setting, internal).__save()
                 .then(function (savedSetting) {
                     //if the save function is success,we should save the _id member into transaction
                     transaction.backup("settings", {_id : savedSetting._id});

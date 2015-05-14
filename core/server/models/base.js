@@ -107,7 +107,8 @@ icollegeShelf = new Shelf(true, {
      */
     __save: function (options) {
         var self = this;
-        self.saveAsync(options).then(function (saved) {
+
+        return self.saveAsync(options).then(function (saved) {
             // TODO: It's Odd for saveAsync to return an array
             return saved[0];
         });
@@ -204,7 +205,7 @@ icollegeShelf = new Shelf(true, {
             });
         }
 
-        return query.exec();
+        return query.execAsync();
     },
 
     /**
@@ -227,7 +228,7 @@ icollegeShelf = new Shelf(true, {
         }
 
         // We pass include to forge so that toJSON has access
-        return query.exec();
+        return query.execAsync();
     },
 
     /**
@@ -264,10 +265,10 @@ icollegeShelf = new Shelf(true, {
     add: function (data, options) {
         data = this.filterData(data);
         options = this.filterOptions(options, 'add');
+
         var model = this.forge(data);
         // We allow you to disable timestamps when importing posts so that the new posts `updated_at` value is the same
         // as the import json blob.
-
         return model.__save(options);
     },
 

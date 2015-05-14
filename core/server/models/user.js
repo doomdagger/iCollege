@@ -216,7 +216,7 @@ Users = icollegeShelf.schema('users', {
 
                     return userCollection
                         .sort({ last_login: 'desc', name: 'asc', created_at: 'desc' })
-                        .exec();
+                        .execAsync();
                 }
 
                 function fetchPaginationData() {
@@ -290,7 +290,8 @@ Users = icollegeShelf.schema('users', {
      * **See:** [icollegeShelf.Model.findSingle](base.js.html#Find%20One)
      */
     findSingle: function (data, options) {
-        var query,
+        var self = this,
+            query,
             status,
             include;
 
@@ -313,10 +314,10 @@ Users = icollegeShelf.schema('users', {
 
         return Promise.resolve(fetchRoleQuery())
             .then(function (fetchedRole) {
-                data = this.filterData(data);
+                data = self.filterData(data);
                 include = (options.include !== undefined) ? options.include.join(' ') : null;
 
-                query = this.find(data, include);
+                query = self.find(data, include);
 
                 // Support finding by role
                 if (fetchedRole) {
@@ -338,7 +339,7 @@ Users = icollegeShelf.schema('users', {
                     });
                 }
 
-                return query.exec();
+                return query.execAsync();
             });
     },
 
@@ -390,7 +391,7 @@ Users = icollegeShelf.schema('users', {
         }
 
         function getICollegerRole() {
-            return mongoose.model('Role').findAll({name: 'iColleger'}).then(function (icollegerRole) {
+            return mongoose.model('Role').findSingle({name: 'iColleger'}).then(function (icollegerRole) {
                 return [icollegerRole.get('id')];
             });
         }
@@ -398,26 +399,22 @@ Users = icollegeShelf.schema('users', {
         roles = data.roles || getICollegerRole();
         delete data.roles;
 
-        return generatePasswordHash(userData.password).then(function (results) {
+        // if we are given a "role" object, only pass in the role ID in place of the full object
+        return Promise.resolve(roles).then(function (roles) {
+            userData.roles = roles;
+        }).then(function () {
+            return generatePasswordHash(userData.password);
+        }).then(function (results) {
             // Assign the hashed password
-            userData.password = results[1];
+            userData.password = results;
             // LookupGravatar
             return self.gravatarLookup(userData);
         }).then(function (userData) {
-            // if we are given a "role" object, only pass in the role ID in place of the full object
-            return Promise.resolve(roles).then(function (roles) {
-                roles = _.map(roles, function (role) {
-                    return role.get('id');
-                });
-                userData.roles = roles;
-            }).then(function () {
-                // Save the user with the hashed password
-                return icollegeShelf.Model.add.call(self, userData, options);
-            });
+            // Save the user with the hashed password
+            return icollegeShelf.Model.add.call(self, userData, options);
         }).then(function (addedUser) {
             // Assign the userData to our created user so we can pass it back
             userData = addedUser;
-
             // find and return the added user
             return self.findSingle({_id: userData.id, status: 'all'}, options);
         });
@@ -591,7 +588,7 @@ Users = icollegeShelf.schema('users', {
             return Promise.reject(new errors.ValidationError('Your password must be at least 8 characters long.'));
         }
 
-        return self.findOne({_id: userId}).then(function (_user) {
+        return self.findSingle({_id: userId}).then(function (_user) {
             user = _user;
             if (userId === options.context.user) {
                 return bcryptCompare(oldPassword, user.get('password'));

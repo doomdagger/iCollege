@@ -33,7 +33,7 @@ function getDefaultDatabaseVersion() {
 function getDatabaseVersion() {
 
     var Settings = Models.Settings;
-    return Settings.findOne({'key': 'databaseVersion'}).then(function (version) {
+    return Settings.findSingle({'key': 'databaseVersion'}).then(function (version) {
         var databaseVersion;
 
         if (!version) {

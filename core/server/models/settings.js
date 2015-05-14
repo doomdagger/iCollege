@@ -82,7 +82,7 @@ SettingSchema = icollegeShelf.schema('settings', {
 
             item = self.filterData(item);
 
-            return Settings.findOne({key: item.key}).then(function (setting) {
+            return Settings.findSingle({key: item.key}).then(function (setting) {
                 if (setting) {
                     return setting.set({value: item.value}).__save(options);
                 }

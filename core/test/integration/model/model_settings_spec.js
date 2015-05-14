@@ -42,7 +42,7 @@ describe('Settings Model', function () {
 
                 firstSetting = results[0];
 
-                return SettingsModel.findOneAsync(firstSetting.key);
+                return SettingsModel.findSingle(firstSetting.key);
             }).then(function (found) {
                 should.exist(found);
 
@@ -65,7 +65,7 @@ describe('Settings Model', function () {
 
                 edited.length.should.equal(1);
 
-                edited = edited[0][0];
+                edited = edited[0];
 
                 edited.key.should.equal('description');
                 edited.value.should.equal('new value');
@@ -93,12 +93,12 @@ describe('Settings Model', function () {
 
                 edited.length.should.equal(2);
 
-                editedModel = edited[0][0];
+                editedModel = edited[0];
 
                 editedModel.key.should.equal(model1.key);
                 editedModel.value.should.equal(model1.value);
 
-                editedModel = edited[1][0];
+                editedModel = edited[1];
 
                 editedModel.key.should.equal(model2.key);
                 editedModel.value.should.equal(model2.value);
@@ -116,8 +116,6 @@ describe('Settings Model', function () {
             SettingsModel.add(newSetting, context).then(function (createdSetting) {
                 should.exist(createdSetting);
 
-                createdSetting = createdSetting[0];
-
                 should(createdSetting.uuid).be.a.String;
                 createdSetting.key.should.equal(newSetting.key, 'key is correct');
                 createdSetting.value.should.equal(newSetting.value, 'value is correct');
@@ -129,14 +127,14 @@ describe('Settings Model', function () {
 
         it('can destroy', function (done) {
             var settingToDestroy = {key: 'description'};
-            SettingsModel.findOneAsync(settingToDestroy).then(function (results) {
+            SettingsModel.findSingle(settingToDestroy).then(function (results) {
                 should.exist(results);
                 results.key.should.equal(settingToDestroy.key);
 
                 return SettingsModel.destroy({id: results.id});
             }).then(function (response) {
-                response.result.should.eql({ ok: 1, n: 1 });
-                return SettingsModel.findOne(settingToDestroy);
+                response.should.eql({ ok: 1, n: 1 });
+                return SettingsModel.findSingle(settingToDestroy);
             }).then(function (newResults) {
                 should.equal(newResults, null);
 
@@ -161,7 +159,7 @@ describe('Settings Model', function () {
             }).then(function (allSettings) {
                 allSettings.length.should.be.above(0);
 
-                return SettingsModel.findOneAsync('description');
+                return SettingsModel.findSingle('description');
             }).then(function (descriptionSetting) {
                 // Testing against the actual value in default-settings.json feels icky,
                 // but it's easier to fix the test if that ever changes than to mock out that behaviour
@@ -174,7 +172,7 @@ describe('Settings Model', function () {
             SettingsModel.add({key: 'description', value: 'Adam\'s Blog'}, context).then(function () {
                 return SettingsModel.populateDefaults();
             }).then(function () {
-                return SettingsModel.findOneAsync('description');
+                return SettingsModel.findSingle('description');
             }).then(function (descriptionSetting) {
                 descriptionSetting.get('value').should.equal('Adam\'s Blog');
                 done();

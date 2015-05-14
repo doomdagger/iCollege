@@ -29,7 +29,7 @@ describe('Permission Model', function () {
     });
 
     it('can findOne', function (done) {
-        PermissionModel.findOneAsync({_id: '000000000000000000000000'}).then(function (foundPermission) {
+        PermissionModel.findSingle({_id: '000000000000000000000000'}).then(function (foundPermission) {
             should.exist(foundPermission);
             foundPermission.get('created_at').should.be.an.instanceof(Date);
 
@@ -38,11 +38,11 @@ describe('Permission Model', function () {
     });
 
     it('can edit', function (done) {
-        PermissionModel.findOneAsync({_id: '000000000000000000000000'}).then(function (foundPermission) {
+        PermissionModel.findSingle({_id: '000000000000000000000000'}).then(function (foundPermission) {
             should.exist(foundPermission);
-            return foundPermission.set({name: 'updated'}).saveAsync(context);
+            return foundPermission.set({name: 'updated'}).__save(context);
         }).then(function () {
-            return PermissionModel.findOneAsync({_id: '000000000000000000000000'});
+            return PermissionModel.findSingle({_id: '000000000000000000000000'});
         }).then(function (updatedPermission) {
             should.exist(updatedPermission);
 
@@ -61,8 +61,8 @@ describe('Permission Model', function () {
 
         // return array~~~
         PermissionModel.add(newPerm, context).then(function (createdPerms) {
-            should.exist(createdPerms[0]);
-            createdPerms[0].name.should.equal(newPerm.name);
+            should.exist(createdPerms);
+            createdPerms.name.should.equal(newPerm.name);
 
             done();
         }).catch(done);
@@ -71,14 +71,14 @@ describe('Permission Model', function () {
     it('can destroy', function (done) {
         var firstPermission = {_id: '000000000000000000000000'};
 
-        PermissionModel.findOneAsync(firstPermission).then(function (foundPermission) {
+        PermissionModel.findSingle(firstPermission).then(function (foundPermission) {
             should.exist(foundPermission);
             foundPermission.id.should.equal(firstPermission._id);
 
             return PermissionModel.destroy({id: foundPermission.id});
         }).then(function (response) {
-            response.toJSON().should.eql({ ok: 1, n: 1 });
-            return PermissionModel.findOneAsync(firstPermission);
+            response.should.eql({ ok: 1, n: 1 });
+            return PermissionModel.findSingle(firstPermission);
         }).then(function (newResults) {
             should.equal(newResults, null);
 

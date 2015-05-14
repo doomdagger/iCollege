@@ -70,7 +70,7 @@ addAllRoles = function (options) {
 addRolesPermissionsForRole = function (roleName, options) {
     var fixturesForRole = fixtures.permissions_roles[roleName];
 
-    return models.Role.findOne({name: roleName}).then(function (role) {
+    return models.Role.findSingle({name: roleName}).then(function (role) {
         return models.Permission.findAll().then(function (permissions) {
             if (_.isObject(fixturesForRole)) {
                 _.each(permissions, function (permission) {
