@@ -48,7 +48,7 @@ addAllPermissions = function (options) {
         _.each(permissions, function (permission) {
             ops.push(function () {
                 permission.object_type = objectType;
-                return models.Permission.forge(permission).saveAsync(options);
+                return models.Permission.forge(permission).__save(options);
             });
         });
     });
@@ -60,7 +60,7 @@ addAllRoles = function (options) {
     var ops = [];
     _.each(fixtures.roles, function (role) {
         ops.push(function () {
-            return models.Role.forge(role).saveAsync(options);
+            return models.Role.forge(role).__save(options);
         });
     });
 
@@ -70,7 +70,7 @@ addAllRoles = function (options) {
 addRolesPermissionsForRole = function (roleName, options) {
     var fixturesForRole = fixtures.permissions_roles[roleName];
 
-    return models.Role.findOneAsync({name: roleName}).then(function (role) {
+    return models.Role.findOne({name: roleName}).then(function (role) {
         return models.Permission.findAll().then(function (permissions) {
             if (_.isObject(fixturesForRole)) {
                 _.each(permissions, function (permission) {
@@ -82,7 +82,7 @@ addRolesPermissionsForRole = function (roleName, options) {
                     }
                 });
             }
-            return role.saveAsync(options);
+            return role.__save(options);
         });
     });
 };
@@ -105,7 +105,7 @@ addAllUsers = function (options) {
             if (user.name === "admin") {
                 user._id = config.adminId;
             }
-            return models.User.forge(user).saveAsync(options);
+            return models.User.forge(user).__save(options);
         });
     });
 

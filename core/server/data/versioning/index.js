@@ -8,6 +8,7 @@
 var errors         = require('../../errors'),
     Models          = require('../../models'),
     defaultSettings = require('../default-settings'),
+    utils           = require('../utils'),
 
     initialVersion  = '000',
     defaultDatabaseVersion;
@@ -32,7 +33,7 @@ function getDefaultDatabaseVersion() {
 function getDatabaseVersion() {
 
     var Settings = Models.Settings;
-    return Settings.findOneAsync({'key': 'databaseVersion'}).then(function (version) {
+    return Settings.findOne({'key': 'databaseVersion'}).then(function (version) {
         var databaseVersion;
 
         if (!version) {
@@ -52,8 +53,10 @@ function getDatabaseVersion() {
 }
 
 function setDatabaseVersion(options) {
-    var Settings = Models.Settings;
-    return Settings.updateAsync({'key': 'databaseVersion'}, {$set: {'value': getDefaultDatabaseVersion()}}, options);
+    return utils.updateDocuments('settings',
+        {'key': 'databaseVersion'},
+        {$set: {'value': getDefaultDatabaseVersion()}},
+        options);
 }
 
 module.exports = {

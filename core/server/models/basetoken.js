@@ -16,7 +16,10 @@ basetokenShelf = icollegeShelf.extend({
     // #### Model Level methods, Statics
     // Methods on Model Level means Model Class can invoke
     destroyAllExpired:  function () {
-        return this.removeAsync({expires: {$lt: Date.now()}});
+
+        return this.remove({expires: {$lt: Date.now()}}).then(function (res) {
+            return res.result;
+        });
     },
 
 
@@ -26,8 +29,11 @@ basetokenShelf = icollegeShelf.extend({
      */
     destroyByUser: function (options) {
         var userId = options.id || options._id;
+
         if (userId) {
-            return this.removeAsync({user_id: userId});
+            return this.remove({user_id: userId}).then(function (res) {
+                return res.result;
+            });
         }
 
         return Promise.reject(new errors.NotFoundError('No user found'));
@@ -42,7 +48,9 @@ basetokenShelf = icollegeShelf.extend({
         var token = options.token;
 
         if (token) {
-            return this.removeAsync({token: token});
+            return this.remove({token: token}).then(function (res) {
+                return res.result;
+            });
         }
 
         return Promise.reject(new errors.NotFoundError('Token not found'));

@@ -10,11 +10,11 @@ effective = {
             rolePerms,
             user;
 
-        return Models.User.findOne({_id: id}, 'permissions roles').populate('permissions').execAsync()
+        return Models.User.findOne({_id: id}, 'permissions roles').populate('permissions').exec()
             .then(function (foundUser) {
                 user = foundUser.toJSON();
 
-                return Models.Role.find({_id: {$in: foundUser.roles}}).populate("permissions").execAsync();
+                return Models.Role.find({_id: {$in: foundUser.roles}}).populate("permissions").exec();
             }).then(function (roles) {
 
                 rolePerms = _.map(roles, function (role) {
@@ -41,7 +41,7 @@ effective = {
     },
 
     app: function (appName) {
-        return Models.App.findOne({name: appName}).populate('permissions').execAsync()
+        return Models.App.findOne({name: appName}).populate('permissions').exec()
             .then(function (foundApp) {
                 if (!foundApp) {
                     return [];

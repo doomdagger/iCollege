@@ -15,7 +15,7 @@ var passport = require('passport'),
  */
 passport.use(new ClientPasswordStrategy(
     function (clientId, clientSecret, done) {
-        models.Client.findOneAsync({slug: clientId})
+        models.Client.findOne({slug: clientId})
         .then(function (model) {
             if (model) {
                 var client = model.toJSON();
@@ -38,12 +38,12 @@ passport.use(new ClientPasswordStrategy(
  */
 passport.use(new BearerStrategy(
     function (accessToken, done) {
-        models.Accesstoken.findOneAsync({token: accessToken})
+        models.Accesstoken.findOne({token: accessToken})
         .then(function (model) {
             if (model) {
                 var token = model.toJSON();
                 if (token.expires > Date.now()) {
-                    models.User.findOneAsync({id: token.user_id})
+                    models.User.findOne({_id: token.user_id})
                     .then(function (model) {
                         if (model) {
                             var user = model.toJSON(),
