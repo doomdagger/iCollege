@@ -180,7 +180,7 @@ describe('User Model', function run() {
             var userData = testUtils.DataGenerator.forModel.users[0];
 
             UserModel.check({name: userData.name, password: userData.password}).then(function (activeUser) {
-                should.exist(activeUser[0].get('last_login'));
+                should.exist(activeUser.get('last_login'));
                 done();
             }).catch(done);
         });
@@ -189,7 +189,7 @@ describe('User Model', function run() {
             var userData = testUtils.DataGenerator.forModel.users[0];
 
             UserModel.check({name: userData.name, password: userData.password}).then(function (user) {
-                return UserModel.findSingle({_id: user[0].id});
+                return UserModel.findSingle({_id: user.id});
             }).then(function (user) {
                 var lastLogin,
                     createdAt,
@@ -437,7 +437,6 @@ describe('User Model', function run() {
                 token = utils.encodeBase64URLsafe(token);
                 return UserModel.resetPassword(token, 'newpassword', 'newpassword', dbHash);
             }).then(function (resetUser) {
-                resetUser = resetUser[0];
                 var resetPassword = resetUser.get('password');
 
                 should.exist(resetPassword);
