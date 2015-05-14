@@ -317,7 +317,7 @@ Users = icollegeShelf.schema('users', {
                 data = self.filterData(data);
                 include = (options.include !== undefined) ? options.include.join(' ') : null;
 
-                query = self.find(data, include);
+                query = self.findOne(data, include);
 
                 // Support finding by role
                 if (fetchedRole) {
