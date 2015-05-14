@@ -314,7 +314,6 @@ Users = icollegeShelf.schema('users', {
 
         return Promise.resolve(fetchRoleQuery())
             .then(function (fetchedRole) {
-                data = self.filterData(data);
                 include = (options.include !== undefined) ? options.include.join(' ') : null;
 
                 query = self.findOne(data, include);

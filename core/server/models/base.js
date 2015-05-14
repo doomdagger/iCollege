@@ -108,6 +108,8 @@ icollegeShelf = new Shelf(true, {
     __save: function (options) {
         var self = this;
 
+        options = options || {};
+
         return self.saveAsync(options).then(function (saved) {
             // TODO: It's Odd for saveAsync to return an array
             return saved[0];
@@ -243,6 +245,7 @@ icollegeShelf = new Shelf(true, {
     edit: function (data, options) {
         // you use id or mistakenly use _id, we both accept!
         var id = options.id || options._id;
+        // it will filter out id, we don't allow you change Id using edit method
         data = this.filterData(data);
         options = this.filterOptions(options, 'edit');
 
@@ -263,6 +266,7 @@ icollegeShelf = new Shelf(true, {
      * @return {Promise} Newly Added Model
      */
     add: function (data, options) {
+        // it will filter out id, we don't allow you assign Id using add method
         data = this.filterData(data);
         options = this.filterOptions(options, 'add');
 
