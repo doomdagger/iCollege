@@ -183,7 +183,7 @@ var db = {
     // 定义了用户的多个不同的角色分类
     roles: {
         uuid: {type: String, required: true}, // uuid
-        name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger'], required: true},
+        name: {type: String, enum: ['SuperAdministrator', 'Administrator', 'iColleger', 'updated', 'test1'], required: true},
         permissions: [{
             type: String,
             ref: 'Permission'
