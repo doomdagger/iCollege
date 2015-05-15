@@ -740,7 +740,7 @@ Users = icollegeShelf.schema('users', {
         if (!this.get('slug')) {
             // Generating a slug requires a db call to look for conflicting slugs
             return icollegeShelf.Model.generateSlug(User, this.get('slug') || this.get('name'),
-                {shortSlug: !this.get('slug')})
+                {shortSlug: !this.get('slug'), status: 'all'})
                 .then(function (slug) {
                     self.set({slug: slug});
                     next();
