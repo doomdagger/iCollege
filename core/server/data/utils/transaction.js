@@ -8,8 +8,8 @@
 var Promise     = require('bluebird'),
     _           = require('lodash'),
 
-    config      = require('../../config'),
     utils       = require('./index'),
+    errors      = require('../../errors'),
 
     Transaction;
 
@@ -35,12 +35,14 @@ Transaction = function Transaction() {
  * if use after save success, you should use by it : 'backup(collectionName, _id)'
  * other you should save the document for update : 'backup(collectionName, _id, doc)'
  * @param collectionName (String) – the collection name documents belong to.
- * @param _id (Object) - the id of document that we save.
- * @param [doc] (Array) - the document we change before update..
+ * @param _id (ObjectId) - the id of document that we save.
+ * @param [doc] (Object) - the document we change before update..
  */
 Transaction.prototype.backup = function (collectionName, _id, doc) {
+
     var transaction;
     doc = doc || {};
+
     transaction = {
         collectionName : collectionName,
         _id : _id,
@@ -54,7 +56,13 @@ Transaction.prototype.backup = function (collectionName, _id, doc) {
  */
 Transaction.prototype.rollback = function () {
     var self = this,
-        promises = [];
+        promises = [],
+        removeElement = function (transaction) {
+            _.remove(self.transArrary, function (element) {
+                return element.collectionName === transaction.collectionName &&
+                    element._id === transaction._id;
+            });
+        };
 
     if (self.flag === true) {
         // if the value of flag is equal with true, we should rollback all of documents that save in transaction array
@@ -63,44 +71,33 @@ Transaction.prototype.rollback = function () {
 
         // Step 2 : rollback all of documents one by one
         promises = _.map(self.transArrary, function (transaction) {
-            var collection = config.database.db.collection(transaction.collectionName);
 
             if (_.isEmpty(transaction.doc)) {
 
                 // If doc have only one member,it must be "_id".
                 // In this situation,the member of transaction is insert,so we just remove it.
 
-                return utils.removeDocuments(collection, transaction.doc).then(function () {
-
+                return utils.removeDocuments(transaction.collectionName, {_id : transaction._id}).then(function () {
                     // if removing the document is success,
                     // remove the document from transaction array
-                    _.filter(self.transArrary, function () {
-                        return self.transArrary.collectionName !== transaction.collectionName &&
-                            self.transArrary._id !== transaction._id;
-                    });
-
+                    removeElement(transaction);
                 });
             }
             else {
-                utils.updateDocuments(collection, {_id : transaction._id}, transaction.doc).then(function () {
 
+                return utils.updateDocuments(transaction.collectionName, {_id : transaction._id}, transaction.doc).then(function () {
                     // if updating the document is success,
                     // remove the document from transaction array
-
-                    _.filter(self.transArrary, function () {
-                        return self.transArrary.collectionName !== transaction.collectionName &&
-                            self.transArrary._id !== transaction._id;
-                    });
-
+                    removeElement(transaction);
                 });
+
             }
 
         });
     }
 
     return Promise.all(promises).catch(function () {
-        self.flag = true;
-        self.rollback();
+        throw new errors.DataImporter('Database roll back fail');
     });
 };
 
