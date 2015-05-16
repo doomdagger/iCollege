@@ -99,6 +99,8 @@ icollegeShelf = new Shelf(true, {
         var attrs =  icollegeShelf.Model.prototype.toJSON.apply(this, arguments);
         // remove redundant database version
         delete attrs.__v;
+        // cast _id to String type
+        attrs._id = attrs._id + '';
 
         return attrs;
     },
@@ -175,6 +177,10 @@ icollegeShelf = new Shelf(true, {
      */
     filterData: function (data) {
         var permittedAttributes = this.prototype.permittedAttributes();
+
+        // add _id attr, _id is not defined in schema.js
+        // but find* method may need this
+        permittedAttributes.push('_id');
 
         return _.pick(data, permittedAttributes);
     },
@@ -253,7 +259,7 @@ icollegeShelf = new Shelf(true, {
         data = this.filterData(data);
         options = this.filterOptions(options, 'edit');
 
-        return this.findSingle({_id: id}, options).then(function (object) {
+        return icollegeShelf.Model.findSingle.call(this, {_id: id}, options).then(function (object) {
             if (object) {
                 return object.set(data).__save(options);
             }

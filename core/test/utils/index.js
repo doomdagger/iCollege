@@ -59,7 +59,7 @@ fixtures = {
         var user = DataGenerator.Content.users[0];
 
         user = DataGenerator.forDB.createBasic(user);
-        user = fixtures.amend(user, 'users', {status: 'online', roles: [DataGenerator.forDB.roles_users[0]]});
+        user = fixtures.amend(user, 'users', {status: 'inactive', roles: [DataGenerator.forDB.roles_users[0]]});
 
         return fixtures.insertRoles().then(function () {
             return DataUtils.insertDocuments('users', user);

@@ -13,19 +13,16 @@ var testUtils         = require('../../utils'),
 describe('Configuration API', function () {
     var newConfig = {
         fileStorage: true,
-        apps: true,
-        version: '0.5.0',
+        version: '0.1.0',
         environment: process.env.NODE_ENV,
-        database: {
-            client: 'mysql'
-        },
         mail: {
             transport: 'SMTP'
         },
-        blogUrl: 'http://local.tryghost.org'
+        hostUrl: 'http://local.tryicollege.org'
     };
 
     // Keep the DB clean
+    before(testUtils.wait);
     before(testUtils.teardown);
     afterEach(testUtils.teardown);
 
@@ -36,7 +33,7 @@ describe('Configuration API', function () {
         config.set(updatedConfig);
         ConfigurationAPI.__set__('config', updatedConfig);
 
-        ConfigurationAPI.browse(testUtils.context.owner).then(function (response) {
+        ConfigurationAPI.browse(testUtils.context.superAdmin).then(function (response) {
             should.exist(response);
             should.exist(response.configuration);
             testUtils.API.checkResponse(response.configuration[0], 'configuration');
@@ -53,12 +50,12 @@ describe('Configuration API', function () {
         config.set(updatedConfig);
         ConfigurationAPI.__set__('config', updatedConfig);
 
-        ConfigurationAPI.read(_.extend({}, testUtils.context.owner, {key: 'database'})).then(function (response) {
+        ConfigurationAPI.read(_.extend({}, testUtils.context.superAdmin, {key: 'hostUrl'})).then(function (response) {
             should.exist(response);
             should.exist(response.configuration);
             testUtils.API.checkResponse(response.configuration[0], 'configuration');
-            response.configuration[0].key.should.equal('database');
-            response.configuration[0].value.should.equal('mysql');
+            response.configuration[0].key.should.equal('hostUrl');
+            response.configuration[0].value.should.equal('http://127.0.0.1:1222');
             /*jshint unused:false */
             done();
         }).catch(function (error) {

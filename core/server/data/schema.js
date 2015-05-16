@@ -471,7 +471,7 @@ var db = {
         uuid: {type: String, required: true},
         key: {type: String, required: true},
         value: {type: String},
-        type: {type: String, required: true, default: 'core', enum: ['core', 'user', 'app', 'group', 'circle', 'post']}, // TODO: add more setting types for icollege
+        type: {type: String, required: true, default: 'core', enum: ['core', 'admin', 'user', 'app', 'group', 'circle', 'post']}, // TODO: add more setting types for icollege
         created_at: {type: Date, default: Date.now()},
         created_by: {type: String},
         updated_at: {type: Date, default: Date.now()},

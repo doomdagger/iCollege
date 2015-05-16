@@ -6,9 +6,7 @@
       "name": "admin",
       "password": "123456",
       "email": "admin@icollege.com",
-      "phone": "18877776666",
-      "status": "active",
-      "location": [0.0, 0.0]
+      "status": "inactive"
     },
     {
       "nickname": "Administrator2",
@@ -16,9 +14,7 @@
       "name": "admin2",
       "password": "123456",
       "email": "admin2@icollege.com",
-      "phone": "18877775555",
-      "status": "active",
-      "location": [0.0, 0.0]
+      "status": "inactive"
     },
     {
       "nickname": "iColleger",
@@ -26,9 +22,7 @@
       "name": "iColleger",
       "password": "123456",
       "email": "icolleger@icollege.com",
-      "phone": "18877774444",
-      "status": "active",
-      "location": [0.0, 0.0]
+      "status": "inactive"
     }
   ],
   "roles": [

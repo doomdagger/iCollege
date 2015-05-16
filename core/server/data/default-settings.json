@@ -10,6 +10,21 @@
       "defaultValue": null
     }
   },
+  "admin": {
+    "email": {
+      "defaultValue": "icollege@example.com",
+      "validations": {
+        "isNull": false,
+        "isEmail": true
+      }
+    },
+    "defaultLang": {
+      "defaultValue": "zh_CN",
+      "validations": {
+        "isNull": false
+      }
+    }
+  },
   "message": {
   },
   "post": {

@@ -12,7 +12,6 @@ function getValidKeys() {
         fileStorage: config.fileStorage !== false,
         version: config.icollegeVersion,
         environment: process.env.NODE_ENV,
-        database: 'mongodb',
         mail: _.isObject(config.mail) ? config.mail.transport : '',
         hostUrl: config.url.replace(/\/$/, '')
     };

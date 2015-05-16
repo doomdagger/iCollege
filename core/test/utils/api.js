@@ -13,7 +13,11 @@ var url             = require('url'),
         slugs: ['slugs'],
         slug: ['slug'],
         accesstoken: ['access_token', 'refresh_token', 'expires_in', 'token_type'],
-        role: ['_id', 'uuid', 'name', 'description', 'created_at', 'created_by', 'updated_at', 'updated_by', 'permissions']
+        role: ['_id', 'uuid', 'name', 'description', 'created_at', 'created_by', 'updated_at', 'updated_by', 'permissions'],
+        user: ['_id',  'updated_by', 'created_by', 'slug', 'name', 'nickname', 'email', 'uuid', 'apps', 'permissions',
+            'roles', 'friends', 'circles', 'groups', 'updated_at', 'created_at', 'settings', 'login_status', 'status',
+            'tags', 'location', 'website', 'birth_date', 'gender', 'signature', 'bio', 'credit'
+        ]
     };
 
 function getApiQuery(route) {

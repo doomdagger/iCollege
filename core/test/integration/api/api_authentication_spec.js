@@ -11,6 +11,7 @@ var testUtils   = require('../../utils'),
 
 describe('Authentication API', function () {
     // Keep the DB clean
+    before(testUtils.wait);
     before(testUtils.teardown);
     afterEach(testUtils.teardown);
 
@@ -19,6 +20,7 @@ describe('Authentication API', function () {
     describe('Setup', function () {
         describe('Not completed', function () {
             // TODO: stub settings
+            beforeEach(testUtils.DataGenerator.resetCounter);
             beforeEach(testUtils.setup('roles', 'owner:pre', 'settings', 'perms:setting', 'perms:mail', 'perms:init'));
 
             it('should report that setup has not been completed', function (done) {
@@ -35,7 +37,7 @@ describe('Authentication API', function () {
                     name: 'test user',
                     email: 'test@example.com',
                     password: 'areallygoodpassword',
-                    title: 'a test blog'
+                    nickname: 'Hulala'
                 },
 
                 send = mail.__get__('mail.send');
@@ -53,7 +55,7 @@ describe('Authentication API', function () {
 
                     var newUser = result.users[0];
 
-                    newUser.id.should.equal(1);
+                    newUser._id.should.equal('000000000000000000000000');
                     newUser.name.should.equal(setupData.name);
                     newUser.email.should.equal(setupData.email);
 
@@ -65,6 +67,7 @@ describe('Authentication API', function () {
         });
 
         describe('Completed', function () {
+            beforeEach(testUtils.DataGenerator.resetCounter);
             beforeEach(testUtils.setup('owner'));
 
             it('should report that setup has been completed', function (done) {
@@ -81,7 +84,7 @@ describe('Authentication API', function () {
                     name: 'test user',
                     email: 'test@example.com',
                     password: 'areallygoodpassword',
-                    title: 'a test blog'
+                    nickname: 'Hulala'
                 };
 
                 AuthAPI.setup({setup: [setupData]}).then(function () {

@@ -201,10 +201,10 @@ authentication = {
             return utils.checkObject(object, 'setup');
         }).then(function (checkedSetupData) {
             setupUser = {
+                nickname: checkedSetupData.setup[0].nickname,
                 name: checkedSetupData.setup[0].name,
                 email: checkedSetupData.setup[0].email,
                 password: checkedSetupData.setup[0].password,
-                blogTitle: checkedSetupData.setup[0].blogTitle,
                 status: 'active'
             };
 
@@ -223,13 +223,10 @@ authentication = {
 
             userSettings.push({key: 'email', value: setupUser.email});
 
-            // Handles the additional values set by the setup screen.
-            if (!_.isEmpty(setupUser.blogTitle)) {
-                userSettings.push({key: 'title', value: setupUser.blogTitle});
-                userSettings.push({key: 'description', value: 'Thoughts, stories and ideas.'});
-            }
-            setupUser = user.toJSON();
-            return settings.edit({settings: userSettings}, {context: {user: setupUser.id}});
+            // TODO Handles the additional values set by the setup screen.
+
+            setupUser = user.jsonify();
+            return settings.edit({settings: userSettings}, {context: {user: setupUser._id}});
         }).then(function () {
             var data = {
                 ownerEmail: setupUser.email
@@ -239,7 +236,7 @@ authentication = {
         }).then(function (emailContent) {
             var message = {
                     to: setupUser.email,
-                    subject: 'Your New Ghost Blog',
+                    subject: 'Your New iCollege Site',
                     html: emailContent.html,
                     text: emailContent.text
                 },
@@ -253,8 +250,8 @@ authentication = {
             return mail.send(payload, {context: {internal: true}}).catch(function (error) {
                 errors.logError(
                     error.message,
-                    'Unable to send welcome email, your blog will continue to function.',
-                    'Please see http://support.ghost.org/mail/ for instructions on configuring email.'
+                    'Unable to send welcome email, your site will continue to function.',
+                    'Please see https://github.com/andris9/nodemailer-wellknown for instructions on configuring email.'
                 );
             });
         }).then(function () {
