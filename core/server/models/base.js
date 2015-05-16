@@ -96,7 +96,11 @@ icollegeShelf = new Shelf(true, {
      * @returns {*}
      */
     jsonify: function () {
-        return icollegeShelf.Model.prototype.toJSON.apply(this, arguments);
+        var attrs =  icollegeShelf.Model.prototype.toJSON.apply(this, arguments);
+        // remove redundant database version
+        delete attrs.__v;
+
+        return attrs;
     },
 
     /**

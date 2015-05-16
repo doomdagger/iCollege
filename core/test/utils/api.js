@@ -9,9 +9,11 @@ var url             = require('url'),
         configuration: ['key', 'value'],
         roles: ['roles'],
         settings: ['settings', 'meta'],
-        setting: ['id', 'uuid', 'key', 'value', 'type', 'created_at', 'created_by', 'updated_at', 'updated_by'],
+        setting: ['_id', 'uuid', 'key', 'value', 'type', 'created_at', 'created_by', 'updated_at', 'updated_by'],
+        slugs: ['slugs'],
+        slug: ['slug'],
         accesstoken: ['access_token', 'refresh_token', 'expires_in', 'token_type'],
-        role: ['id', 'uuid', 'name', 'description', 'created_at', 'created_by', 'updated_at', 'updated_by']
+        role: ['_id', 'uuid', 'name', 'description', 'created_at', 'created_by', 'updated_at', 'updated_by', 'permissions']
     };
 
 function getApiQuery(route) {

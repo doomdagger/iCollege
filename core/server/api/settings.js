@@ -150,7 +150,9 @@ readSettingsResult = function (settingsModels) {
 settingsResult = function (settings, type) {
     var filteredSettings = _.values(settingsFilter(settings, type)),
         result = {
-            settings: filteredSettings,
+            settings: _.map(filteredSettings, function (setting) {
+                return setting.jsonify !== undefined ? setting.jsonify() : setting;
+            }),
             meta: {}
         };
 

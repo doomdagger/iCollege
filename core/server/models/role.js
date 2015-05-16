@@ -38,13 +38,13 @@ Roles = icollegeShelf.schema('roles', {
 
         if (action === 'assign' && loadedPermissions.user) {
             if (_.any(loadedPermissions.user.roles, {name: 'SuperAdministrator'})) {
-                checkAgainst = ['SuperAdministrator', 'Administrator', 'iColleger'];
-            } else if (_.any(loadedPermissions.user.roles, {name: 'Administrator'})) {
                 checkAgainst = ['Administrator', 'iColleger'];
+            } else if (_.any(loadedPermissions.user.roles, {name: 'Administrator'})) {
+                checkAgainst = ['iColleger'];
             }
 
             // Role in the list of permissible roles
-            hasUserPermission = roleModelOrId && _.contains(checkAgainst, roleModelOrId.get('name'));
+            hasUserPermission = roleModelOrId && _.contains(checkAgainst, roleModelOrId.name);
         }
 
         if (hasUserPermission && hasAppPermission) {

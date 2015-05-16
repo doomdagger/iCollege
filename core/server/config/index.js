@@ -149,7 +149,7 @@ ConfigManager.prototype.set = function (config) {
             db: mongoose.connection.db
         },
         icollegeVersion: packageInfo.version,
-        adminId: mongoose.Types.ObjectId('ffffffffffffffffffffffff'),
+        adminId: mongoose.Types.ObjectId('000000000000000000000000'),
         paths: {
             appRoot:          appRoot,
             subdir:           subdir,
@@ -163,6 +163,10 @@ ConfigManager.prototype.set = function (config) {
 
             exportPath:       path.join(corePath, '/server/data/export/'),
             lang:             path.join(corePath, '/shared/lang/')
+        },
+        theme: {
+            // normalise the URL by removing any trailing slash
+            url: this._config.url ? this._config.url.replace(/\/$/, '') : ''
         },
         slugs: {
             // Used by generateSlug to generate slugs for posts, tags, users, ..

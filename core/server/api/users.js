@@ -28,7 +28,7 @@ sendInviteEmail = function sendInviteEmail(user) {
     var emailData;
 
     return Promise.join(
-        users.read({id: user.created_by}),
+        users.read({_id: user.created_by}),
         settings.read({key: 'title'}),
         settings.read({context: {internal: true}, key: 'dbHash'})
     ).then(function (values) {
@@ -246,7 +246,7 @@ users = {
 
                         // If sending the invitation failed, set status to invited-pending
                         return dataProvider.User.edit({status: 'invited-pending'}, {id: user.id}).then(function (user) {
-                            return dataProvider.User.findOne({id: user.id, status: 'all'}, options).then(function (user) {
+                            return dataProvider.User.findSingle({_id: user.id, status: 'all'}, options).then(function (user) {
                                 return {users: [user]};
                             });
                         });
@@ -261,8 +261,8 @@ users = {
                     var roleId = parseInt(newUser.roles[0].id || newUser.roles[0], 10);
 
                     // Make sure user is allowed to add a user with this role
-                    return dataProvider.Role.findOne({id: roleId}).then(function (role) {
-                        if (role.get('name') === 'Owner') {
+                    return dataProvider.Role.findSingle({_id: roleId}).then(function (role) {
+                        if (role.get('name') === 'SuperAdministrator') {
                             return Promise.reject(new errors.NoPermissionError('Not allowed to create an owner user.'));
                         }
 
@@ -347,7 +347,7 @@ users = {
      *
      */
     transferOwnership: function transferOwnership(object, options) {
-        return dataProvider.Role.findOne({name: 'Owner'}).then(function (ownerRole) {
+        return dataProvider.Role.findOne({name: 'SuperAdministrator'}).then(function (ownerRole) {
             return canThis(options.context).assign.role(ownerRole);
         }).then(function () {
             return utils.checkObject(object, 'owner').then(function (checkedOwnerTransfer) {

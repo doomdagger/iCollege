@@ -32,7 +32,7 @@ roles = {
         return canThis(options.context).browse.role().then(function () {
             return dataProvider.Role.findAll(options).then(function (results) {
                 var roles = results.map(function (r) {
-                    return r.toJSON();
+                    return r.jsonify();
                 });
 
                 if (options.permissions !== 'assign') {

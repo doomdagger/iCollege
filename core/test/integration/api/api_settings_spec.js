@@ -6,15 +6,17 @@ var testUtils           = require('../../utils'),
 
     // Stuff we are testing
     SettingsAPI         = require('../../../server/api/settings'),
-    defaultContext      = {user: 1},
+    defaultContext      = {user: '000000000000000000000000'},
     internalContext     = {internal: true},
     callApiWithContext,
     getErrorDetails;
 
 describe('Settings API', function () {
     // Keep the DB clean
+    before(testUtils.wait);
     before(testUtils.teardown);
     afterEach(testUtils.teardown);
+    beforeEach(testUtils.DataGenerator.resetCounter);
     beforeEach(testUtils.setup('users:roles', 'perms:setting', 'settings', 'perms:init'));
 
     should.exist(SettingsAPI);
@@ -64,7 +66,7 @@ describe('Settings API', function () {
     });
 
     it('can browse by type', function (done) {
-        return callApiWithContext(defaultContext, 'browse', {type: 'blog'}).then(function (results) {
+        return callApiWithContext(defaultContext, 'browse', {type: 'post'}).then(function (results) {
             should.exist(results);
             testUtils.API.checkResponse(results, 'settings');
             results.settings.length.should.be.above(0);
@@ -183,17 +185,4 @@ describe('Settings API', function () {
         }).catch(done);
     });
 
-    it('does not allow an active theme which is not installed', function (done) {
-        return callApiWithContext(defaultContext, 'edit', 'activeTheme', {
-            settings: [{key: 'activeTheme', value: 'rasper'}]
-        }).then(function () {
-            done(new Error('Allowed to set an active theme which is not installed'));
-        }).catch(function (err) {
-            should.exist(err);
-
-            err.type.should.eql('ValidationError');
-
-            done();
-        }).catch(done);
-    });
 });

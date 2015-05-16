@@ -38,9 +38,11 @@ var testUtils       = require('../../utils'),
     };
 
 describe('Mail API', function () {
+    before(testUtils.wait);
     before(testUtils.teardown);
     afterEach(testUtils.teardown);
-    beforeEach(testUtils.setup('perms:mail', 'perms:init'));
+    beforeEach(testUtils.DataGenerator.resetCounter);
+    beforeEach(testUtils.setup('perms:mail', 'perms:init', 'owner'));
 
     should.exist(MailAPI);
 
@@ -77,7 +79,7 @@ describe('Mail API', function () {
             });
         });
 
-        it('return correct failure message for domain doesn\'t exist', function (done) {
+        it.skip('return correct failure message for domain doesn\'t exist', function (done) {
             mailer.transport.transportType.should.eql('DIRECT');
             return MailAPI.send(mailDataNoDomain, testUtils.context.internal).then(function () {
                 done(new Error('Error message not shown.'));
@@ -111,6 +113,40 @@ describe('Mail API', function () {
                 done();
             }).catch(done);
         });
+    });
+
+    describe.skip('Mail API QQ', function () {
+        before(function (done) {
+            config.set({
+                mail: {
+                    transport: 'SMTP',
+                    options: {
+                        service: 'QQ',
+                        auth: {
+                            user: 'icollege.platform@qq.com', // QQ username
+                            pass: 'egelloci'            // QQ password
+                        }
+                    },
+                    mailfrom: 'icollege.platform@qq.com', // mail from address, QQ service demand this value to be same with auth.user
+                    mailto: 'icollege.platform@qq.com'  // test mail address, only for development
+                }
+            });
+
+            mailer.init().then(function () {
+                done();
+            });
+        });
+
+        it('return correct failure message for incomplete data', function (done) {
+            mailer.transport.transportType.should.eql('SMTP');
+
+            MailAPI.sendTest(testUtils.context.internal).then(function () {
+                done();
+            }, function (error) {
+                done(error);
+            }).catch(done);
+        });
+
     });
 
     describe.skip('Stub', function () {

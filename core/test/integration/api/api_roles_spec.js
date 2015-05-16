@@ -10,8 +10,10 @@ var testUtils   = require('../../utils'),
 
 describe('Roles API', function () {
     // Keep the DB clean
+    before(testUtils.wait);
     before(testUtils.teardown);
     afterEach(testUtils.teardown);
+    beforeEach(testUtils.DataGenerator.resetCounter);
     beforeEach(testUtils.setup('users:roles', 'perms:role', 'perms:init'));
 
     describe('Browse', function () {
@@ -19,36 +21,28 @@ describe('Roles API', function () {
             should.exist(response);
             testUtils.API.checkResponse(response, 'roles');
             should.exist(response.roles);
-            response.roles.should.have.length(4);
+            response.roles.should.have.length(3);
             testUtils.API.checkResponse(response.roles[0], 'role');
             testUtils.API.checkResponse(response.roles[1], 'role');
             testUtils.API.checkResponse(response.roles[2], 'role');
-            testUtils.API.checkResponse(response.roles[3], 'role');
         }
 
-        it('Owner can browse', function (done) {
-            RoleAPI.browse(context.owner).then(function (response) {
+        it('SuperAdministrator can browse', function (done) {
+            RoleAPI.browse(context.superAdmin).then(function (response) {
                 checkBrowseResponse(response);
                 done();
             }).catch(done);
         });
 
-        it('Admin can browse', function (done) {
+        it('Administrator can browse', function (done) {
             RoleAPI.browse(context.admin).then(function (response) {
                 checkBrowseResponse(response);
                 done();
             }).catch(done);
         });
 
-        it('Editor can browse', function (done) {
-            RoleAPI.browse(context.editor).then(function (response) {
-                checkBrowseResponse(response);
-                done();
-            }).catch(done);
-        });
-
-        it('Author can browse', function (done) {
-            RoleAPI.browse(context.author).then(function (response) {
+        it('iColleger can browse', function (done) {
+            RoleAPI.browse(context.icolleger1).then(function (response) {
                 checkBrowseResponse(response);
                 done();
             }).catch(done);
@@ -68,43 +62,34 @@ describe('Roles API', function () {
             should.exist(response);
             should.exist(response.roles);
             testUtils.API.checkResponse(response, 'roles');
-            response.roles.should.have.length(3);
+            response.roles.should.have.length(2);
             testUtils.API.checkResponse(response.roles[0], 'role');
             testUtils.API.checkResponse(response.roles[1], 'role');
-            testUtils.API.checkResponse(response.roles[2], 'role');
             response.roles[0].name.should.equal('Administrator');
-            response.roles[1].name.should.equal('Editor');
-            response.roles[2].name.should.equal('Author');
+            response.roles[1].name.should.equal('iColleger');
         }
 
-        it('Owner can assign all', function (done) {
-            RoleAPI.browse(_.extend({}, context.owner, {permissions: 'assign'})).then(function (response) {
+        it('SuperAdministrator can assign all', function (done) {
+            RoleAPI.browse(_.extend({}, context.superAdmin, {permissions: 'assign'})).then(function (response) {
                 checkBrowseResponse(response);
                 done();
             }).catch(done);
         });
 
-        it('Admin can assign all', function (done) {
+        it('Administrator can assign iColleger', function (done) {
             RoleAPI.browse(_.extend({}, context.admin, {permissions: 'assign'})).then(function (response) {
-                checkBrowseResponse(response);
-                done();
-            }).catch(done);
-        });
-
-        it('Editor can assign Author', function (done) {
-            RoleAPI.browse(_.extend({}, context.editor, {permissions: 'assign'})).then(function (response) {
                 should.exist(response);
                 should.exist(response.roles);
                 testUtils.API.checkResponse(response, 'roles');
                 response.roles.should.have.length(1);
                 testUtils.API.checkResponse(response.roles[0], 'role');
-                response.roles[0].name.should.equal('Author');
+                response.roles[0].name.should.equal('iColleger');
                 done();
             }).catch(done);
         });
 
-        it('Author CANNOT assign any', function (done) {
-            RoleAPI.browse(_.extend({}, context.author, {permissions: 'assign'})).then(function (response) {
+        it('iColleger CANNOT assign any', function (done) {
+            RoleAPI.browse(_.extend({}, context.icolleger1, {permissions: 'assign'})).then(function (response) {
                 should.exist(response);
                 should.exist(response.roles);
                 testUtils.API.checkResponse(response, 'roles');

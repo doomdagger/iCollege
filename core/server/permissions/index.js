@@ -82,7 +82,7 @@ CanThisResult.prototype.buildObjectTypeHandlers = function (objTypes, actType, c
                 modelId = modelOrId;
             } else if (modelOrId) {
                 // It's a model, get the id
-                modelId = modelOrId.id;
+                modelId = modelOrId.id || (modelOrId._id + '');
             }
             // Wait for the user loading to finish
             return permissionLoad.then(function (loadedPermissions) {
@@ -114,7 +114,7 @@ CanThisResult.prototype.buildObjectTypeHandlers = function (objTypes, actType, c
                     };
                 // Check user permissions for matching action, object and id.
 
-                if (_.any(loadedPermissions.user.roles, {name: 'Owner'})) {
+                if (_.any(loadedPermissions.user.roles, {name: 'SuperAdministrator'})) {
                     hasUserPermission = true;
                 } else if (!_.isEmpty(userPermissions)) {
                     hasUserPermission = _.any(userPermissions, checkPermission);
@@ -129,7 +129,7 @@ CanThisResult.prototype.buildObjectTypeHandlers = function (objTypes, actType, c
                 // Offer a chance for the TargetModel to override the results
                 if (TargetModel && _.isFunction(TargetModel.permissible)) {
                     return TargetModel.permissible(
-                        modelId, actType, context, loadedPermissions, hasUserPermission, hasAppPermission
+                        modelOrId, actType, context, loadedPermissions, hasUserPermission, hasAppPermission
                     );
                 }
 

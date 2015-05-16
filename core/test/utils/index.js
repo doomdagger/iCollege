@@ -186,11 +186,11 @@ fixtures = {
             if (perms[obj]) {
                 if (perms[obj] === 'all') {
                     _.each(actions, function (action, i) {
-                        permissionsRoles.push(DataUtils.updateDocuments('roles', {id: roles[role]}, {$push: {permissions: permsToInsert[i]._id}}));
+                        permissionsRoles.push(DataUtils.updateDocuments('roles', {_id: roles[role]}, {$push: {permissions: permsToInsert[i]._id + ''}}));
                     });
                 } else {
                     _.each(perms[obj], function (action) {
-                        permissionsRoles.push(DataUtils.updateDocuments('roles', {id: roles[role]}, {$push: {permissions: permsToInsert[_.indexOf(actions, action)]._id}}));
+                        permissionsRoles.push(DataUtils.updateDocuments('roles', {_id: roles[role]}, {$push: {permissions: permsToInsert[_.indexOf(actions, action)]._id + ''}}));
                     });
                 }
             }

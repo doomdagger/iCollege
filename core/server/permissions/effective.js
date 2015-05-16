@@ -12,7 +12,7 @@ effective = {
 
         return Models.User.findOne({_id: id}, 'permissions roles').populate('permissions').execAsync()
             .then(function (foundUser) {
-                user = foundUser.toJSON();
+                user = foundUser.jsonify();
 
                 return Models.Role.find({_id: {$in: foundUser.roles}}).populate("permissions").execAsync();
             }).then(function (roles) {

@@ -26,7 +26,7 @@ mail = {
      * Send an email
      *
      * @public
-     * @param {mail} object details of the email to send
+     * @param {Object} object details of the email to send
      * @param {options} options of the email
      * @returns {Promise}
      */
@@ -59,11 +59,11 @@ mail = {
      * @returns {Promise}
      */
     sendTest: function (options) {
-        return Models.User.findSingle({id: options.context.user}).then(function (result) {
+        return Models.User.findSingle({_id: options.context.user}).then(function (result) {
             return mail.generateContent({template: 'test'}).then(function (emailContent) {
                 var payload = {mail: [{
                     message: {
-                        to: result.get('email'),
+                        to: (result && result.get('email')) || config.mail.mailto,
                         subject: 'Test iCollege Email',
                         html: emailContent.html,
                         text: emailContent.text
