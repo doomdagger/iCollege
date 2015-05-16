@@ -1,0 +1,375 @@
+{
+    "meta": {
+        "exported_on": 1388318311015,
+        "version": "001"
+    },
+    "data": {
+        "posts": [
+            {
+                "_id": "ca9818489e24f5c00b93e2e2",
+                "uuid": "461e46e9-0cd8-4c89-80ee-568b902b2d3a",
+                "slug": "welcome-to-icollege",
+                "title": "Welcome to iCollege",
+                "author_id": "ffffffffffffffffffffffff",
+                "circle_id": "ffffffff321eafffffffffff",
+                "source_category": "friends",
+                "post_type": "forward",
+                "forward_info": {
+                    "forward_message": "Hello iCollege",
+                    "post_id": "ffffffffffffffffffffffff"
+                },
+                "status": "published",
+                "published_at": 1388318310783,
+                "published_by": "ffffffffffffffffffffffff",
+                "created_at": 1388318310782,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310782,
+                "updated_by": "ffffffffffffffffffffffff"
+
+            }
+        ],
+        "users": [],
+        "roles": [
+            {
+                "_id": "554818489e24f5c00b93e2e2",
+                "uuid": "461e46e9-0cd8-4c89-80ee-568b902b2d3a",
+                "name": "SuperAdministrator",
+                "permissions": [
+                    "554818489e24f5c00b93e2cb",
+                    "554818489e24f5c00b93e2cc",
+                    "554818489e24f5c00b93e2cd",
+                    "554818489e24f5c00b93e2ce",
+                    "554818489e24f5c00b93e2cf",
+                    "554818489e24f5c00b93e2d0",
+                    "554818489e24f5c00b93e2d1",
+                    "554818489e24f5c00b93e2d2",
+                    "554818489e24f5c00b93e2d3",
+                    "554818489e24f5c00b93e2d4",
+                    "554818489e24f5c00b93e2d5",
+                    "554818489e24f5c00b93e2d6",
+                    "554818489e24f5c00b93e2d7",
+                    "554818489e24f5c00b93e2d8",
+                    "554818489e24f5c00b93e2d9",
+                    "554818489e24f5c00b93e2da",
+                    "554818489e24f5c00b93e2db",
+                    "554818489e24f5c00b93e2dc",
+                    "554818489e24f5c00b93e2dd",
+                    "554818489e24f5c00b93e2de",
+                    "554818489e24f5c00b93e2df",
+                    "554818489e24f5c00b93e2e0",
+                    "554818489e24f5c00b93e2e1"
+                ],
+                "description": "Super Administrator who is in charge of everything",
+                "created_at": 1388318310794,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310794,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2e3",
+                "uuid": "37403ca1-3c03-4ef2-af1b-98e92913fd69",
+                "name": "Administrator",
+                "permissions": [
+                    "554818489e24f5c00b93e2d2",
+                    "554818489e24f5c00b93e2d3",
+                    "554818489e24f5c00b93e2d4",
+                    "554818489e24f5c00b93e2d5",
+                    "554818489e24f5c00b93e2d6",
+                    "554818489e24f5c00b93e2d7",
+                    "554818489e24f5c00b93e2d8",
+                    "554818489e24f5c00b93e2d9",
+                    "554818489e24f5c00b93e2da",
+                    "554818489e24f5c00b93e2db",
+                    "554818489e24f5c00b93e2dc",
+                    "554818489e24f5c00b93e2dd",
+                    "554818489e24f5c00b93e2de",
+                    "554818489e24f5c00b93e2e0",
+                    "554818489e24f5c00b93e2e1"
+                ],
+                "description": "Administrator who is assigned by Super Administrator",
+                "created_at": 1388318310796,
+                "created_by": 1,
+                "updated_at": 1388318310796,
+                "updated_by": 1
+            },
+            {
+                "_id": "554818489e24f5c00b93e2e4",
+                "uuid": "9f72e817-5490-4ccf-bc78-c557dc9613ca",
+                "name": "iColleger",
+                "permissions": [
+                    "554818489e24f5c00b93e2d2",
+                    "554818489e24f5c00b93e2d3",
+                    "554818489e24f5c00b93e2d5",
+                    "554818489e24f5c00b93e2d7",
+                    "554818489e24f5c00b93e2d8",
+                    "554818489e24f5c00b93e2da",
+                    "554818489e24f5c00b93e2db",
+                    "554818489e24f5c00b93e2dc",
+                    "554818489e24f5c00b93e2e1"
+                ],
+                "description": "Normal User of iCollege",
+                "created_at": 1388318310799,
+                "created_by": 1,
+                "updated_at": 1388318310799,
+                "updated_by": 1
+            }
+        ],
+        "permissions": [
+            {
+                "_id": "554818489e24f5c00b93e2cb",
+                "uuid": "c53e390e-19e2-440c-b85b-71c12954b6b0",
+                "name": "Export database",
+                "object_type": "db",
+                "action_type": "exportContent",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2cd",
+                "uuid": "03b58697-bce0-49f9-83cb-56fc0133696d",
+                "name": "Delete all content",
+                "object_type": "db",
+                "action_type": "deleteAllContent",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2ce",
+                "uuid": "9fc12ab2-31bf-4b5b-833c-912bfa94c0c6",
+                "name": "Send mail",
+                "object_type": "mail",
+                "action_type": "send",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2cf",
+                "uuid": "99e47328-96de-4c04-9f08-2c276c382590",
+                "name": "Browse notifications",
+                "object_type": "notification",
+                "action_type": "browse",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2d0",
+                "uuid": "53d54760-2efb-4f4f-a531-4c999d54ab78",
+                "name": "Add notifications",
+                "object_type": "notification",
+                "action_type": "add",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2d1",
+                "uuid": "d9cc01db-d628-4f4a-94d3-5fe897e8e0d1",
+                "name": "Delete notifications",
+                "object_type": "notification",
+                "action_type": "destroy",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2d3",
+                "uuid": "7924e29b-f5bc-4b13-9ed1-19b740cea97b",
+                "name": "Read posts",
+                "object_type": "post",
+                "action_type": "read",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2d2",
+                "uuid": "258de997-134b-4548-b5c2-fe4616e201e5",
+                "name": "Browse posts",
+                "object_type": "post",
+                "action_type": "browse",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2d4",
+                "uuid": "0ce23f9b-2a47-4371-8947-09d3564fa98d",
+                "name": "Edit posts",
+                "object_type": "post",
+                "action_type": "edit",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2d5",
+                "uuid": "866e5811-b6e1-47da-b33a-3fe90986f85c",
+                "name": "Add posts",
+                "object_type": "post",
+                "action_type": "add",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2d6",
+                "uuid": "d4d654f7-9068-405c-a578-ccec291228a7",
+                "name": "Delete posts",
+                "object_type": "post",
+                "action_type": "destroy",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2d7",
+                "uuid": "98243b19-d1b1-4e8e-925b-7817fccadea1",
+                "name": "Browse settings",
+                "object_type": "setting",
+                "action_type": "browse",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2d8",
+                "uuid": "9617c020-f10c-4fe0-a7ac-bedb4b53492c",
+                "name": "Read settings",
+                "object_type": "setting",
+                "action_type": "read",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2d9",
+                "uuid": "f9def35b-523b-4ee4-b56a-cebd4d259d73",
+                "name": "Edit settings",
+                "object_type": "setting",
+                "action_type": "edit",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2da",
+                "uuid": "b360f99b-76ee-43f2-9800-27b1cd72c813",
+                "name": "Generate slugs",
+                "object_type": "slug",
+                "action_type": "generate",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2db",
+                "uuid": "c3aebc75-bdde-4ef6-9ace-b321358208a3",
+                "name": "Browse users",
+                "object_type": "user",
+                "action_type": "browse",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2dc",
+                "uuid": "002c4db1-73d5-4f19-b19d-bb9c8101dcc6",
+                "name": "Read users",
+                "object_type": "user",
+                "action_type": "read",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2dd",
+                "uuid": "9546b081-2b8c-42f8-9971-5339ac006fd3",
+                "name": "Edit users",
+                "object_type": "user",
+                "action_type": "edit",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2de",
+                "uuid": "b14efaca-2fdf-4c07-9002-6c1df68a308d",
+                "name": "Add users",
+                "object_type": "user",
+                "action_type": "add",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2df",
+                "uuid": "c3aebc75-bdde-4ef6-9ace-b321358208a3",
+                "name": "Delete users",
+                "object_type": "user",
+                "action_type": "destroy",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2e0",
+                "uuid": "16d28674-e7d1-45d9-813e-0234f76a16bb",
+                "name": "Assign a role",
+                "object_type": "role",
+                "action_type": "assign",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            },
+            {
+                "_id": "554818489e24f5c00b93e2e1",
+                "uuid": "6d7216fd-0b3b-4d9d-8370-bdc6180996a7",
+                "name": "Browse roles",
+                "object_type": "role",
+                "action_type": "browse",
+                "created_at": 1388318310814,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310814,
+                "updated_by": "ffffffffffffffffffffffff"
+            }
+        ],
+        "settings": [
+            {
+                "_id": "5554770425576d4427bc25b6",
+                "uuid": "cc3f7dd0-c23a-4535-9ec9-aee0338d666b",
+                "key": "databaseVersion",
+                "value": "001",
+                "type": "core",
+                "created_at": 1388318310829,
+                "created_by": "ffffffffffffffffffffffff",
+                "updated_at": 1388318310829,
+                "updated_by": "ffffffffffffffffffffffff"
+            }
+        ]
+    }
+}

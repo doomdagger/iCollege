@@ -6,8 +6,9 @@
  */
 
 
-var Promise = require('bluebird'),
+var Promise         = require('bluebird'),
     utils   = require('./utils'),
+    models       = require('../../models'),
     Transaction = require('../utils/transaction'),
 
     DataImporter;
@@ -22,35 +23,33 @@ DataImporter.prototype.doImport = function (data) {
     var tableData = data.data,
         t = new Transaction();
 
-    return Promise.resolve().then(function () {
-        utils.importUsers(t, tableData.users);
+    return utils.importData(models.User, "users", t, tableData.users).then(function () {
+        return  utils.importData(models.App, "apps", t, tableData.apps);
     }).then(function () {
-        utils.importApps(t, tableData.apps);
+        return utils.importData(models.Notification, "notifications", t, tableData.notifications);
     }).then(function () {
-        utils.importNotifications(t, tableData.notifications);
+        return utils.importData(models.Role, "roles", t, tableData.roles);
     }).then(function () {
-        utils.importRoles(t, tableData.roles);
+        return utils.importData(models.Permission, "permissions", t, tableData.permissions);
     }).then(function () {
-        utils.importPermissions(t, tableData.permissions);
+        return utils.importData(models.Group, "groups", t, tableData.groups);
     }).then(function () {
-        utils.importGroups(t, tableData.groups);
+        return utils.importData(models.Circle, "circles", t, tableData.circles);
     }).then(function () {
-        utils.importCircles(t, tableData.circles);
+        return utils.importData(models.Message, "messages", t, tableData.messages);
     }).then(function () {
-        utils.importMessages(t, tableData.messages);
+        return utils.importData(models.Post, "posts", t, tableData.posts);
     }).then(function () {
-        utils.importPosts(t, tableData.posts);
+        return utils.importData(models.Repost, "reposts", t, tableData.reposts);
     }).then(function () {
-        utils.importReposts(t, tableData.reposts);
-    }).then(function () {
-        utils.importSettings(t, tableData.settings);
+        return utils.importData(models.Settings, "settings", t, tableData.settings);
     }).then(function () {
         //check if data which add to database is fail.
-
         if (t.flag === true) {
-            t.rollback();
+            return t.rollback();
         }
-
+    }).catch(function (err) {
+        return Promise.resolve(err);
     });
 };
 
