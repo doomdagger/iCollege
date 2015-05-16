@@ -6,12 +6,15 @@
 
 var _              = require('lodash'),
     Promise        = require('bluebird'),
-    // Include Endpoints
+    config         = require('../config'),
+// Include Endpoints
     configuration  = require('./configuration'),
     db             = require('./db'),
     mail           = require('./mail'),
     roles          = require('./roles'),
     settings       = require('./settings'),
+    users          = require('./users'),
+    slugs          = require('./slugs'),
     authentication = require('./authentication'),
     uploads        = require('./upload'),
     dataExport     = require('../data/export'),
@@ -47,42 +50,42 @@ init = function () {
  * @param {Object} result API method result
  * @return {Promise(String)} Resolves to header string
  */
-cacheInvalidationHeader = function (/*req, result*/) {
-    //var parsedUrl = req._parsedUrl.pathname.replace(/^\/|\/$/g, '').split('/'),
-    //    method = req.method,
-    //    endpoint = parsedUrl[0],
-    //    id = parsedUrl[1],
-    //    cacheInvalidate,
-    //    jsonResult = result.toJSON ? result.toJSON() : result,
-    //    post,
-    //    hasStatusChanged,
-    //    wasDeleted,
-    //    wasPublishedUpdated;
-    //
-    //if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
-    //    if (endpoint === 'settings' || endpoint === 'users' || endpoint === 'db') {
-    //        cacheInvalidate = '/*';
-    //    } else if (endpoint === 'posts') {
-    //        post = jsonResult.posts[0];
-    //        hasStatusChanged = post.statusChanged;
-    //        wasDeleted = method === 'DELETE';
-    //        // Invalidate cache when post was updated but not when post is draft
-    //        wasPublishedUpdated = method === 'PUT' && post.status === 'published';
-    //
-    //        // Remove the statusChanged value from the response
-    //        delete post.statusChanged;
-    //
-    //        // Don't set x-cache-invalidate header for drafts
-    //        if (hasStatusChanged || wasDeleted || wasPublishedUpdated) {
-    //            cacheInvalidate = '/, /page/*, /rss/, /rss/*, /tag/*, /author/*, /sitemap-*.xml';
-    //            if (id && post.slug && post.url) {
-    //                cacheInvalidate +=  ', ' + post.url;
-    //            }
-    //        }
-    //    }
-    //}
+cacheInvalidationHeader = function (req, result) {
+    var parsedUrl = req._parsedUrl.pathname.replace(/^\/|\/$/g, '').split('/'),
+        method = req.method,
+        endpoint = parsedUrl[0],
+        id = parsedUrl[1],
+        cacheInvalidate,
+        jsonResult = result.toJSON ? result.toJSON() : result,
+        post,
+        hasStatusChanged,
+        wasDeleted,
+        wasPublishedUpdated;
 
-    return Promise.resolve();
+    if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
+        if (endpoint === 'settings' || endpoint === 'users' || endpoint === 'db') {
+            cacheInvalidate = '/*';
+        } else if (endpoint === 'posts') {
+            post = jsonResult.posts[0];
+            hasStatusChanged = post.statusChanged;
+            wasDeleted = method === 'DELETE';
+            // Invalidate cache when post was updated but not when post is draft
+            wasPublishedUpdated = method === 'PUT' && post.status === 'published';
+
+            // Remove the statusChanged value from the response
+            delete post.statusChanged;
+
+            // Don't set x-cache-invalidate header for drafts
+            if (hasStatusChanged || wasDeleted || wasPublishedUpdated) {
+                cacheInvalidate = '/, /page/*, /rss/, /rss/*, /tag/*, /author/*, /sitemap-*.xml';
+                if (id && post.slug && post.url) {
+                    cacheInvalidate +=  ', ' + post.url;
+                }
+            }
+        }
+    }
+
+    return Promise.resolve(cacheInvalidate);
 };
 
 /**
@@ -96,25 +99,25 @@ cacheInvalidationHeader = function (/*req, result*/) {
  * @param {Object} result API method result
  * @return {Promise(String)} Resolves to header string
  */
-locationHeader = function (/*req, result*/) {
-    //var apiRoot = config.urlFor('api'),
-    //    location,
-    //    newObject;
-    //
-    //if (req.method === 'POST') {
-    //    if (result.hasOwnProperty('posts')) {
-    //        newObject = result.posts[0];
-    //        location = apiRoot + '/posts/' + newObject.id + '/?status=' + newObject.status;
-    //    } else if (result.hasOwnProperty('notifications')) {
-    //        newObject = result.notifications[0];
-    //        location = apiRoot + '/notifications/' + newObject.id;
-    //    } else if (result.hasOwnProperty('users')) {
-    //        newObject = result.users[0];
-    //        location = apiRoot + '/users/' + newObject.id;
-    //    }
-    //}
+locationHeader = function (req, result) {
+    var apiRoot = config.urlFor('api'),
+        location,
+        newObject;
 
-    return Promise.resolve();
+    if (req.method === 'POST') {
+        if (result.hasOwnProperty('posts')) {
+            newObject = result.posts[0];
+            location = apiRoot + '/posts/' + newObject.id + '/?status=' + newObject.status;
+        } else if (result.hasOwnProperty('notifications')) {
+            newObject = result.notifications[0];
+            location = apiRoot + '/notifications/' + newObject.id;
+        } else if (result.hasOwnProperty('users')) {
+            newObject = result.users[0];
+            location = apiRoot + '/users/' + newObject.id;
+        }
+    }
+
+    return Promise.resolve(location);
 };
 
 /**
@@ -271,14 +274,10 @@ module.exports = {
     configuration: configuration,
     db: db,
     mail: mail,
-    //notifications: notifications,
-    //posts: posts,
     roles: roles,
     settings: settings,
-    //tags: tags,
-    //themes: themes,
-    //users: users,
-    //slugs: slugs,
+    users: users,
+    slugs: slugs,
     authentication: authentication,
     uploads: uploads
 };

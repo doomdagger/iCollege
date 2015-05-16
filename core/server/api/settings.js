@@ -3,7 +3,7 @@
 var _            = require('lodash'),
     dataProvider = require('../models'),
     Promise      = require('bluebird'),
-    //config       = require('../config'),
+    config       = require('../config'),
     canThis      = require('../permissions').canThis,
     errors       = require('../errors'),
     utils        = require('./utils'),
@@ -33,7 +33,7 @@ var _            = require('lodash'),
  * ### Update Settings Cache
  * Maintain the internal cache of the settings object
  * @public
- * @param {Object} settings
+ * @param {Object} [settings]
  * @returns {Settings}
  */
 updateSettingsCache = function (settings) {
@@ -49,8 +49,8 @@ updateSettingsCache = function (settings) {
     }
 
     return dataProvider.Settings.findAll()
-            .then(function (result) {
-            settingsCache = readSettingsResult(result.models);
+        .then(function (result) {
+            settingsCache = readSettingsResult(result);
 
 
             return settingsCache;
@@ -101,9 +101,9 @@ filterPaths = function (paths, active) {
     _.each(pathKeys, function (key) {
         // do not include hidden files or _messages
         if (key.indexOf('.') !== 0 &&
-                key !== '_messages' &&
-                key !== 'README.md'
-                ) {
+            key !== '_messages' &&
+            key !== 'README.md'
+        ) {
             item = {
                 name: key
             };
@@ -129,15 +129,15 @@ filterPaths = function (paths, active) {
  * @returns {Settings}
  */
 readSettingsResult = function (settingsModels) {
-    var settings = _.reduce(settingsModels, function (memo, member) {
-            if (!memo.hasOwnProperty(member.attributes.key)) {
-                memo[member.attributes.key] = member.attributes;
+
+    return _.reduce(settingsModels, function (memo, member) {
+            if (!memo.hasOwnProperty(member.key)) {
+                memo[member.key] = member;
             }
 
             return memo;
         }, {});
 
-    return settings;
 };
 
 /**
@@ -195,6 +195,7 @@ populateDefaultSetting = function (key) {
  * Check that this edit request is allowed for all settings requested to be updated
  * @private
  * @param {Object} settingsInfo
+ * @param {Object} [options]
  * @returns {*}
  */
 canEditAllSettings = function (settingsInfo, options) {
@@ -278,27 +279,27 @@ settings = {
         }
 
         var getSettingsResult = function () {
-                var setting = settingsCache[options.key],
-                    result = {};
+            var setting = settingsCache[options.key],
+                result = {};
 
-                result[options.key] = setting;
+            result[options.key] = setting;
 
-                if (setting.type === 'core' && !(options.context && options.context.internal)) {
-                    return Promise.reject(
-                        new errors.NoPermissionError('Attempted to access core setting from external request')
-                    );
-                }
+            if (setting.type === 'core' && !(options.context && options.context.internal)) {
+                return Promise.reject(
+                    new errors.NoPermissionError('Attempted to access core setting from external request')
+                );
+            }
 
-                if (setting.type === 'post') {
-                    return Promise.resolve(settingsResult(result));
-                }
+            if (setting.type === 'post') {
+                return Promise.resolve(settingsResult(result));
+            }
 
-                return canThis(options.context).read.setting(options.key).then(function () {
-                    return settingsResult(result);
-                }, function () {
-                    return Promise.reject(new errors.NoPermissionError('You do not have permission to read settings.'));
-                });
-            };
+            return canThis(options.context).read.setting(options.key).then(function () {
+                return settingsResult(result);
+            }, function () {
+                return Promise.reject(new errors.NoPermissionError('You do not have permission to read settings.'));
+            });
+        };
 
         // If the setting is not already in the cache
         if (!settingsCache[options.key]) {
@@ -343,7 +344,7 @@ settings = {
         }
 
         object.settings = _.reject(object.settings, function (setting) {
-            return setting.key === 'type' || setting.key === 'availableThemes' || setting.key === 'availableApps';
+            return setting.key === 'type';
         });
 
         return canEditAllSettings(object.settings, options).then(function () {

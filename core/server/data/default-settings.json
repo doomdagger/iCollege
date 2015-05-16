@@ -5,6 +5,9 @@
       "validations": {
         "isNull": false
       }
+    },
+    "dbHash": {
+      "defaultValue": null
     }
   },
   "message": {

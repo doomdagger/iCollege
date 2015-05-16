@@ -59,7 +59,7 @@ mail = {
      * @returns {Promise}
      */
     sendTest: function (options) {
-        return Models.User.findOneAsync({id: options.context.user}).then(function (result) {
+        return Models.User.findSingle({id: options.context.user}).then(function (result) {
             return mail.generateContent({template: 'test'}).then(function (emailContent) {
                 var payload = {mail: [{
                     message: {

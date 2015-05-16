@@ -44,7 +44,7 @@ db = {
     },
     /**
      * ### Import Content
-     * Import messages, posts etc from a JSON blob
+     * Import posts, tags etc from a JSON blob
      *
      * @public
      * @param {{context}} options
@@ -62,9 +62,9 @@ db = {
         if (!utils.checkFileIsValid(options.importfile, importer.getTypes(), importer.getExtensions())) {
             return Promise.reject(new errors.UnsupportedMediaTypeError(
                 'Unsupported file. Please try any of the following formats: ' +
-                    _.reduce(importer.getExtensions(), function (memo, ext) {
-                        return memo ? memo + ', ' + ext : ext;
-                    })
+                _.reduce(importer.getExtensions(), function (memo, ext) {
+                    return memo ? memo + ', ' + ext : ext;
+                })
             ));
         }
 
@@ -89,13 +89,7 @@ db = {
         options = options || {};
 
         return canThis(options.context).deleteAllContent.db().then(function () {
-
-            //delete all content from message and post tables
-            return Promise.resolve(function () {
-                return models.Message.removeAllAsync();
-            }.then(function () {
-                    return models.Post.removeAllAsync();
-                }))
+            return Promise.resolve(models.deleteAllContent())
                 .return({db: []})
                 .catch(function (error) {
                     return Promise.reject(new errors.InternalServerError(error.message || error));

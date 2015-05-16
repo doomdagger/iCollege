@@ -21,13 +21,13 @@ utils = {
         }
 
         // convert author property to author_id to match the name in the database
-        // TODO: rename object in database
-        if (docName === 'posts') {
-            if (object.posts[0].hasOwnProperty('author')) {
-                object.posts[0].author_id = object.posts[0].author;
-                delete object.posts[0].author;
-            }
-        }
+        // TODO: add different logic for different doc
+        //if (docName === 'posts') {
+        //    if (object.posts[0].hasOwnProperty('author')) {
+        //        object.posts[0].author_id = object.posts[0].author;
+        //        delete object.posts[0].author;
+        //    }
+        //}
         return Promise.resolve(object);
     },
     checkFileExists: function (options, filename)  {

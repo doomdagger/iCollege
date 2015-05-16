@@ -42,32 +42,32 @@ authentication = {
             }
 
             return settings.read({context: {internal: true}, key: 'dbHash'})
-            .then(function (response) {
-                var dbHash = response.settings[0].value;
-                return dataProvider.User.generateResetToken(email, expires, dbHash);
-            }).then(function (resetToken) {
-                var baseUrl = config.forceAdminSSL ? (config.urlSSL || config.url) : config.url,
-                    resetUrl = baseUrl.replace(/\/$/, '') + '/ghost/reset/' + globalUtils.encodeBase64URLsafe(resetToken) + '/';
+                .then(function (response) {
+                    var dbHash = response.settings[0].value;
+                    return dataProvider.User.generateResetToken(email, expires, dbHash);
+                }).then(function (resetToken) {
+                    var baseUrl = config.forceAdminSSL ? (config.urlSSL || config.url) : config.url,
+                        resetUrl = baseUrl.replace(/\/$/, '') + '/icollege/reset/' + globalUtils.encodeBase64URLsafe(resetToken) + '/';
 
-                return mail.generateContent({data: {resetUrl: resetUrl}, template: 'reset-password'});
-            }).then(function (emailContent) {
-                var payload = {
-                    mail: [{
-                        message: {
-                            to: email,
-                            subject: 'Reset Password',
-                            html: emailContent.html,
-                            text: emailContent.text
-                        },
-                        options: {}
-                    }]
-                };
-                return mail.send(payload, {context: {internal: true}});
-            }).then(function () {
-                return Promise.resolve({passwordreset: [{message: 'Check your email for further instructions.'}]});
-            }).catch(function (error) {
-                return Promise.reject(error);
-            });
+                    return mail.generateContent({data: {resetUrl: resetUrl}, template: 'reset-password'});
+                }).then(function (emailContent) {
+                    var payload = {
+                        mail: [{
+                            message: {
+                                to: email,
+                                subject: 'Reset Password',
+                                html: emailContent.html,
+                                text: emailContent.text
+                            },
+                            options: {}
+                        }]
+                    };
+                    return mail.send(payload, {context: {internal: true}});
+                }).then(function () {
+                    return Promise.resolve({passwordreset: [{message: 'Check your email for further instructions.'}]});
+                }).catch(function (error) {
+                    return Promise.reject(error);
+                });
         });
     },
 
@@ -162,7 +162,7 @@ authentication = {
             }
 
             if (options.email) {
-                return dataProvider.User.findOne({email: options.email, status: 'invited'}).then(function (response) {
+                return dataProvider.User.findSingle({email: options.email, status: 'invited'}).then(function (response) {
                     if (response) {
                         return {invitation: [{valid: true}]};
                     } else {
@@ -176,15 +176,15 @@ authentication = {
     },
 
     isSetup: function () {
-        return dataProvider.User.query(function (qb) {
-            qb.whereIn('status', ['active', 'warn-1', 'warn-2', 'warn-3', 'warn-4', 'locked']);
-        }).fetch().then(function (users) {
-            if (users) {
-                return Promise.resolve({setup: [{status: true}]});
-            } else {
-                return Promise.resolve({setup: [{status: false}]});
-            }
-        });
+        return dataProvider.User.findOne()
+            .where('status').in(['active', 'warn-1', 'warn-2', 'warn-3', 'warn-4', 'locked'])
+            .execAsync().then(function (user) {
+                if (user) {
+                    return Promise.resolve({setup: [{status: true}]});
+                } else {
+                    return Promise.resolve({setup: [{status: false}]});
+                }
+            });
     },
 
     setup: function (object) {
@@ -208,12 +208,12 @@ authentication = {
                 status: 'active'
             };
 
-            return dataProvider.User.findOne({role: 'Owner', status: 'all'});
+            return dataProvider.User.findSingle({role: 'SuperAdministrator', status: 'all'});
         }).then(function (ownerUser) {
             if (ownerUser) {
                 return dataProvider.User.setup(setupUser, _.extend(internal, {id: ownerUser.id}));
             } else {
-                return dataProvider.Role.findOne({name: 'Owner'}).then(function (ownerRole) {
+                return dataProvider.Role.findSingle({name: 'SuperAdministrator'}).then(function (ownerRole) {
                     setupUser.roles = [ownerRole.id];
                     return dataProvider.User.add(setupUser, internal);
                 });

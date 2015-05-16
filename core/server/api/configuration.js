@@ -9,17 +9,13 @@ var _                  = require('lodash'),
 
 function getValidKeys() {
     var validKeys = {
-            fileStorage: config.fileStorage === false ? false : true,
-            apps: config.apps === true ? true : false,
-            tagsUI: config.tagsUI === true ? true : false,
-            codeInjectionUI: config.codeInjectionUI === true ? true : false,
-            version: config.ghostVersion,
-            environment: process.env.NODE_ENV,
-            database: config.database.client,
-            mail: _.isObject(config.mail) ? config.mail.transport : '',
-            blogUrl: config.url.replace(/\/$/, ''),
-            blogTitle: config.theme.title
-        };
+        fileStorage: config.fileStorage !== false,
+        version: config.icollegeVersion,
+        environment: process.env.NODE_ENV,
+        database: 'mongodb',
+        mail: _.isObject(config.mail) ? config.mail.transport : '',
+        hostUrl: config.url.replace(/\/$/, '')
+    };
 
     return validKeys;
 }
