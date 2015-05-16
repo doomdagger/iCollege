@@ -17,7 +17,7 @@ basetokenShelf = icollegeShelf.extend({
     // Methods on Model Level means Model Class can invoke
     destroyAllExpired:  function () {
 
-        return this.remove({expires: {$lt: Date.now()}}).then(function (res) {
+        return this.removeAsync({expires: {$lt: Date.now()}}).then(function (res) {
             return res.result;
         });
     },
@@ -31,7 +31,7 @@ basetokenShelf = icollegeShelf.extend({
         var userId = options.id || options._id;
 
         if (userId) {
-            return this.remove({user_id: userId}).then(function (res) {
+            return this.removeAsync({user_id: userId}).then(function (res) {
                 return res.result;
             });
         }
@@ -48,7 +48,7 @@ basetokenShelf = icollegeShelf.extend({
         var token = options.token;
 
         if (token) {
-            return this.remove({token: token}).then(function (res) {
+            return this.removeAsync({token: token}).then(function (res) {
                 return res.result;
             });
         }

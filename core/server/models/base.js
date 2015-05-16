@@ -295,7 +295,7 @@ icollegeShelf = new Shelf(true, {
         // you use id or mistakenly use _id, we both accept!
         var id = options.id || options._id;
         // options = this.filterOptions(options, 'destroy');
-        return this.remove({_id: id}).then(function (res) {
+        return this.removeAsync({_id: id}).then(function (res) {
             return res.result;
         });
     },
