@@ -1,6 +1,7 @@
 // # Model index file
 
 var _       = require('lodash'),
+    Promise = require('bluebird'),
     requireTree   = require('../require-tree'),
     models;
 

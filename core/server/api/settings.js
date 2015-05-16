@@ -3,7 +3,6 @@
 var _            = require('lodash'),
     dataProvider = require('../models'),
     Promise      = require('bluebird'),
-    config       = require('../config'),
     canThis      = require('../permissions').canThis,
     errors       = require('../errors'),
     utils        = require('./utils'),
