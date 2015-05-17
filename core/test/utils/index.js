@@ -51,6 +51,10 @@ fixtures = {
         return ret;
     },
 
+    insertPosts: function insertPosts() {
+        return DataUtils.insertDocuments('posts', fixtures.amend(DataGenerator.forDB.posts, 'posts'));
+    },
+
     insertRoles: function insertRoles() {
         return DataUtils.insertDocuments('roles', fixtures.amend(DataGenerator.forDB.roles, 'roles'));
     },
@@ -220,6 +224,9 @@ toDoList = {
     settings: function populateSettings() {
         return Models.Settings.populateDefaults().then(function () { return SettingsAPI.updateSettingsCache(); });
     },
+
+    posts: function insertPosts() { return fixtures.insertPosts(); },
+
     'users:roles': function createUsersWithRoles() { return fixtures.createUsersWithRoles(); },
     users: function createExtraUsers() { return fixtures.createExtraUsers(); },
     'user:token': function createTokensForUser() { return fixtures.createTokensForUser(); },

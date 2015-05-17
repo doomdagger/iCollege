@@ -49,6 +49,40 @@ DataGenerator.Content = {
         }
     ],
 
+    //posts
+    posts: [
+        {
+            "title": "Welcome to iCollege too",
+            "slug": "welcome-to-icollege-too",
+            "author_id": "ffffffffffffffffffffffff",
+            "circle_id": "ffffffff321eafffffffffff",
+            "source_category": "friends",
+            "post_type": "forward",
+            "forward_info": {
+                "forward_message": "Hello iCollege Too",
+                "post_id": "ffffffffffffffffffffffff"
+            },
+            "status": "published",
+            "published_at": 1388318310783,
+            "published_by": "ffffffffffffffffffffffff"
+        },
+        {
+            "title": "Welcome to iCollege too too",
+            "slug": "welcome-to-icollege-too-too",
+            "author_id": "fffffffff765ffffffffffff",
+            "circle_id": "ffffffff321eadbfffffffff",
+            "source_category": "friends",
+            "post_type": "forward",
+            "forward_info": {
+                "forward_message": "Hello iCollege Too Too",
+                "post_id": "ffffffffffffffffffffffff"
+            },
+            "status": "published",
+            "published_at": 1388318310783,
+            "published_by": "ffffffffffffffffffffffff"
+        }
+    ],
+
     permissions: [
         {
             name: 'Browse posts',
@@ -114,7 +148,8 @@ DataGenerator.Content = {
 };
 
 DataGenerator.forDB = (function () {
-    var roles,
+    var posts,
+        roles,
         users,
         clients,
         roles_users;
@@ -158,6 +193,11 @@ DataGenerator.forDB = (function () {
         });
     }
 
+    posts = [
+        createBasic(DataGenerator.Content.posts[0]),
+        createBasic(DataGenerator.Content.posts[1])
+    ];
+
     roles_users = [
         mongoose.Types.ObjectId('000000000000000000000000') + '',
         mongoose.Types.ObjectId('222222222222222222222222') + '',
@@ -190,6 +230,7 @@ DataGenerator.forDB = (function () {
         createPermission: createBasic,
         createToken: createToken,
 
+        posts: posts,
         roles: roles,
         users: users,
         roles_users: roles_users,

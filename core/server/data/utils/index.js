@@ -128,7 +128,6 @@ function safeDropCollections () {
     });
 }
 
-
 /**
  * ### Inserts a single document
  * Inserts a single document or a an array of documents into collection.
@@ -217,8 +216,22 @@ function findDocuments (collectionName, query, options) {
             resolve(result);
         });
     });
+
 }
 
+/**
+ * ### Safe drop collections content
+ * safe drop all of exist collections' content!
+ * @returns {Promise|*}
+ */
+function safeDropCollectionsContent () {
+    return collectionNames().then(function (collectionNames) {
+        var ops = _.map(collectionNames, function (collection) {
+            return removeDocuments(collection);
+        });
+        return Promise.all(ops);
+    });
+}
 
 module.exports = {
     collection: collection,
@@ -231,5 +244,6 @@ module.exports = {
     insertDocuments: insertDocuments,
     updateDocuments: updateDocuments,
     removeDocuments: removeDocuments,
-    findDocuments: findDocuments
+    findDocuments: findDocuments,
+    safeDropCollectionsContent : safeDropCollectionsContent
 };

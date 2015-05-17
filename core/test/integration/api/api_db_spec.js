@@ -5,29 +5,34 @@ var testUtils = require('../../utils'),
 
     // Stuff we are testing
     dbAPI          = require('../../../server/api/db'),
-    ModelTag       = require('../../../server/models/tag'),
-    ModelPost      = require('../../../server/models/post');
+    PostModel      = require('../../../server/models/post').Post;
 
 describe('DB API', function () {
     // Keep the DB clean
+    before(testUtils.wait);
     before(testUtils.teardown);
     afterEach(testUtils.teardown);
-    beforeEach(testUtils.setup('users:roles', 'posts', 'perms:db', 'perms:init'));
+    beforeEach(testUtils.setup('users:roles', 'posts', 'perms:db', 'perms:init', 'settings'));
 
     should.exist(dbAPI);
 
-    it('delete all content (owner)', function (done) {
-        return dbAPI.deleteAllContent(testUtils.context.owner).then(function (result) {
+    it('export content (superAdministrator)', function (done) {
+        return dbAPI.exportContent(testUtils.context.superAdmin).then(function (result) {
+            should.exist(result.db);
+            result.db.should.be.instanceof(Array);
+            result.db.should.not.be.empty;
+            result.db[0].data.permissions.length.should.equal(3);
+            done();
+        }).catch(done);
+    });
+
+    it.skip('delete all content (superAdministrator)', function (done) {
+        return dbAPI.deleteAllContent(testUtils.context.superAdmin).then(function (result) {
             should.exist(result.db);
             result.db.should.be.instanceof(Array);
             result.db.should.be.empty;
         }).then(function () {
-            return ModelTag.Tag.findAll(testUtils.context.owner).then(function (results) {
-                should.exist(results);
-                results.length.should.equal(0);
-            });
-        }).then(function () {
-            return ModelPost.Post.findAll(testUtils.context.owner).then(function (results) {
+            return PostModel.findAll(testUtils.context.superAdmin).then(function (results) {
                 should.exist(results);
                 results.length.should.equal(0);
                 done();
@@ -35,33 +40,35 @@ describe('DB API', function () {
         }).catch(done);
     });
 
-    it('delete all content (admin)', function (done) {
-        return dbAPI.deleteAllContent(testUtils.context.admin).then(function (result) {
+    it.skip('import content (superAdministrator)', function (done) {
+        var ops = {
+            context : testUtils.context.superAdmin,
+            importfile : {
+                type : 'application/json',
+                path : testUtils.fixtures.getExportFixturePath('export-000'),
+                name : 'export-000.json'
+            }
+        };
+
+       return dbAPI.importContent(ops).then(function (result) {
             should.exist(result.db);
             result.db.should.be.instanceof(Array);
             result.db.should.be.empty;
-        }).then(function () {
-            return ModelTag.Tag.findAll(testUtils.context.admin).then(function (results) {
-                should.exist(results);
-                results.length.should.equal(0);
-            });
-        }).then(function () {
-            return ModelPost.Post.findAll(testUtils.context.admin).then(function (results) {
-                should.exist(results);
-                results.length.should.equal(0);
-                done();
-            });
+            return PostModel.findAll(ops.context);
+        }).then(function (results) {
+            results.length.should.eql(3, 'Wrong post result get!');
+            done();
         }).catch(done);
     });
 
-    it('delete all content is denied (editor & author)', function (done) {
-        return dbAPI.deleteAllContent(testUtils.context.editor).then(function () {
-            done(new Error('Delete all content is not denied for editor.'));
+    it('delete all content is denied (administrator & iColleger)', function (done) {
+        return dbAPI.deleteAllContent(testUtils.context.admin).then(function () {
+            done(new Error('Delete all content is not denied for administrator.'));
         }, function (error) {
             error.type.should.eql('NoPermissionError');
-            return dbAPI.deleteAllContent(testUtils.context.author);
+            return dbAPI.deleteAllContent(testUtils.context.icolleger1);
         }).then(function () {
-            done(new Error('Delete all content is not denied for author.'));
+            done(new Error('Delete all content is not denied for icolleger.'));
         }, function (error) {
             error.type.should.eql('NoPermissionError');
             return dbAPI.deleteAllContent();
@@ -73,14 +80,14 @@ describe('DB API', function () {
         }).catch(done);
     });
 
-    it('export content is denied (editor & author)', function (done) {
-        return dbAPI.exportContent(testUtils.context.editor).then(function () {
-            done(new Error('Export content is not denied for editor.'));
+    it('export content is denied (administrator & iColleger)', function (done) {
+        return dbAPI.exportContent(testUtils.context.admin).then(function () {
+            done(new Error('Export content is not denied for administrator.'));
         }, function (error) {
             error.type.should.eql('NoPermissionError');
-            return dbAPI.exportContent(testUtils.context.author);
+            return dbAPI.exportContent(testUtils.context.icolleger1);
         }).then(function () {
-            done(new Error('Export content is not denied for author.'));
+            done(new Error('Export content is not denied for icolleger.'));
         }, function (error) {
             error.type.should.eql('NoPermissionError');
             return dbAPI.exportContent();
@@ -92,22 +99,58 @@ describe('DB API', function () {
         }).catch(done);
     });
 
-    it('import content is denied (editor & author)', function (done) {
-        return dbAPI.importContent(testUtils.context.editor).then(function () {
-            done(new Error('Import content is not denied for editor.'));
-        }, function (error) {
-            error.type.should.eql('NoPermissionError');
-            return dbAPI.importContent(testUtils.context.author);
-        }).then(function () {
-            done(new Error('Import content is not denied for author.'));
-        }, function (error) {
-            error.type.should.eql('NoPermissionError');
-            return dbAPI.importContent();
-        }).then(function () {
+    it('import content is denied with because there is not including file', function (done) {
+        return dbAPI.importContent().then(function () {
             done(new Error('Import content is not denied without authentication.'));
-        }).catch(function (error) {
+        }, function (error) {
             error.type.should.eql('NoPermissionError');
+            error.message.should.eql('Please select a file to import.');
             done();
         }).catch(done);
     });
+
+    it('import content is denied with invalid file', function (done) {
+        var ops = {
+            importfile : {
+                type : 'markdown',
+                path : 'test/',
+                name : 'export-000.json'
+            }
+        };
+        return dbAPI.importContent(ops).then(function () {
+            done(new Error('Import content is not denied without authentication.'));
+        }, function (error) {
+            error.type.should.eql('UnsupportedMediaTypeError');
+            error.message.should.eql('Unsupported file. Please try any of the following formats: .jpg, .jpeg, .gif, .png, .svg, .svgz, .json, .zip');
+            done();
+        }).catch(done);
+    });
+
+    it('import content is denied (administrator & iColleger)', function (done) {
+
+        var ops = {
+            context : testUtils.context.admin,
+            importfile : {
+                type : 'application/json',
+                path : 'test/',
+                name : 'export-000.json'
+            }
+        };
+
+        return dbAPI.importContent(ops).then(function () {
+            done(new Error('import content is not denied for administrator.'));
+        }, function (error) {
+            error.type.should.eql('NoPermissionError');
+            error.message.should.eql('You do not have permission to import data (no rights).');
+            ops.context = testUtils.context.icolleger1;
+            return dbAPI.importContent(ops);
+        }).then(function () {
+            done(new Error('import content is not denied for icolleger.'));
+        }, function (error) {
+            error.type.should.eql('NoPermissionError');
+            error.message.should.eql('You do not have permission to import data (no rights).');
+            done();
+        }).catch(done);
+    });
+
 });
