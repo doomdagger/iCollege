@@ -19,8 +19,8 @@ var Promise         = require('bluebird'),
 
 // ## Helpers
 function prepareInclude(include) {
-    include = include || '';
-    include = _.intersection(include.split(','), allowedIncludes);
+    include = include || [];
+    include = _.intersection(include, allowedIncludes);
     return include;
 }
 
@@ -29,25 +29,22 @@ sendInviteEmail = function sendInviteEmail(user) {
 
     return Promise.join(
         users.read({_id: user.created_by}),
-        settings.read({key: 'title'}),
         settings.read({context: {internal: true}, key: 'dbHash'})
     ).then(function (values) {
         var invitedBy = values[0].users[0],
-            blogTitle = values[1].settings[0].value,
             expires = Date.now() + (14 * globalUtils.ONE_DAY_MS),
-            dbHash = values[2].settings[0].value;
+            dbHash = values[1].settings[0].value;
 
         emailData = {
-            blogName: blogTitle,
             invitedByName: invitedBy.name,
             invitedByEmail: invitedBy.email
         };
 
-        return dataProvider.User.generateResetToken(user.email, expires, dbHash);
+        return dataProvider.User.generateResetToken(user.name, expires, dbHash);
     }).then(function (resetToken) {
         var baseUrl = config.forceAdminSSL ? (config.urlSSL || config.url) : config.url;
 
-        emailData.resetLink = baseUrl.replace(/\/$/, '') + '/ghost/signup/' + globalUtils.encodeBase64URLsafe(resetToken) + '/';
+        emailData.resetLink = baseUrl.replace(/\/$/, '') + '/icollege/signup/' + globalUtils.encodeBase64URLsafe(resetToken) + '/';
 
         return mail.generateContent({data: emailData, template: 'invite-user'});
     }).then(function (emailContent) {
@@ -55,7 +52,7 @@ sendInviteEmail = function sendInviteEmail(user) {
             mail: [{
                 message: {
                     to: user.email,
-                    subject: emailData.invitedByName + ' has invited you to join ' + emailData.blogName,
+                    subject: emailData.invitedByName + ' has invited you to join iCollege',
                     html: emailContent.html,
                     text: emailContent.text
                 },
@@ -93,12 +90,15 @@ users = {
 
     /**
      * ### Read
-     * @param {{id, context}} options
+     * @param {{_id, context}} options
      * @returns {Promise(User)} User
      */
     read: function read(options) {
-        var attrs = ['id', 'slug', 'email', 'status'],
+        var attrs = ['_id', 'slug', 'email', 'status'],
             data = _.pick(options, attrs);
+
+        // ensure when _id not exist, try getting id
+        data._id = data._id || options.id;
 
         options = _.omit(options, attrs);
 
@@ -106,13 +106,13 @@ users = {
             options.include = prepareInclude(options.include);
         }
 
-        if (data.id === 'me' && options.context && options.context.user) {
-            data.id = options.context.user;
+        if (data._id === 'me' && options.context && options.context.user) {
+            data._id = options.context.user;
         }
 
         return dataProvider.User.findSingle(data, options).then(function (result) {
             if (result) {
-                return {users: [result.toJSON()]};
+                return {users: [result.jsonify()]};
             }
 
             return Promise.reject(new errors.NotFoundError('User not found.'));
