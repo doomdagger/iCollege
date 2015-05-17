@@ -2,16 +2,22 @@
 /*jshint expr:true*/
 var testUtils = require('../../utils'),
     should    = require('should'),
+    sinon       = require('sinon'),
+    Promise     = require('bluebird'),
 
     // Stuff we are testing
     dbAPI          = require('../../../server/api/db'),
-    PostModel      = require('../../../server/models/post').Post;
+    importer          = require('../../../server/data/importer'),
+    PostModel      = require('../../../server/models/post').Post,
+
+    sandbox     = sinon.sandbox.create();
 
 describe('DB API', function () {
     // Keep the DB clean
     before(testUtils.wait);
     before(testUtils.teardown);
     afterEach(testUtils.teardown);
+    beforeEach(testUtils.DataGenerator.resetCounter);
     beforeEach(testUtils.setup('users:roles', 'posts', 'perms:db', 'perms:init', 'settings'));
 
     should.exist(dbAPI);
@@ -26,7 +32,7 @@ describe('DB API', function () {
         }).catch(done);
     });
 
-    it.skip('delete all content (superAdministrator)', function (done) {
+    it('delete all content (superAdministrator)', function (done) {
         return dbAPI.deleteAllContent(testUtils.context.superAdmin).then(function (result) {
             should.exist(result.db);
             result.db.should.be.instanceof(Array);
@@ -40,15 +46,19 @@ describe('DB API', function () {
         }).catch(done);
     });
 
-    it.skip('import content (superAdministrator)', function (done) {
+    it('import content (superAdministrator)', function (done) {
         var ops = {
-            context : testUtils.context.superAdmin,
+            context : testUtils.context.superAdmin.context,
             importfile : {
                 type : 'application/json',
                 path : testUtils.fixtures.getExportFixturePath('export-000'),
                 name : 'export-000.json'
             }
         };
+
+        sandbox.stub(importer, 'cleanUp', function (result) {
+            return Promise.resolve(result);
+        });
 
        return dbAPI.importContent(ops).then(function (result) {
             should.exist(result.db);

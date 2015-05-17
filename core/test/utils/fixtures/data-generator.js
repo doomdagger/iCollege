@@ -54,32 +54,15 @@ DataGenerator.Content = {
         {
             "title": "Welcome to iCollege too",
             "slug": "welcome-to-icollege-too",
-            "author_id": "ffffffffffffffffffffffff",
-            "circle_id": "ffffffff321eafffffffffff",
             "source_category": "friends",
             "post_type": "forward",
-            "forward_info": {
-                "forward_message": "Hello iCollege Too",
-                "post_id": "ffffffffffffffffffffffff"
-            },
-            "status": "published",
-            "published_at": 1388318310783,
-            "published_by": "ffffffffffffffffffffffff"
+            "status": "published"
         },
         {
             "title": "Welcome to iCollege too too",
             "slug": "welcome-to-icollege-too-too",
-            "author_id": "fffffffff765ffffffffffff",
-            "circle_id": "ffffffff321eadbfffffffff",
             "source_category": "friends",
-            "post_type": "forward",
-            "forward_info": {
-                "forward_message": "Hello iCollege Too Too",
-                "post_id": "ffffffffffffffffffffffff"
-            },
-            "status": "published",
-            "published_at": 1388318310783,
-            "published_by": "ffffffffffffffffffffffff"
+            "status": "published"
         }
     ],
 
@@ -175,6 +158,24 @@ DataGenerator.forDB = (function () {
         });
     }
 
+    function createPost(overrides) {
+        return _.defaults(overrides, {
+            uuid: uuid.v4(),
+            author_id : mongoose.Types.ObjectId('000000000000000000000000'),
+            circle_id : mongoose.Types.ObjectId('000000000000000000000000'),
+            forward_info: {
+                forward_message: "Hello iCollege",
+                post_id: mongoose.Types.ObjectId('000000000000000000000000')
+            },
+            published_by: mongoose.Types.ObjectId('000000000000000000000000'),
+            published_at: new Date(),
+            created_by: mongoose.Types.ObjectId('000000000000000000000000'),
+            created_at: new Date(),
+            updated_by: mongoose.Types.ObjectId('000000000000000000000000'),
+            updated_at: new Date()
+        });
+    }
+
     function createGenericUser(uniqueInteger) {
         return createUser({
             name: 'Joe Bloggs',
@@ -194,8 +195,8 @@ DataGenerator.forDB = (function () {
     }
 
     posts = [
-        createBasic(DataGenerator.Content.posts[0]),
-        createBasic(DataGenerator.Content.posts[1])
+        createPost(DataGenerator.Content.posts[0]),
+        createPost(DataGenerator.Content.posts[1])
     ];
 
     roles_users = [
