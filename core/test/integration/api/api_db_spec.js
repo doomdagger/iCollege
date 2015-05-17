@@ -2,10 +2,15 @@
 /*jshint expr:true*/
 var testUtils = require('../../utils'),
     should    = require('should'),
+    sinon       = require('sinon'),
+    Promise     = require('bluebird'),
 
     // Stuff we are testing
     dbAPI          = require('../../../server/api/db'),
-    PostModel      = require('../../../server/models/post').Post;
+    importer          = require('../../../server/data/importer'),
+    PostModel      = require('../../../server/models/post').Post,
+
+    sandbox     = sinon.sandbox.create();
 
 describe('DB API', function () {
     // Keep the DB clean
@@ -50,6 +55,10 @@ describe('DB API', function () {
                 name : 'export-000.json'
             }
         };
+
+        sandbox.stub(importer, 'cleanUp', function (result) {
+            return Promise.resolve(result);
+        });
 
        return dbAPI.importContent(ops).then(function (result) {
             should.exist(result.db);
