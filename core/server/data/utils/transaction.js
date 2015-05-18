@@ -72,27 +72,24 @@ Transaction.prototype.rollback = function () {
         // Step 2 : rollback all of documents one by one
         promises = _.map(self.transArrary, function (transaction) {
 
-            if (_.isEmpty(transaction.doc)) {
+            // no matter which condition we should remove the document at first!
+            return utils.removeDocuments(transaction.collectionName, {_id : transaction._id}).then(function () {
 
                 // If doc have only one member,it must be "_id".
                 // In this situation,the member of transaction is insert,so we just remove it.
+                // Otherwise we should continue update document.
+                if (!_.isEmpty(transaction.doc)) {
 
-                return utils.removeDocuments(transaction.collectionName, {_id : transaction._id}).then(function () {
-                    // if removing the document is success,
-                    // remove the document from transaction array
+                    return utils.insertDocuments(transaction.collectionName, transaction.doc).then(function () {
+                        // if updating the document is success,
+                        // remove the document from transaction array
+                        removeElement(transaction);
+                    });
+                }
+                else {
                     removeElement(transaction);
-                });
-            }
-            else {
-
-                return utils.updateDocuments(transaction.collectionName, {_id : transaction._id}, transaction.doc).then(function () {
-                    // if updating the document is success,
-                    // remove the document from transaction array
-                    removeElement(transaction);
-                });
-
-            }
-
+                }
+            });
         });
     }
 

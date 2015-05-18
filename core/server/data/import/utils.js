@@ -67,7 +67,7 @@ utils = {
 
             //check if model exits _id document
             // We use findSingle function to find '_id' document as transaction doc backup.
-            ops.push(dataUtils.findDocuments(collectionName, {_id : mongoose.Types.ObjectId(data._id)}).then(function (result) {
+            ops.push(dataUtils.findOneDocument(collectionName, {_id : mongoose.Types.ObjectId(data._id)}).then(function (result) {
                 //if exits _id document,we should covert this document
                 if (!_.isEmpty(result)) {
                     //set up the specific options for edit function
@@ -91,7 +91,7 @@ utils = {
 
                     return model_instance.__save(internal).then(function (savedResult) {
                         //if save function is success,we should save the _id member into transaction
-                        transaction.backup(collectionName, savedResult._id);
+                        transaction.backup(collectionName, savedResult.__id);
                     }).catch(function () {
                         transaction.flag = true;
                     });

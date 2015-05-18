@@ -51,8 +51,8 @@ describe('DB API', function () {
             context : testUtils.context.superAdmin.context,
             importfile : {
                 type : 'application/json',
-                path : testUtils.fixtures.getExportFixturePath('export-000'),
-                name : 'export-000.json'
+                path : testUtils.fixtures.getExportFixturePath('export-001'),
+                name : 'export-001.json'
             }
         };
 
