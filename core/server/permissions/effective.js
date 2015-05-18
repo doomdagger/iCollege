@@ -4,13 +4,13 @@ var _ = require('lodash'),
     effective;
 
 effective = {
-    user: function (id) {
+    user: function (_id) {
         var seenPerms = {},
             allPerms = [],
             rolePerms,
             user;
 
-        return Models.User.findOne({_id: id}, 'permissions roles').populate('permissions').execAsync()
+        return Models.User.findOne({_id: _id}, 'permissions roles').populate('permissions').execAsync()
             .then(function (foundUser) {
                 user = foundUser.jsonify();
 

@@ -99,8 +99,6 @@ icollegeShelf = new Shelf(true, {
         var attrs =  icollegeShelf.Model.prototype.toJSON.apply(this, arguments);
         // remove redundant database version
         delete attrs.__v;
-        // cast _id to String type
-        attrs._id = attrs._id + '';
 
         return attrs;
     },
@@ -249,17 +247,17 @@ icollegeShelf = new Shelf(true, {
      * if the Model has sub document, make sure data use String array, not Object array
      * otherwise, it gonna be disastrous
      * @param {Object} data update criteria
-     * @param {Object} options (optional) put id in options
+     * @param {Object} options (optional) put _id in options
      * @return {Promise} Edited Model
      */
     edit: function (data, options) {
-        // you use id or mistakenly use _id, we both accept!
-        var id = options.id || options._id;
+        // you use _id or mistakenly use id, we both accept!
+        var _id = options._id || options.id;
         // it will filter out id, we don't allow you change Id using edit method
         data = this.filterData(data);
         options = this.filterOptions(options, 'edit');
 
-        return icollegeShelf.Model.findSingle.call(this, {_id: id}, options).then(function (object) {
+        return icollegeShelf.Model.findSingle.call(this, {_id: _id}, options).then(function (object) {
             if (object) {
                 return object.set(data).__save(options);
             }
@@ -292,10 +290,10 @@ icollegeShelf = new Shelf(true, {
      * @return {Promise} Empty Model
      */
     destroy: function (options) {
-        // you use id or mistakenly use _id, we both accept!
-        var id = options.id || options._id;
+        // you use _id or mistakenly use id, we both accept!
+        var _id = options._id || options.id;
         // options = this.filterOptions(options, 'destroy');
-        return this.removeAsync({_id: id}).then(function (res) {
+        return this.removeAsync({_id: _id}).then(function (res) {
             return res.result;
         });
     },
@@ -401,12 +399,12 @@ icollegeShelf = new Shelf(true, {
     // 'this' is Model Instance Object
 
     saving: function (next, options) {
-        var id = this.contextUser(options);
+        var _id = this.contextUser(options);
 
         if (!this.get('created_by')) {
-            this.set('created_by', id);
+            this.set('created_by', _id);
         }
-        this.set('updated_by', id);
+        this.set('updated_by', _id);
         this.set('updated_at', new Date());
 
         next(options);

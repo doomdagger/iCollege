@@ -35,7 +35,7 @@ Transaction = function Transaction() {
  * if use after save success, you should use by it : 'backup(collectionName, _id)'
  * other you should save the document for update : 'backup(collectionName, _id, doc)'
  * @param collectionName (String) – the collection name documents belong to.
- * @param _id (ObjectId) - the id of document that we save.
+ * @param _id (ObjectId) - the _id of document that we save.
  * @param [doc] (Object) - the document we change before update..
  */
 Transaction.prototype.backup = function (collectionName, _id, doc) {

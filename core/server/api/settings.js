@@ -319,7 +319,7 @@ settings = {
      * ### Edit
      * Update properties of a post
      * @param {{settings: }} object Setting or a single string name
-     * @param {{id (required), include,...}} options (optional) or a single string value
+     * @param {{_id (required), include,...}} options (optional) or a single string value
      * @return {Promise(Setting)} Edited Setting
      */
     edit: function edit(object, options) {

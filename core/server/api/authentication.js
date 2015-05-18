@@ -138,7 +138,7 @@ authentication = {
                 return dataProvider.User.resetPassword(resetToken, newPassword, ne2Password, dbHash);
             }).then(function (user) {
                 // Setting the slug to '' has the model regenerate the slug from the user's name
-                return dataProvider.User.edit({name: name, email: email, slug: ''}, {id: user.id});
+                return dataProvider.User.edit({name: name, email: email, slug: ''}, {_id: user._id});
             }).then(function () {
                 return Promise.resolve({invitation: [{message: 'Invitation accepted.'}]});
             }).catch(function (error) {
@@ -211,10 +211,10 @@ authentication = {
             return dataProvider.User.findSingle({role: 'SuperAdministrator', status: 'all'});
         }).then(function (ownerUser) {
             if (ownerUser) {
-                return dataProvider.User.setup(setupUser, _.extend(internal, {id: ownerUser.id}));
+                return dataProvider.User.setup(setupUser, _.extend(internal, {_id: ownerUser._id}));
             } else {
                 return dataProvider.Role.findSingle({name: 'SuperAdministrator'}).then(function (ownerRole) {
-                    setupUser.roles = [ownerRole.id];
+                    setupUser.roles = [ownerRole._id];
                     return dataProvider.User.add(setupUser, internal);
                 });
             }

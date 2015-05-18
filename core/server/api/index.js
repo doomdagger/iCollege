@@ -107,13 +107,13 @@ locationHeader = function (req, result) {
     if (req.method === 'POST') {
         if (result.hasOwnProperty('posts')) {
             newObject = result.posts[0];
-            location = apiRoot + '/posts/' + newObject.id + '/?status=' + newObject.status;
+            location = apiRoot + '/posts/' + newObject._id + '/?status=' + newObject.status;
         } else if (result.hasOwnProperty('notifications')) {
             newObject = result.notifications[0];
-            location = apiRoot + '/notifications/' + newObject.id;
+            location = apiRoot + '/notifications/' + newObject._id;
         } else if (result.hasOwnProperty('users')) {
             newObject = result.users[0];
-            location = apiRoot + '/users/' + newObject.id;
+            location = apiRoot + '/users/' + newObject._id;
         }
     }
 
@@ -232,7 +232,7 @@ http = function (apiMethod) {
             response,
             options = _.extend({}, req.files, req.query, req.params, {
                 context: {
-                    user: (req.user && req.user.id) ? req.user.id : null
+                    user: (req.user && req.user._id) ? req.user._id : null
                 }
             });
 
@@ -290,7 +290,7 @@ module.exports = {
  * For RESTful resources `object` is always a model object of the correct type in the form `name: [{object}]`
  * `options` is an object with several named properties, the possibilities are listed for each method.
  *
- * Read / Edit / Destroy routes expect some sort of identifier (id / slug / key) for which object they are handling
+ * Read / Edit / Destroy routes expect some sort of identifier (_id / slug / key) for which object they are handling
  *
  * All API methods take a context object as one of the options:
  *

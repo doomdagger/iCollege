@@ -76,9 +76,9 @@ addRolesPermissionsForRole = function (roleName, options) {
                 _.each(permissions, function (permission) {
                     var objectPermissions = fixturesForRole[permission.object_type];
                     if (objectPermissions === 'all') {
-                        role.permissions.push(permission.id);
+                        role.permissions.push(permission._id);
                     } else if (_.isArray(objectPermissions) && _.contains(objectPermissions, permission.action_type)) {
-                        role.permissions.push(permission.id);
+                        role.permissions.push(permission._id);
                     }
                 });
             }

@@ -48,12 +48,12 @@ models = {
 
         return self.Post.findAll().then(function (posts) {
             return Promise.all(_.map(posts, function (post) {
-                return self.Post.destroy({id: post.id});
+                return self.Post.destroy({_id: post._id});
             }));
         }).then(function () {
             return self.Message.findAll().then(function (messages) {
                 return Promise.all(_.map(messages, function (message) {
-                    return self.Message.destroy({id: message.id});
+                    return self.Message.destroy({_id: message._id});
                 }));
             });
         });

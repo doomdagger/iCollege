@@ -25,7 +25,7 @@ Shelf = function Shelf(overwrite, methods, statics, functions) {
     // pay attention to some specific part
     this.options = {
         autoIndex: true,
-        id: true,
+        id: false,
         toJSON: {
             getters: true,
             virtuals: false
@@ -115,6 +115,15 @@ Shelf.prototype.schema = function (collectionName, methods, statics, functions) 
     else {
         errors.logInfo(collectionName, "did not define initialize method");
     }
+
+    // cast _id into String at Schema Configuration Level
+    defaultSchema.path('_id').get(function (_id) {
+        return _id + '';
+    });
+    // save ObjectId Type for convenience at Schema Configuration Level
+    defaultSchema.virtual('__id').get(function () {
+        return new mongoose.Types.ObjectId(this._id);
+    });
 
     return defaultSchema;
 };

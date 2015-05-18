@@ -48,7 +48,7 @@ passport.use(new BearerStrategy(
                         if (model) {
                             var user = model.toJSON(),
                                 info = {scope: '*'};
-                            return done(null, {id: user.id}, info);
+                            return done(null, {_id: user._id}, info);
                         }
                         return done(null, false);
                     });

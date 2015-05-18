@@ -33,8 +33,8 @@ oauth = {
                             accessExpires = Date.now() + utils.ONE_HOUR_MS,
                             refreshExpires = Date.now() + utils.ONE_DAY_MS;
 
-                        return models.Accesstoken.createAsync({token: accessToken, user_id: user.id, client_id: client.id, expires: accessExpires}).then(function () {
-                            return models.Refreshtoken.createAsync({token: refreshToken, user_id: user.id, client_id: client.id, expires: refreshExpires});
+                        return models.Accesstoken.createAsync({token: accessToken, user_id: user._id, client_id: client._id, expires: accessExpires}).then(function () {
+                            return models.Refreshtoken.createAsync({token: refreshToken, user_id: user._id, client_id: client._id, expires: refreshExpires});
                         }).then(function () {
                             resetSpamCounter(username);
                             return done(null, accessToken, refreshToken, {expires_in: utils.ONE_HOUR_S});
@@ -69,7 +69,7 @@ oauth = {
                                 client_id: token.client_id,
                                 expires: accessExpires
                             }).then(function () {
-                                return models.Refreshtoken.edit({expires: refreshExpires}, {id: token.id});
+                                return models.Refreshtoken.edit({expires: refreshExpires}, {_id: token._id});
                             }).then(function () {
                                 return done(null, accessToken, {expires_in: utils.ONE_HOUR_S});
                             }).catch(function (error) {

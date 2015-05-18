@@ -97,9 +97,6 @@ users = {
         var attrs = ['_id', 'slug', 'email', 'status'],
             data = _.pick(options, attrs);
 
-        // ensure when _id not exist, try getting id
-        data._id = data._id || options.id;
-
         options = _.omit(options, attrs);
 
         if (options.include) {
@@ -122,13 +119,13 @@ users = {
     /**
      * ### Edit
      * @param {User} object the user details to edit
-     * @param {{id, context}} options
+     * @param {{_id, context}} options
      * @returns {Promise(User)}
      */
     edit: function edit(object, options) {
         var editOperation;
-        if (options.id === 'me' && options.context && options.context.user) {
-            options.id = options.context.user;
+        if (options._id === 'me' && options.context && options.context.user) {
+            options._id = options.context.user;
         }
 
         if (options.include) {
@@ -149,22 +146,22 @@ users = {
             };
 
             // Check permissions
-            return canThis(options.context).edit.user(options.id).then(function () {
+            return canThis(options.context).edit.user(options._id).then(function () {
                 if (data.users[0].roles && data.users[0].roles[0]) {
                     var role = data.users[0].roles[0],
-                        roleId = parseInt(role.id || role, 10);
+                        roleId = parseInt(role._id || role, 10);
 
                     return dataProvider.User.findSingle(
                         {_id: options.context.user, status: 'all'}, {include: ['roles']}
                     ).then(function (contextUser) {
-                        var contextRoleId = contextUser.related('roles').toJSON()[0].id;
+                        var contextRoleId = contextUser.related('roles').toJSON()[0]._id;
 
                         if (roleId !== contextRoleId &&
-                                parseInt(options.id, 10) === parseInt(options.context.user, 10)) {
+                                parseInt(options._id, 10) === parseInt(options.context.user, 10)) {
                             return Promise.reject(new errors.NoPermissionError('You cannot change your own role.'));
                         } else if (roleId !== contextRoleId) {
                             return dataProvider.User.findOne({role: 'SuperAdministrator'}).then(function (result) {
-                                if (parseInt(result.id, 10) !== parseInt(options.id, 10)) {
+                                if (parseInt(result._id, 10) !== parseInt(options._id, 10)) {
                                     return canThis(options.context).assign.role(role).then(function () {
                                         return editOperation();
                                     });
@@ -232,7 +229,7 @@ users = {
                     // If status was invited-pending and sending the invitation succeeded, set status to invited.
                     if (user.status === 'invited-pending') {
                         return dataProvider.User.edit(
-                            {status: 'invited'}, _.extend({}, options, {id: user.id})
+                            {status: 'invited'}, _.extend({}, options, {_id: user._id})
                         ).then(function (editedUser) {
                             user = editedUser.toJSON();
                         });
@@ -245,8 +242,8 @@ users = {
                         errors.logWarn(error.message);
 
                         // If sending the invitation failed, set status to invited-pending
-                        return dataProvider.User.edit({status: 'invited-pending'}, {id: user.id}).then(function (user) {
-                            return dataProvider.User.findSingle({_id: user.id, status: 'all'}, options).then(function (user) {
+                        return dataProvider.User.edit({status: 'invited-pending'}, {_id: user._id}).then(function (user) {
+                            return dataProvider.User.findSingle({_id: user._id, status: 'all'}, options).then(function (user) {
                                 return {users: [user]};
                             });
                         });
@@ -258,7 +255,7 @@ users = {
             // Check permissions
             return canThis(options.context).add.user(object).then(function () {
                 if (newUser.roles && newUser.roles[0]) {
-                    var roleId = parseInt(newUser.roles[0].id || newUser.roles[0], 10);
+                    var roleId = parseInt(newUser.roles[0]._id || newUser.roles[0], 10);
 
                     // Make sure user is allowed to add a user with this role
                     return dataProvider.Role.findSingle({_id: roleId}).then(function (role) {
@@ -281,11 +278,11 @@ users = {
 
     /**
      * ### Destroy
-     * @param {{id, context}} options
+     * @param {{_id, context}} options
      * @returns {Promise(User)}
      */
     destroy: function destroy(options) {
-        return canThis(options.context).destroy.user(options.id).then(function () {
+        return canThis(options.context).destroy.user(options._id).then(function () {
             return users.read(_.merge(options, {status: 'all'})).then(function (result) {
                 return dataProvider.Base.transaction(function (t) {
                     options.transacting = t;

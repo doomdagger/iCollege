@@ -82,7 +82,7 @@ CanThisResult.prototype.buildObjectTypeHandlers = function (objTypes, actType, c
                 modelId = modelOrId;
             } else if (modelOrId) {
                 // It's a model, get the id
-                modelId = modelOrId.id || (modelOrId._id + '');
+                modelId = modelOrId._id;
             }
             // Wait for the user loading to finish
             return permissionLoad.then(function (loadedPermissions) {

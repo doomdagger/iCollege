@@ -51,8 +51,8 @@ Users = icollegeShelf.schema('users', {
         } else if (options.context && options.context.internal) {
             return config.adminId;
             // This is the user object, so try using this user's id
-        } else if (this.get('id')) {
-            return this.get('id');
+        } else if (this._id) {
+            return this._id;
         } else {
             errors.logAndThrowError(new Error('missing context'));
         }
@@ -82,8 +82,8 @@ Users = icollegeShelf.schema('users', {
         // these are the only options that can be passed to Bookshelf / Knex.
             validOptions = {
                 findSingle: ['status'],
-                setup: ['id', '_id'],
-                edit: ['id', '_id'],
+                setup: ['_id', 'id'],
+                edit: ['_id', 'id'],
                 findPage: ['page', 'limit', 'status', 'where', 'whereIn', 'role']
             };
 
@@ -205,7 +205,7 @@ Users = icollegeShelf.schema('users', {
                 function fetchCollection() {
                     if (roleInstance) {
                         userCollection
-                            .elemMatch('roles', {$eq: roleInstance.id});
+                            .elemMatch('roles', {$eq: roleInstance._id});
                     }
 
                     if (options.withRelated) {
@@ -233,7 +233,7 @@ Users = icollegeShelf.schema('users', {
                     }
 
                     if (roleInstance) {
-                        qb.elemMatch('roles', {$eq: roleInstance.id});
+                        qb.elemMatch('roles', {$eq: roleInstance._id});
                     }
 
                     return qb.count();
@@ -322,7 +322,7 @@ Users = icollegeShelf.schema('users', {
                 // Support finding by role
                 if (fetchedRole) {
                     options.withRelated.push('roles');
-                    query.elemMatch('roles', {$eq: fetchedRole.id});
+                    query.elemMatch('roles', {$eq: fetchedRole._id});
                 }
 
                 if (status === 'active') {
@@ -392,7 +392,7 @@ Users = icollegeShelf.schema('users', {
 
         function getICollegerRole() {
             return mongoose.model('Role').findSingle({name: 'iColleger'}).then(function (icollegerRole) {
-                return [icollegerRole.get('id')];
+                return [icollegerRole._id];
             });
         }
 
@@ -416,7 +416,7 @@ Users = icollegeShelf.schema('users', {
             // Assign the userData to our created user so we can pass it back
             userData = addedUser;
             // find and return the added user
-            return self.findSingle({_id: userData.id, status: 'all'}, options);
+            return self.findSingle({_id: userData._id, status: 'all'}, options);
         });
     },
 

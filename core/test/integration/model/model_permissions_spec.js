@@ -73,9 +73,9 @@ describe('Permission Model', function () {
 
         PermissionModel.findSingle(firstPermission).then(function (foundPermission) {
             should.exist(foundPermission);
-            foundPermission.id.should.equal(firstPermission._id);
+            foundPermission._id.should.equal(firstPermission._id);
 
-            return PermissionModel.destroy({id: foundPermission.id});
+            return PermissionModel.destroy({_id: foundPermission._id});
         }).then(function (response) {
             response.should.eql({ ok: 1, n: 1 });
             return PermissionModel.findSingle(firstPermission);

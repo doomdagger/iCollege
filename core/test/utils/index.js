@@ -85,7 +85,7 @@ fixtures = {
         user = DataGenerator.forDB.createUser(DataGenerator.Content.users[0]);
 
         return DataUtils.updateDocuments('users',
-            {'id': mongoose.Types.ObjectId('000000000000000000000000')},
+            {'_id': mongoose.Types.ObjectId('000000000000000000000000')},
             {$set: user});
     },
 

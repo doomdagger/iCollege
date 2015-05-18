@@ -76,7 +76,7 @@ describe('Role Model', function () {
 
         RoleModel.findSingle(firstRole).then(function (foundRole) {
             should.exist(foundRole);
-            foundRole.id.should.equal(firstRole._id);
+            foundRole._id.should.equal(firstRole._id);
 
             return RoleModel.destroy(firstRole);
         }).then(function (response) {

@@ -131,7 +131,7 @@ describe('Settings Model', function () {
                 should.exist(results);
                 results.key.should.equal(settingToDestroy.key);
 
-                return SettingsModel.destroy({id: results.id});
+                return SettingsModel.destroy({_id: results._id});
             }).then(function (response) {
                 response.should.eql({ ok: 1, n: 1 });
                 return SettingsModel.findSingle(settingToDestroy);

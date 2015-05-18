@@ -29,7 +29,7 @@ describe('Users API', function () {
         var userData = testUtils.DataGenerator.forModel.users[0];
 
         ModelUser.User.check({name: userData.name, password: userData.password}).then(function (user) {
-            return UserAPI.read({_id: user.id});
+            return UserAPI.read({_id: user._id});
         }).then(function (response) {
             response.users[0].created_at.should.be.an.instanceof(Date);
             response.users[0].updated_at.should.be.an.instanceof(Date);

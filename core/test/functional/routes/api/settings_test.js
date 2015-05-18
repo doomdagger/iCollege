@@ -71,7 +71,7 @@ describe('Settings API', function () {
                 jsonResponse.should.exist;
                 jsonResponse.settings.should.exist;
 
-                testUtils.API.checkResponseValue(jsonResponse.settings[0], ['id', 'uuid', 'key', 'value', 'type', 'created_at', 'created_by', 'updated_at', 'updated_by']);
+                testUtils.API.checkResponseValue(jsonResponse.settings[0], ['_id', 'uuid', 'key', 'value', 'type', 'created_at', 'created_by', 'updated_at', 'updated_by']);
                 jsonResponse.settings[0].key.should.eql('title');
                 testUtils.API.isISO8601(jsonResponse.settings[0].created_at).should.be.true;
                 done();

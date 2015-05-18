@@ -62,7 +62,7 @@ function urlPathForPost(post, permalinks) {
             day:    function () { return moment(post.published_at).format('DD'); },
             author: function () { return post.author.slug; },
             slug:   function () { return post.slug; },
-            id:     function () { return post.id; }
+            _id:     function () { return post._id; }
         };
 
     if (post.page) {

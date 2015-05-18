@@ -128,7 +128,7 @@ describe('User API', function () {
                 });
         });
 
-        it('can retrieve a user by id', function (done) {
+        it('can retrieve a user by _id', function (done) {
             request.get(testUtils.API.getApiQuery('users/1/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
@@ -267,7 +267,7 @@ describe('User API', function () {
                 });
         });
 
-        it('can\'t retrieve non existent user by id', function (done) {
+        it('can\'t retrieve non existent user by _id', function (done) {
             request.get(testUtils.API.getApiQuery('users/99/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)

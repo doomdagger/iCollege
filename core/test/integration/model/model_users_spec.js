@@ -189,7 +189,7 @@ describe('User Model', function run() {
             var userData = testUtils.DataGenerator.forModel.users[0];
 
             UserModel.check({name: userData.name, password: userData.password}).then(function (user) {
-                return UserModel.findSingle({_id: user.id});
+                return UserModel.findSingle({_id: user._id});
             }).then(function (user) {
                 var lastLogin,
                     createdAt,
@@ -309,10 +309,10 @@ describe('User Model', function run() {
                 var user;
                 should.exist(results);
                 user = results;
-                user.id.should.equal(firstUser);
+                user._id.should.equal(firstUser);
                 should.equal(user.website, 'http://blog.icollege.com');
 
-                return UserModel.edit({website: 'http://some.newurl.com'}, {id: firstUser});
+                return UserModel.edit({website: 'http://some.newurl.com'}, {_id: firstUser});
             }).then(function (edited) {
                 should.exist(edited);
                 edited.website.should.equal('http://some.newurl.com');
@@ -329,7 +329,7 @@ describe('User Model', function run() {
             });
 
             RoleModel.findSingle().then(function (role) {
-                userData.roles = [role.get('id')];
+                userData.roles = [role._id];
 
                 return UserModel.add(userData, _.extend({}, context, {withRelated: ['roles']}));
             }).then(function (createdUser) {
@@ -351,7 +351,7 @@ describe('User Model', function run() {
                 var user;
                 should.exist(results);
                 user = results;
-                user.id.should.equal(firstUser._id);
+                user._id.should.equal(firstUser._id);
 
                 // Destroy the user
                 return UserModel.destroy(firstUser);
