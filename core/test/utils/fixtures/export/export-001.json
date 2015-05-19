@@ -10,26 +10,26 @@
                 "uuid": "461e46e9-0cd8-4c89-80ee-568b902b2d3a",
                 "slug": "welcome-to-icollege",
                 "title": "Welcome to iCollege",
-                "author_id": "ffffffffffffffffffffffff",
+                "author_id": "000000000000000000000000",
                 "circle_id": "ffffffff321eafffffffffff",
                 "source_category": "friends",
                 "post_type": "forward",
                 "forward_info": {
                     "forward_message": "Hello iCollege",
-                    "post_id": "ffffffffffffffffffffffff"
+                    "post_id": "000000000000000000000000"
                 },
                 "status": "published",
                 "published_at": 1388318310783,
-                "published_by": "ffffffffffffffffffffffff",
+                "published_by": "000000000000000000000000",
                 "created_at": 1388318310782,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310782,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
 
             }
         ],
         "users": [{
-          "_id": "000000002222200000000000",
+          "_id": "000000000000000000000000",
           "name": "Lite Bloggs",
           "nickname": "Little Joe",
           "slug": "lite-bloggs",
@@ -87,9 +87,9 @@
                 ],
                 "description": "Super Administrator who is in charge of everything",
                 "created_at": 1388318310794,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310794,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2e3",
@@ -147,9 +147,9 @@
                 "object_type": "db",
                 "action_type": "exportContent",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2cd",
@@ -158,9 +158,9 @@
                 "object_type": "db",
                 "action_type": "deleteAllContent",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2ce",
@@ -169,9 +169,9 @@
                 "object_type": "mail",
                 "action_type": "send",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2cf",
@@ -180,9 +180,9 @@
                 "object_type": "notification",
                 "action_type": "browse",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2d0",
@@ -191,9 +191,9 @@
                 "object_type": "notification",
                 "action_type": "add",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2d1",
@@ -202,9 +202,9 @@
                 "object_type": "notification",
                 "action_type": "destroy",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2d3",
@@ -213,9 +213,9 @@
                 "object_type": "post",
                 "action_type": "read",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2d2",
@@ -224,9 +224,9 @@
                 "object_type": "post",
                 "action_type": "browse",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2d4",
@@ -235,9 +235,9 @@
                 "object_type": "post",
                 "action_type": "edit",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2d5",
@@ -246,9 +246,9 @@
                 "object_type": "post",
                 "action_type": "add",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2d6",
@@ -257,9 +257,9 @@
                 "object_type": "post",
                 "action_type": "destroy",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2d7",
@@ -268,9 +268,9 @@
                 "object_type": "setting",
                 "action_type": "browse",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2d8",
@@ -279,9 +279,9 @@
                 "object_type": "setting",
                 "action_type": "read",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2d9",
@@ -290,9 +290,9 @@
                 "object_type": "setting",
                 "action_type": "edit",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2da",
@@ -301,9 +301,9 @@
                 "object_type": "slug",
                 "action_type": "generate",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2db",
@@ -312,9 +312,9 @@
                 "object_type": "user",
                 "action_type": "browse",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2dc",
@@ -323,9 +323,9 @@
                 "object_type": "user",
                 "action_type": "read",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2dd",
@@ -334,9 +334,9 @@
                 "object_type": "user",
                 "action_type": "edit",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2de",
@@ -345,9 +345,9 @@
                 "object_type": "user",
                 "action_type": "add",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2df",
@@ -356,9 +356,9 @@
                 "object_type": "user",
                 "action_type": "destroy",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2e0",
@@ -367,9 +367,9 @@
                 "object_type": "role",
                 "action_type": "assign",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             },
             {
                 "_id": "554818489e24f5c00b93e2e1",
@@ -378,9 +378,9 @@
                 "object_type": "role",
                 "action_type": "browse",
                 "created_at": 1388318310814,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310814,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             }
         ],
         "settings": [
@@ -391,9 +391,9 @@
                 "value": "001",
                 "type": "core",
                 "created_at": 1388318310829,
-                "created_by": "ffffffffffffffffffffffff",
+                "created_by": "000000000000000000000000",
                 "updated_at": 1388318310829,
-                "updated_by": "ffffffffffffffffffffffff"
+                "updated_by": "000000000000000000000000"
             }
         ]
     }

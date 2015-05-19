@@ -132,7 +132,7 @@ function safeDropCollections () {
  * ### Inserts a single document
  * Inserts a single document or a an array of documents into collection.
  * @param collectionName (string) – the collection name we wish to insert documents.
- * @param docs (array) – the content of documents
+ * @param docs (Object) – the content of documents
  * @param [options] (object) – optional options for insert command
  * @returns {Promise}
  */
@@ -220,6 +220,30 @@ function findDocuments (collectionName, query, options) {
 }
 
 /**
+ * ### Find One Document
+ * Fetches the first document that matches the query.
+ * @param collectionName (string) – the collection name we wish to find documents.
+ * @param [query] (object) – query object to locate the object to modify
+ * @param [options]  (object) – additional options during update.
+ * @returns {Promise}
+ */
+function findOneDocument (collectionName, query, options) {
+    var collection = config.database.db.collection(collectionName);
+    query = query || {};
+    options = options || {};
+
+    return new Promise(function (resolve, reject) {
+        collection.findOne(query, options, function(err, result) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(result);
+        });
+    });
+
+}
+
+/**
  * ### Safe drop collections content
  * safe drop all of exist collections' content!
  * @returns {Promise|*}
@@ -245,5 +269,6 @@ module.exports = {
     updateDocuments: updateDocuments,
     removeDocuments: removeDocuments,
     findDocuments: findDocuments,
+    findOneDocument: findOneDocument,
     safeDropCollectionsContent : safeDropCollectionsContent
 };

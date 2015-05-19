@@ -7,7 +7,6 @@ var testUtils   = require('../utils/index'),
     assert      = require('assert'),
     _           = require('lodash'),
     rewire      = require('rewire'),
-    mongoose   = require('mongoose'),
 
     // Stuff we are testing
     config          = rewire('../../server/config'),
@@ -19,35 +18,7 @@ var testUtils   = require('../utils/index'),
     utils           = require('../../server/data/utils'),
 
     db,
-    sandbox = sinon.sandbox.create(),
-    userData = {
-        _id: mongoose.Types.ObjectId('000000002222200000000000'),
-        name: 'Lite Bloggs',
-        nickname: 'Little Joe',
-        slug: 'lite-bloggs',
-        email: 'jbloggs@example.com',
-        password: '$2a$10$n1ufCdsbGYgH5ay0miO/a.yNMkqncVOl4FbhNFHe7nsPqAqoWYEfu',
-        uuid: 'c51a9ee0-dfb3-4d78-9ff1-771bee098fb4',
-        apps: [],
-        permissions: [],
-        roles: [ '222222222222222222222222' ],
-        friends: [],
-        circles: [],
-        groups: [],
-        updated_at: 1388318310794,
-        created_at: 1388318310794,
-        settings: { language: 'zh_CN', profile_visibility: 'friends_only' },
-        login_status: 'offline',
-        status: 'inactive',
-        tags: [],
-        location: [],
-        website: 'http://blog.dnlyc.com',
-        birth_date: 1388318310794,
-        gender: 'unknown',
-        signature: 'I like iCollege',
-        bio: 'I like iCollege',
-        credit: 0
-    };
+    sandbox = sinon.sandbox.create();
 
 //Tests in here do an import for each test
 describe('Import', function () {
@@ -91,6 +62,8 @@ describe('Import', function () {
         before(function ()  {
             db = config.database.db;
         });
+
+        beforeEach(testUtils.DataGenerator.resetCounter);
         beforeEach(testUtils.setup('roles', 'owner', 'settings'));
 
         should.exist(DataImporter);
@@ -143,10 +116,8 @@ describe('Import', function () {
                 exportData.data.posts[0].created_at = timestamp;
                 exportData.data.posts[0].published_at = timestamp;
 
-                return utils.insertDocuments('users', userData);
-
-            }).then(function () {
                 return importer.doImport(exportData);
+
             }).then(function () {
                 // Grab the data from tables
                 return Promise.all([
@@ -164,7 +135,7 @@ describe('Import', function () {
                     settings = importedData[2];
 
                 // we always have 1 user, the default user we added
-                users.length.should.equal(2, 'There should be two users');
+                users.length.should.equal(1, 'There should be only one user');
 
                 // import no longer requires all data to be dropped, and adds posts
                 posts.length.should.equal(exportData.data.posts.length, 'Wrong number of posts');
@@ -206,8 +177,8 @@ describe('Import', function () {
                         var documents = _.filter(importedData, function (data) {
                             return !_.isEmpty(data);
                         });
-                        documents.length.should.equal(3, 'Did not get data successfully');
 
+                        documents.length.should.equal(3, 'Did not get data successfully');
                         done();
                     });
 
@@ -216,30 +187,24 @@ describe('Import', function () {
             }).catch(done);
         });
 
-        it('import invalid post data from 002 and rollback database and recover user data', function (done) {
-            var exportData, userBeforeResult;
+        it('import invalid post data from 001 and rollback database and recover user data', function (done) {
+            var userBeforeResult;
 
-
-            utils.insertDocuments('users', userData).then(function () {
-                //find document before import data file
-                return utils.findDocuments('users');
-            }).then(function (beforeResult) {
+            return utils.findDocuments('users').then(function (beforeResult) {
                 userBeforeResult = beforeResult;
-                return testUtils.fixtures.loadExportFixture('export-002');
+                return testUtils.fixtures.loadExportFixture('export-001');
             }).then(function (exported) {
 
-                exportData = exported;
-
                 // change source_category to invalid enum
-                exportData.data.posts[0].source_category = 'test invalid value';
+                exported.data.posts[0].source_category = 'test invalid value';
 
-                return importer.doImport(exportData);
+                return importer.doImport(exported);
 
             }).then(function () {
                 //find document before after roll back
                 return utils.findDocuments('users');
 
-            }).then (function (afterResult) {
+            }).then(function (afterResult) {
 
                 userBeforeResult.should.eql(afterResult);
                 done();
