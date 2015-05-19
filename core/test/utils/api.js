@@ -17,7 +17,8 @@ var url             = require('url'),
         user: ['_id',  'updated_by', 'created_by', 'slug', 'name', 'nickname', 'email', 'uuid', 'apps', 'permissions',
             'roles', 'friends', 'circles', 'groups', 'updated_at', 'created_at', 'settings', 'login_status', 'status',
             'tags', 'location', 'website', 'birth_date', 'gender', 'signature', 'bio', 'credit'
-        ]
+        ],
+        users: ['users', 'meta']
     };
 
 function getApiQuery(route) {

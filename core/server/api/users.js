@@ -1,27 +1,32 @@
 // # Users API
 // RESTful API for the User resource
-var Promise         = require('bluebird'),
-    _               = require('lodash'),
-    dataProvider    = require('../models'),
-    settings        = require('./settings'),
-    canThis         = require('../permissions').canThis,
-    errors          = require('../errors'),
-    utils           = require('./utils'),
-    globalUtils     = require('../utils'),
-    config          = require('../config'),
-    mail            = require('./mail'),
+var Promise = require('bluebird'),
+    _ = require('lodash'),
+    dataProvider = require('../models'),
+    settings = require('./settings'),
+    canThis = require('../permissions').canThis,
+    errors = require('../errors'),
+    utils = require('./utils'),
+    globalUtils = require('../utils'),
+    config = require('../config'),
+    mail = require('./mail'),
 
-    docName         = 'users',
-    // TODO: implement created_by, updated_by
-    allowedIncludes = ['permissions', 'roles', 'roles.permissions'],
+    docName = 'users',
+// TODO: implement created_by, updated_by
+    allowedRelates = ['permissions', 'roles', 'roles.permissions'],
     users,
     sendInviteEmail;
 
 // ## Helpers
-function prepareInclude(include) {
-    include = include || [];
-    include = _.intersection(include, allowedIncludes);
-    return include;
+function prepareRelates(relate) {
+    if (_.isString(relate)) {
+        relate = _.map(relate.split(','), function (elem) {
+            return elem.trim();
+        });
+    }
+    relate = relate || [];
+    relate = _.intersection(relate, allowedRelates);
+    return relate;
 }
 
 sendInviteEmail = function sendInviteEmail(user) {
@@ -31,37 +36,37 @@ sendInviteEmail = function sendInviteEmail(user) {
         users.read({_id: user.created_by}),
         settings.read({context: {internal: true}, key: 'dbHash'})
     ).then(function (values) {
-        var invitedBy = values[0].users[0],
-            expires = Date.now() + (14 * globalUtils.ONE_DAY_MS),
-            dbHash = values[1].settings[0].value;
+            var invitedBy = values[0].users[0],
+                expires = Date.now() + (14 * globalUtils.ONE_DAY_MS),
+                dbHash = values[1].settings[0].value;
 
-        emailData = {
-            invitedByName: invitedBy.name,
-            invitedByEmail: invitedBy.email
-        };
+            emailData = {
+                invitedByName: invitedBy.name,
+                invitedByEmail: invitedBy.email
+            };
 
-        return dataProvider.User.generateResetToken(user.name, expires, dbHash);
-    }).then(function (resetToken) {
-        var baseUrl = config.forceAdminSSL ? (config.urlSSL || config.url) : config.url;
+            return dataProvider.User.generateResetToken(user.name, expires, dbHash);
+        }).then(function (resetToken) {
+            var baseUrl = config.forceAdminSSL ? (config.urlSSL || config.url) : config.url;
 
-        emailData.resetLink = baseUrl.replace(/\/$/, '') + '/icollege/signup/' + globalUtils.encodeBase64URLsafe(resetToken) + '/';
+            emailData.resetLink = baseUrl.replace(/\/$/, '') + '/icollege/signup/' + globalUtils.encodeBase64URLsafe(resetToken) + '/';
 
-        return mail.generateContent({data: emailData, template: 'invite-user'});
-    }).then(function (emailContent) {
-        var payload = {
-            mail: [{
-                message: {
-                    to: user.email,
-                    subject: emailData.invitedByName + ' has invited you to join iCollege',
-                    html: emailContent.html,
-                    text: emailContent.text
-                },
-                options: {}
-            }]
-        };
+            return mail.generateContent({data: emailData, template: 'invite-user'});
+        }).then(function (emailContent) {
+            var payload = {
+                mail: [{
+                    message: {
+                        to: user.email,
+                        subject: emailData.invitedByName + ' has invited you to join iCollege',
+                        html: emailContent.html,
+                        text: emailContent.text
+                    },
+                    options: {}
+                }]
+            };
 
-        return mail.send(payload, {context: {internal: true}});
-    });
+            return mail.send(payload, {context: {internal: true}});
+        });
 };
 /**
  * ## Posts API Methods
@@ -79,8 +84,8 @@ users = {
     browse: function browse(options) {
         options = options || {};
         return canThis(options.context).browse.user().then(function () {
-            if (options.include) {
-                options.include = prepareInclude(options.include);
+            if (options.withRelated) {
+                options.withRelated = prepareRelates(options.withRelated);
             }
             return dataProvider.User.findPage(options);
         }).catch(function (error) {
@@ -99,8 +104,8 @@ users = {
 
         options = _.omit(options, attrs);
 
-        if (options.include) {
-            options.include = prepareInclude(options.include);
+        if (options.withRelated) {
+            options.withRelated = prepareRelates(options.withRelated);
         }
 
         if (data._id === 'me' && options.context && options.context.user) {
@@ -128,8 +133,8 @@ users = {
             options._id = options.context.user;
         }
 
-        if (options.include) {
-            options.include = prepareInclude(options.include);
+        if (options.withRelated) {
+            options.withRelated = prepareRelates(options.withRelated);
         }
 
         return utils.checkObject(object, docName).then(function (data) {
@@ -138,7 +143,7 @@ users = {
                 return dataProvider.User.edit(data.users[0], options)
                     .then(function (result) {
                         if (result) {
-                            return {users: [result.toJSON()]};
+                            return {users: [result.jsonify()]};
                         }
 
                         return Promise.reject(new errors.NotFoundError('User not found.'));
@@ -149,30 +154,35 @@ users = {
             return canThis(options.context).edit.user(options._id).then(function () {
                 if (data.users[0].roles && data.users[0].roles[0]) {
                     var role = data.users[0].roles[0],
-                        roleId = parseInt(role._id || role, 10);
+                        roleId;
+                    if (_.isObject(role)) {
+                        roleId = role._id;
+                    } else {
+                        roleId = role;
+                    }
 
                     return dataProvider.User.findSingle(
-                        {_id: options.context.user, status: 'all'}, {include: ['roles']}
+                        {_id: options.context.user, status: 'all'}, {withRelated: ['roles']}
                     ).then(function (contextUser) {
-                        var contextRoleId = contextUser.related('roles').toJSON()[0]._id;
+                            var contextRoleId = contextUser.roles[0]._id;
 
-                        if (roleId !== contextRoleId &&
-                                parseInt(options._id, 10) === parseInt(options.context.user, 10)) {
-                            return Promise.reject(new errors.NoPermissionError('You cannot change your own role.'));
-                        } else if (roleId !== contextRoleId) {
-                            return dataProvider.User.findOne({role: 'SuperAdministrator'}).then(function (result) {
-                                if (parseInt(result._id, 10) !== parseInt(options._id, 10)) {
-                                    return canThis(options.context).assign.role(role).then(function () {
-                                        return editOperation();
-                                    });
-                                } else {
-                                    return Promise.reject(new errors.NoPermissionError('There has to be one owner.'));
-                                }
-                            });
-                        }
+                            if (roleId !== contextRoleId &&
+                                options._id === options.context.user) {
+                                return Promise.reject(new errors.NoPermissionError('You cannot change your own role.'));
+                            } else if (roleId !== contextRoleId) {
+                                return dataProvider.User.findSingle({role: 'SuperAdministrator'}).then(function (result) {
+                                    if (result._id !== options._id) {
+                                        return canThis(options.context).assign.role(role).then(function () {
+                                            return editOperation();
+                                        });
+                                    } else {
+                                        return Promise.reject(new errors.NoPermissionError('There has to be one SuperAdministrator.'));
+                                    }
+                                });
+                            }
 
-                        return editOperation();
-                    });
+                            return editOperation();
+                        });
                 }
 
                 return editOperation();
@@ -193,8 +203,8 @@ users = {
             newUser,
             user;
 
-        if (options.include) {
-            options.include = prepareInclude(options.include);
+        if (options.withRelated) {
+            options.withRelated = prepareRelates(options.withRelated);
         }
 
         return utils.checkObject(object, docName).then(function (data) {
@@ -212,44 +222,47 @@ users = {
                 return dataProvider.User.getByEmail(
                     newUser.email
                 ).then(function (foundUser) {
-                    if (!foundUser) {
-                        return dataProvider.User.add(newUser, options);
-                    } else {
-                        // only invitations for already invited users are resent
-                        if (foundUser.get('status') === 'invited' || foundUser.get('status') === 'invited-pending') {
-                            return foundUser;
+                        if (!foundUser) {
+                            return dataProvider.User.add(newUser, options);
                         } else {
-                            return Promise.reject(new errors.BadRequestError('User is already registered.'));
+                            // only invitations for already invited users are resent
+                            if (foundUser.get('status') === 'invited' || foundUser.get('status') === 'invited-pending') {
+                                return foundUser;
+                            } else {
+                                return Promise.reject(new errors.BadRequestError('User is already registered.'));
+                            }
                         }
-                    }
-                }).then(function (invitedUser) {
-                    user = invitedUser.toJSON();
-                    return sendInviteEmail(user);
-                }).then(function () {
-                    // If status was invited-pending and sending the invitation succeeded, set status to invited.
-                    if (user.status === 'invited-pending') {
-                        return dataProvider.User.edit(
-                            {status: 'invited'}, _.extend({}, options, {_id: user._id})
-                        ).then(function (editedUser) {
-                            user = editedUser.toJSON();
-                        });
-                    }
-                }).then(function () {
-                    return Promise.resolve({users: [user]});
-                }).catch(function (error) {
-                    if (error && error.type === 'EmailError') {
-                        error.message = 'Error sending email: ' + error.message + ' Please check your email settings and resend the invitation.';
-                        errors.logWarn(error.message);
+                    }).then(function (invitedUser) {
+                        user = invitedUser.toJSON();
+                        return sendInviteEmail(user);
+                    }).then(function () {
+                        // If status was invited-pending and sending the invitation succeeded, set status to invited.
+                        if (user.status === 'invited-pending') {
+                            return dataProvider.User.edit(
+                                {status: 'invited'}, _.extend({}, options, {_id: user._id})
+                            ).then(function (editedUser) {
+                                    user = editedUser.toJSON();
+                                });
+                        }
+                    }).then(function () {
+                        return Promise.resolve({users: [user]});
+                    }).catch(function (error) {
+                        if (error && error.type === 'EmailError') {
+                            error.message = 'Error sending email: ' + error.message + ' Please check your email settings and resend the invitation.';
+                            errors.logWarn(error.message);
 
-                        // If sending the invitation failed, set status to invited-pending
-                        return dataProvider.User.edit({status: 'invited-pending'}, {_id: user._id}).then(function (user) {
-                            return dataProvider.User.findSingle({_id: user._id, status: 'all'}, options).then(function (user) {
-                                return {users: [user]};
+                            // If sending the invitation failed, set status to invited-pending
+                            return dataProvider.User.edit({status: 'invited-pending'}, {_id: user._id}).then(function (user) {
+                                return dataProvider.User.findSingle({
+                                    _id: user._id,
+                                    status: 'all'
+                                }, options).then(function (user) {
+                                    return {users: [user]};
+                                });
                             });
-                        });
-                    }
-                    return Promise.reject(error);
-                });
+                        }
+                        return Promise.reject(error);
+                    });
             };
 
             // Check permissions
