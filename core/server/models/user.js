@@ -64,6 +64,24 @@ Users = icollegeShelf.schema('users', {
         delete attrs.password;
 
         return attrs;
+    },
+
+    format: function (options) {
+        if (!_.isEmpty(options.website) &&
+            !validator.isURL(options.website, {
+                require_protocol: true,
+                protocols: ['http', 'https']})) {
+            options.website = 'http://' + options.website;
+        }
+        return options;
+    },
+
+    hasRole: function (roleName) {
+        var roles = this.roles;
+
+        return roles.some(function (role) {
+            return role.name === roleName;
+        });
     }
 
 }, {
@@ -481,6 +499,81 @@ Users = icollegeShelf.schema('users', {
                 resolve(userData);
             });
         });
+    },
+
+    permissible: function (userModelOrId, action, context, loadedPermissions, hasUserPermission, hasAppPermission) {
+        var self = this,
+            userModel = userModelOrId,
+            origArgs;
+
+        // If we passed in a model without its related roles, we need to fetch it again
+        if (_.isObject(userModelOrId)) {
+            // we presume roles must be an array
+            if (userModelOrId.roles.length > 0) {
+                if (!_.isObject(userModelOrId.roles[0])) {
+                    userModelOrId = userModelOrId._id;
+                }
+            } else {
+                errors.logAndThrowError("A user without role? An Fatal Error Here!", __dirname, "try look up methods in models/user.js");
+            }
+        }
+        // If we passed in an id instead of a model get the model first
+        if (_.isNumber(userModelOrId) || _.isString(userModelOrId)) {
+            // Grab the original args without the first one
+            origArgs = _.toArray(arguments).slice(1);
+            // Get the actual post model
+            return this.findSingle({_id: userModelOrId, status: 'all'}, {withRelated: ['roles']}).then(function (foundUserModel) {
+                // Build up the original args but substitute with actual model
+                var newArgs = [foundUserModel].concat(origArgs);
+
+                return self.permissible.apply(self, newArgs);
+            }, errors.logAndThrowError);
+        }
+
+        if (action === 'edit') {
+            // Users with the role 'Administrator' and 'iColleger' have complex permissions when the action === 'edit'
+            // We now have all the info we need to construct the permissions
+            if (_.any(loadedPermissions.user.roles, {name: 'Administrator'})) {
+                // If this is the same user that requests the operation allow it.
+                hasUserPermission = context.user === userModel._id;
+
+                // iColleger can be edited by Administrator
+                hasUserPermission = hasUserPermission || userModel.hasRole('iColleger');
+            }
+
+            if (_.any(loadedPermissions.user.roles, {name: 'iColleger'})) {
+                // If this is the same user that requests the operation allow it.
+                hasUserPermission = hasUserPermission || context.user === userModel._id;
+            }
+        }
+
+        if (action === 'destroy') {
+            // SuperAdministrator cannot be deleted EVER
+            if (userModel.hasRole('SuperAdministrator')) {
+                return Promise.reject();
+            }
+
+            // Users with the role 'Administrator' have complex permissions when the action === 'destroy'
+            if (_.any(loadedPermissions.user.roles, {name: 'Administrator'})) {
+                // If this is the same user that requests the operation allow it.
+                hasUserPermission = context.user === userModel._id;
+
+                // Alternatively, if the user we are trying to edit is an iColleger, allow it
+                hasUserPermission = hasUserPermission || userModel.hasRole('iColleger');
+            }
+
+            // Users with the role 'iColleger' have complex permissions when the action === 'destroy'
+            if (_.any(loadedPermissions.user.roles, {name: 'iColleger'})) {
+                // If this is the same user that requests the operation allow it.
+                hasUserPermission = hasUserPermission || context.user === userModel._id;
+            }
+        }
+
+        if (hasUserPermission && hasAppPermission) {
+            return Promise.resolve();
+        }
+
+        return Promise.reject();
     },
 
     setWarning: function (user, options) {
