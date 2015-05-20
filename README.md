@@ -2,6 +2,9 @@ iCollege
 ========
 [![Tests](https://img.shields.io/travis/doomdagger/iCollege/master.svg?label=linux)](http://travis-ci.org/doomdagger/iCollege)
 [![Dependencies](http://img.shields.io/david/doomdagger/iCollege.svg?style=flat)](https://david-dm.org/doomdagger/iCollege)
+[![Build status](https://ci.appveyor.com/api/projects/status/618ojys7fiwgg0ad?svg=true)](https://ci.appveyor.com/project/doomdagger/icollege)
+[![Code Climate](https://codeclimate.com/repos/53eb9190e30ba04f350777c8/badges/9816f1c8e15376c51ecb/gpa.svg)](https://codeclimate.com/repos/53eb9190e30ba04f350777c8/feed)
+
 
 ### What is iCollege
 
@@ -27,10 +30,6 @@ iCollege服务平台由即时通信主服务器端，ios&Android&windows等移�
 
 App的公用性可以多种多样，但是都将建立在iCollege社交平台上，所有的App插件可以在用户授权条件下使用iCollege父平台的部分内置功能，比如饭团上买了什么后可以在iCollege圈子上发一个post，分享美食来赚取饭团积分。
 
-
-### Code status
-
-* [![Code Climate](https://codeclimate.com/repos/53eb9190e30ba04f350777c8/badges/9816f1c8e15376c51ecb/gpa.svg)](https://codeclimate.com/repos/53eb9190e30ba04f350777c8/feed)
 
 ### Getting Started Guide for Developers
 
