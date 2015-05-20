@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+  - "0.10"
+  - "0.12"
+sudo: false
+cache:
+  directories:
+    - node_modules
+env:
+  global:
+    - ICOLLEGE_OAUTH_KEY=003a44d58f12089d0c0261338298af3813330949
+    - DB=mongodb NODE_ENV=testing
