@@ -6,6 +6,8 @@ sudo: false
 cache:
   directories:
     - node_modules
+services:
+  - mongodb
 env:
   global:
     - ICOLLEGE_OAUTH_KEY=003a44d58f12089d0c0261338298af3813330949

@@ -1,6 +1,6 @@
 iCollege
 ========
-[![Tests](http://img.shields.io/travis/doomdagger/icollege.svg?style=flat)](http://travis-ci.org/doomdagger/icollege)
+[![Tests](https://api.travis-ci.org/doomdagger/iCollege.svg?branch=master)](http://travis-ci.org/doomdagger/icollege)
 [![Dependencies](http://img.shields.io/david/doomdagger/icollege.svg?style=flat)](https://david-dm.org/doomdagger/icollege)
 
 ### What is iCollege
