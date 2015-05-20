@@ -1,12 +1,25 @@
 environment:
+  ICOLLEGE_OAUTH_KEY: 003a44d58f12089d0c0261338298af3813330949
+  DB: mongodb
+  NODE_ENV: testing
   matrix:
     - nodejs_version: "0.10"
     - nodejs_version: "0.12"
 install:
+  - cmd: mkdir C:\mongodb
+  - ps: (New-Object Net.WebClient).DownloadFile('https://fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-3.0.3-signed.msi', 'C:\mongodb\mongodb-3.0.3-signed.msi')
+  - cmd: msiexec /i C:\mongodb\mongodb-3.0.3-signed.msi /quiet /qn /norestart /log install.log INSTALLLOCATION="C:\mongodb"
+  - cmd: mkdir c:\data\db & mkdir c:\data\log
+  - cmd: echo logpath=c:\data\log\mongod.log> "C:\mongodb\mongod.cfg"
+  - cmd: echo dbpath=c:\data\db>> "C:\mongodb\mongod.cfg"
+  - cmd: sc.exe create MongoDB binPath= "\"C:\mongodb\bin\mongod.exe\" --service --config=\"C:\mongodb\mongod.cfg\"" DisplayName= "MongoDB" start= "auto"
+  - cmd: net start MongoDB
   - ps: Install-Product node $env:nodejs_version
   - npm install
 build: off
 test_script:
   - node --version
   - npm --version
+  - C:\mongodb\bin\mongo.exe --version
+  - node_modules/.bin/grunt validate --verbose
 version: "{build}"
