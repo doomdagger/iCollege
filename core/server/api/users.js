@@ -1,19 +1,19 @@
 // # Users API
 // RESTful API for the User resource
-var Promise = require('bluebird'),
-    _ = require('lodash'),
-    dataProvider = require('../models'),
-    settings = require('./settings'),
-    canThis = require('../permissions').canThis,
-    errors = require('../errors'),
-    utils = require('./utils'),
-    globalUtils = require('../utils'),
-    config = require('../config'),
-    mail = require('./mail'),
+var Promise         = require('bluebird'),
+    _               = require('lodash'),
+    dataProvider    = require('../models'),
+    settings        = require('./settings'),
+    canThis         = require('../permissions').canThis,
+    errors          = require('../errors'),
+    utils           = require('./utils'),
+    globalUtils     = require('../utils'),
+    config          = require('../config'),
+    mail            = require('./mail'),
 
-    docName = 'users',
+    docName         = 'users',
 // TODO: implement created_by, updated_by
-    allowedRelates = ['permissions', 'roles', 'roles.permissions'],
+    allowedRelates  = ['permissions', 'roles', 'roles.permissions'],
     users,
     sendInviteEmail;
 
@@ -154,12 +154,7 @@ users = {
             return canThis(options.context).edit.user(options._id).then(function () {
                 if (data.users[0].roles && data.users[0].roles[0]) {
                     var role = data.users[0].roles[0],
-                        roleId;
-                    if (_.isObject(role)) {
-                        roleId = role._id;
-                    } else {
-                        roleId = role;
-                    }
+                        roleId = role._id || role;
 
                     return dataProvider.User.findSingle(
                         {_id: options.context.user, status: 'all'}, {withRelated: ['roles']}
@@ -219,7 +214,7 @@ users = {
                     return Promise.reject(new errors.BadRequestError('No email provided.'));
                 }
 
-                return dataProvider.User.getByEmail(
+                return dataProvider.User.getByName(
                     newUser.email
                 ).then(function (foundUser) {
                         if (!foundUser) {
@@ -268,7 +263,7 @@ users = {
             // Check permissions
             return canThis(options.context).add.user(object).then(function () {
                 if (newUser.roles && newUser.roles[0]) {
-                    var roleId = parseInt(newUser.roles[0]._id || newUser.roles[0], 10);
+                    var roleId = newUser.roles[0]._id || newUser.roles[0];
 
                     // Make sure user is allowed to add a user with this role
                     return dataProvider.Role.findSingle({_id: roleId}).then(function (role) {
@@ -340,7 +335,7 @@ users = {
             oldPassword = checkedPasswordReset.password[0].oldPassword;
             newPassword = checkedPasswordReset.password[0].newPassword;
             ne2Password = checkedPasswordReset.password[0].ne2Password;
-            userId = parseInt(checkedPasswordReset.password[0].user_id);
+            userId = checkedPasswordReset.password[0].user_id;
         }).then(function () {
             return canThis(options.context).edit.user(userId);
         }).then(function () {
@@ -357,7 +352,7 @@ users = {
      *
      */
     transferOwnership: function transferOwnership(object, options) {
-        return dataProvider.Role.findOne({name: 'SuperAdministrator'}).then(function (ownerRole) {
+        return dataProvider.Role.findSingle({name: 'SuperAdministrator'}).then(function (ownerRole) {
             return canThis(options.context).assign.role(ownerRole);
         }).then(function () {
             return utils.checkObject(object, 'owner').then(function (checkedOwnerTransfer) {
