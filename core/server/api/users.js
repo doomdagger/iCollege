@@ -206,16 +206,15 @@ users = {
             newUser = data.users[0];
 
             addOperation = function () {
-                if (newUser.email) {
-                    newUser.name = object.users[0].email.substring(0, newUser.email.indexOf('@'));
+                if (newUser.name && newUser.email) {
                     newUser.password = globalUtils.uid(50);
                     newUser.status = 'invited';
                 } else {
-                    return Promise.reject(new errors.BadRequestError('No email provided.'));
+                    return Promise.reject(new errors.BadRequestError('No name or email provided.'));
                 }
 
                 return dataProvider.User.getByName(
-                    newUser.email
+                    newUser.name
                 ).then(function (foundUser) {
                         if (!foundUser) {
                             return dataProvider.User.add(newUser, options);
@@ -228,7 +227,7 @@ users = {
                             }
                         }
                     }).then(function (invitedUser) {
-                        user = invitedUser.toJSON();
+                        user = invitedUser.jsonify();
                         return sendInviteEmail(user);
                     }).then(function () {
                         // If status was invited-pending and sending the invitation succeeded, set status to invited.
@@ -236,7 +235,7 @@ users = {
                             return dataProvider.User.edit(
                                 {status: 'invited'}, _.extend({}, options, {_id: user._id})
                             ).then(function (editedUser) {
-                                    user = editedUser.toJSON();
+                                    user = editedUser.jsonify();
                                 });
                         }
                     }).then(function () {
@@ -261,13 +260,13 @@ users = {
             };
 
             // Check permissions
-            return canThis(options.context).add.user(object).then(function () {
+            return canThis(options.context).add.user(newUser).then(function () {
                 if (newUser.roles && newUser.roles[0]) {
                     var roleId = newUser.roles[0]._id || newUser.roles[0];
 
                     // Make sure user is allowed to add a user with this role
                     return dataProvider.Role.findSingle({_id: roleId}).then(function (role) {
-                        if (role.get('name') === 'SuperAdministrator') {
+                        if (role.name === 'SuperAdministrator') {
                             return Promise.reject(new errors.NoPermissionError('Not allowed to create an owner user.'));
                         }
 
@@ -287,25 +286,16 @@ users = {
     /**
      * ### Destroy
      * @param {{_id, context}} options
-     * @returns {Promise(User)}
+     * @returns {Promise} User
      */
     destroy: function destroy(options) {
         return canThis(options.context).destroy.user(options._id).then(function () {
             return users.read(_.merge(options, {status: 'all'})).then(function (result) {
-                return dataProvider.Base.transaction(function (t) {
-                    options.transacting = t;
-
-                    Promise.all([
-                        dataProvider.Accesstoken.destroyByUser(options),
-                        dataProvider.Refreshtoken.destroyByUser(options),
-                        dataProvider.Post.destroyByAuthor(options)
-                    ]).then(function () {
-                        return dataProvider.User.destroy(options);
-                    }).then(function () {
-                        t.commit();
-                    }).catch(function (error) {
-                        t.rollback(error);
-                    });
+                return Promise.all([
+                    dataProvider.Accesstoken.destroyByUser(options),
+                    dataProvider.Refreshtoken.destroyByUser(options)
+                ]).then(function () {
+                    return dataProvider.User.destroy(options);
                 }).then(function () {
                     return result;
                 }, function (error) {

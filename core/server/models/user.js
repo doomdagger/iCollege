@@ -506,11 +506,22 @@ Users = icollegeShelf.schema('users', {
             userModel = userModelOrId,
             origArgs;
 
+        // If our action is **add**, skip all these logic, adduser logic only is only tested by permission map
+        // permissible should not blend into this
+        if (action === 'add') {
+            if (hasUserPermission && hasAppPermission) {
+                return Promise.resolve();
+            }
+
+            return Promise.reject();
+        }
+
+        // now only read, edit, destory can come to here, so the user must exist and have a role, if not, throw an error
         // If we passed in a model without its related roles, we need to fetch it again
         if (_.isObject(userModelOrId)) {
             // we presume roles must be an array
             if (userModelOrId.roles.length > 0) {
-                if (!_.isObject(userModelOrId.roles[0])) {
+                if (_.isString(userModelOrId.roles[0])) {
                     userModelOrId = userModelOrId._id;
                 }
             } else {

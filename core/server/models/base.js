@@ -252,16 +252,27 @@ icollegeShelf = new Shelf(true, {
      */
     edit: function (data, options) {
         // you use _id or mistakenly use id, we both accept!
-        var _id = options._id || options.id;
-        // it will filter out id, we don't allow you change Id using edit method
+        var _id = options._id || options.id,
+            query;
+
+        // it will filter out _id, we don't allow you change Id using edit method
         data = this.filterData(data);
         options = this.filterOptions(options, 'edit');
 
-        return icollegeShelf.Model.findSingle.call(this, {_id: _id}, options).then(function (object) {
-            if (object) {
-                return object.set(data).__save(options);
-            }
-        });
+        // build the query object
+        query = this.findOneAndUpdate({_id: _id}, data, {'new': true});
+        // projection
+        if (options.include) {
+            query.select(options.include.join(' '));
+        }
+        // population
+        if (options.withRelated) {
+            _.each(options.withRelated, function (n) {
+                query.populate(n);
+            });
+        }
+
+        return query.execAsync();
     },
 
     /**
