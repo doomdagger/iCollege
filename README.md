@@ -3,8 +3,7 @@ iCollege
 [![Tests](https://api.travis-ci.org/doomdagger/iCollege.svg?branch=master)](http://travis-ci.org/doomdagger/iCollege)
 [![Build status](https://ci.appveyor.com/api/projects/status/618ojys7fiwgg0ad?svg=true)](https://ci.appveyor.com/project/doomdagger/icollege)
 [![Dependency Status](https://david-dm.org/doomdagger/iCollege.svg)](https://david-dm.org/doomdagger/iCollege)
-[![Code Climate](https://codeclimate.com/repos/53eb9190e30ba04f350777c8/badges/9816f1c8e15376c51ecb/gpa.svg)](https://codeclimate.com/repos/53eb9190e30ba04f350777c8/feed)
-
+[![Code Climate](https://codeclimate.com/github/doomdagger/iCollege/badges/gpa.svg)](https://codeclimate.com/github/doomdagger/iCollege)
 
 ### What is iCollege
 

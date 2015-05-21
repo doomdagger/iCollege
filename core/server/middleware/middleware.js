@@ -121,7 +121,7 @@ middleware = {
             rateSigninAttempts = config.rateSigninAttempts || 10;
 
         if (req.body.username && req.body.grant_type === 'password') {
-            loginSecurity.push({ip: remoteAddress, time: currentTime, email: req.body.username});
+            loginSecurity.push({ip: remoteAddress, time: currentTime, name: req.body.username});
         } else if (req.body.grant_type === 'refresh_token') {
             return next();
         } else {
@@ -149,30 +149,30 @@ middleware = {
     },
 
     // ### Spam prevention Middleware
-    // limit forgotten password requests to five requests per IP per hour for different email addresses
-    // limit forgotten password requests to five requests per email address
+    // limit forgotten password requests to five requests per IP per hour for different username
+    // limit forgotten password requests to five requests per username
     spamForgottenPrevention: function (req, res, next) {
         var currentTime = process.hrtime()[0],
             remoteAddress = req.connection.remoteAddress,
             rateForgottenPeriod = config.rateForgottenPeriod || 3600,
             rateForgottenAttempts = config.rateForgottenAttempts || 5,
-            email = req.body.passwordreset[0].email,
+            name = req.body.passwordreset[0].username,
             ipCount = '',
             deniedRateLimit = '',
-            deniedEmailRateLimit = '',
+            deniedNameRateLimit = '',
             message = 'Too many attempts.',
             index = _.findIndex(forgottenSecurity, function (logTime) {
-                return (logTime.ip === remoteAddress && logTime.email === email);
+                return (logTime.ip === remoteAddress && logTime.name === name);
             });
 
-        if (email) {
+        if (name) {
             if (index !== -1) {
                 forgottenSecurity[index].count = forgottenSecurity[index].count + 1;
             } else {
-                forgottenSecurity.push({ip: remoteAddress, time: currentTime, email: email, count: 0});
+                forgottenSecurity.push({ip: remoteAddress, time: currentTime, name: name, count: 0});
             }
         } else {
-            return next(new errors.BadRequestError('No email.'));
+            return next(new errors.BadRequestError('No name.'));
         }
 
         // filter entries that are older than rateForgottenPeriod
@@ -180,17 +180,17 @@ middleware = {
             return (logTime.time + rateForgottenPeriod > currentTime);
         });
 
-        // check number of tries with different email addresses per IP
+        // check number of tries with different username per IP
         ipCount = _.chain(forgottenSecurity).countBy('ip').value();
         deniedRateLimit = (ipCount[remoteAddress] > rateForgottenAttempts);
 
         if (index !== -1) {
-            deniedEmailRateLimit = (forgottenSecurity[index].count > rateForgottenAttempts);
+            deniedNameRateLimit = (forgottenSecurity[index].count > rateForgottenAttempts);
         }
 
-        if (deniedEmailRateLimit) {
+        if (deniedNameRateLimit) {
             errors.logError(
-                'Only ' + rateForgottenAttempts + ' forgotten password attempts per email every ' +
+                'Only ' + rateForgottenAttempts + ' forgotten password attempts per name every ' +
                 rateForgottenPeriod + ' seconds.',
                 'Forgotten password reset attempt failed'
             );
@@ -203,16 +203,16 @@ middleware = {
             );
         }
 
-        if (deniedEmailRateLimit || deniedRateLimit) {
+        if (deniedNameRateLimit || deniedRateLimit) {
             message += rateForgottenPeriod === 3600 ? ' Please wait 1 hour.' : ' Please try again later';
             return next(new errors.UnauthorizedError(message));
         }
 
         next();
     },
-    resetSpamCounter: function (email) {
+    resetSpamCounter: function (name) {
         loginSecurity = _.filter(loginSecurity, function (logTime) {
-            return (logTime.email !== email);
+            return (logTime.name !== name);
         });
     },
 

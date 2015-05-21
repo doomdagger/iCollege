@@ -57,7 +57,7 @@ oauth = {
                     if (!model) {
                         return done(new errors.NoPermissionError('Invalid refresh token.'), false);
                     } else {
-                        var token = model.toJSON(),
+                        var token = model.jsonify(),
                             accessToken = utils.uid(256),
                             accessExpires = Date.now() + utils.ONE_HOUR_MS,
                             refreshExpires = Date.now() + utils.ONE_DAY_MS;

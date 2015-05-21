@@ -18,7 +18,7 @@ passport.use(new ClientPasswordStrategy(
         models.Client.findSingle({slug: clientId})
         .then(function (model) {
             if (model) {
-                var client = model.toJSON();
+                var client = model.jsonify();
                 if (client.secret === clientSecret) {
                     return done(null, client);
                 }
@@ -41,12 +41,12 @@ passport.use(new BearerStrategy(
         models.Accesstoken.findSingle({token: accessToken})
         .then(function (model) {
             if (model) {
-                var token = model.toJSON();
+                var token = model.jsonify();
                 if (token.expires > Date.now()) {
                     models.User.findSingle({_id: token.user_id})
                     .then(function (model) {
                         if (model) {
-                            var user = model.toJSON(),
+                            var user = model.jsonify(),
                                 info = {scope: '*'};
                             return done(null, {_id: user._id}, info);
                         }

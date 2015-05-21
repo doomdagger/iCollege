@@ -4,7 +4,7 @@
       "nickname": "SuperAdministrator",
       "slug": "admin",
       "name": "admin",
-      "password": "123456",
+      "password": "12345678",
       "email": "admin@icollege.com",
       "status": "inactive"
     },
@@ -12,7 +12,7 @@
       "nickname": "Administrator2",
       "slug": "admin2",
       "name": "admin2",
-      "password": "123456",
+      "password": "12345678",
       "email": "admin2@icollege.com",
       "status": "inactive"
     },
@@ -20,9 +20,26 @@
       "nickname": "iColleger",
       "slug": "icolleger",
       "name": "iColleger",
-      "password": "123456",
+      "password": "12345678",
       "email": "icolleger@icollege.com",
       "status": "inactive"
+    }
+  ],
+  "clients": [
+    {
+      "name":             "iCollege Admin",
+      "slug":             "icollege-admin",
+      "secret":           "not_available"
+    },
+    {
+      "name":             "iCollege Admin2",
+      "slug":             "icollege-admin2",
+      "secret":           "not_available"
+    },
+    {
+      "name":             "iCollege User",
+      "slug":             "icollege-user",
+      "secret":           "not_available"
     }
   ],
   "roles": [

@@ -340,7 +340,7 @@ login = function login(request) {
 
     return new Promise(function (resolve, reject) {
         request.post('/icollege/api/v0.1/authentication/token/')
-            .send({grant_type: 'password', username: user.email, password: user.password, client_id: 'icollege-admin'})
+            .send({grant_type: 'password', username: user.name, password: user.password, client_id: 'icollege-admin'})
             .end(function (err, res) {
                 if (err) {
                     return reject(err);

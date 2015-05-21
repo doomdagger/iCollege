@@ -20,7 +20,12 @@ var _           = require('lodash'),
     addAllRolesPermissions,
     addRolesPermissionsForRole,
     addAllUsers,
+    addAllClients,
+    createSuperAdministrator,
+    createAdministrator,
+    createIColloger,
 
+    // public
     populate;
 
 // before handle, populate demo user or posts or message data
@@ -42,13 +47,13 @@ logInfo = function logInfo(message) {
 };
 
 
-addAllPermissions = function (options) {
+addAllPermissions = function () {
     var ops = [];
     _.each(fixtures.permissions, function (permissions, objectType) {
         _.each(permissions, function (permission) {
             ops.push(function () {
                 permission.object_type = objectType;
-                return models.Permission.forge(permission).__save(options);
+                return models.Permission.add(permission, internal);
             });
         });
     });
@@ -56,18 +61,18 @@ addAllPermissions = function (options) {
     return sequence(ops);
 };
 
-addAllRoles = function (options) {
+addAllRoles = function () {
     var ops = [];
     _.each(fixtures.roles, function (role) {
         ops.push(function () {
-            return models.Role.forge(role).__save(options);
+            return models.Role.add(role, internal);
         });
     });
 
     return sequence(ops);
 };
 
-addRolesPermissionsForRole = function (roleName, options) {
+addRolesPermissionsForRole = function (roleName) {
     var fixturesForRole = fixtures.permissions_roles[roleName];
 
     return models.Role.findSingle({name: roleName}).then(function (role) {
@@ -82,51 +87,89 @@ addRolesPermissionsForRole = function (roleName, options) {
                     }
                 });
             }
-            return role.__save(options);
+            return role.__save(internal);
         });
     });
 };
 
-addAllRolesPermissions = function (options) {
+addAllRolesPermissions = function () {
     var roleNames = _.keys(fixtures.permissions_roles),
         ops = [];
 
     _.each(roleNames, function (roleName) {
-        ops.push(addRolesPermissionsForRole(roleName, options));
+        ops.push(addRolesPermissionsForRole(roleName, internal));
     });
 
     return Promise.all(ops);
 };
 
-addAllUsers = function (options) {
+createSuperAdministrator = function () {
+    var user = fixtures.users[0];
+
+    return models.Role.findSingle({name: 'SuperAdministrator'}).then(function (ownerRole) {
+        user.roles = [ownerRole._id];
+        user._id = config.adminId;
+
+        logInfo('Creating SuperAdministrator');
+        return models.User.add(user, internal);
+    });
+};
+
+createAdministrator = function () {
+    var user = fixtures.users[1];
+
+    return models.Role.findSingle({name: 'Administrator'}).then(function (adminRole) {
+        user.roles = [adminRole._id];
+
+        logInfo('Creating Administrator');
+        return models.User.add(user, internal);
+    });
+};
+
+createIColloger = function () {
+    var user = fixtures.users[2];
+
+    return models.Role.findSingle({name: 'iColleger'}).then(function (userRole) {
+        user.roles = [userRole._id];
+
+        logInfo('Creating iColleger');
+        return models.User.add(user, internal);
+    });
+};
+
+addAllUsers = function () {
     var ops = [];
-    _.each(fixtures.users, function (user) {
-        ops.push(function () {
-            if (user.name === "admin") {
-                user._id = config.adminId;
-            }
-            return models.User.forge(user).__save(options);
-        });
+
+    ops.push(createSuperAdministrator());
+    ops.push(createAdministrator());
+    ops.push(createIColloger());
+
+    return Promise.all(ops);
+};
+
+addAllClients = function () {
+    var ops = [];
+
+    _.each(fixtures.clients, function (client) {
+        ops.push(models.Client.add(client, internal));
     });
 
-    return sequence(ops);
+    return Promise.all(ops);
 };
 
 // ## Populate
 populate = function () {
-    var options = internal;
-
     logInfo('Populating permissions');
     // ### Ensure all permissions are added
-    return addAllPermissions(options).then(function () {
+    return addAllPermissions().then(function () {
         // ### Ensure all roles are added
-        return addAllRoles(options);
+        return addAllRoles();
     }).then(function () {
         // ### Ensure all roles_permissions are added
-        return addAllRolesPermissions(options);
+        return addAllRolesPermissions();
     }).then(function () {
-        // ### Ensure all roles_permissions are added
-        return addAllUsers(options);
+        // ### Ensure all user and clients are added
+        return Promise.all([addAllUsers(), addAllClients()]);
     });
 };
 
