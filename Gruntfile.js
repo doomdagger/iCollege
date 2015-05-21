@@ -31,7 +31,8 @@ var _              = require('lodash'),
         test: {
             files: {
                 src: [
-                    'core/test/**/*.js'
+                    'core/test/**/*.js',
+                    '!core/test/coverage/**/*.js'
                 ]
             }
         }
@@ -181,7 +182,7 @@ var _              = require('lodash'),
                 // #### All Route tests
                 routes: {
                     src: [
-                        'core/test/functional/routes/**/*_test.js'
+                        'core/test/functional/routes/**/*_spec.js'
                     ]
                 },
 
@@ -361,7 +362,7 @@ var _              = require('lodash'),
         //
         // `grunt validate` is called by `npm test` and is used by Travis.
         grunt.registerTask('validate', 'Run tests and lint code',
-            ['jshint', 'test-all']);
+            ['jshint', 'test-routes', 'test-module', 'coverage']);
 
         // ### Test
         // **Main testing task**
