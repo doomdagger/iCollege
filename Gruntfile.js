@@ -11,7 +11,7 @@ var _              = require('lodash'),
 
     escapeChar     = process.platform.match(/^win/) ? '^' : '\\',
     cwd            = process.cwd().replace(/( |\(|\))/g, escapeChar + '$1'),
-
+    mochaPath      = path.resolve(cwd + '/node_modules/grunt-mocha-cli/node_modules/mocha/bin/mocha'),
 
 // ## List of files we want to lint through jshint and jscs to make sure
 // they conform to our desired code styles.
@@ -210,6 +210,16 @@ var _              = require('lodash'),
                 }
             },
 
+            // ### grunt-shell
+            // Command line tools where it's easier to run a command directly than configure a grunt plugin
+            shell: {
+                test: {
+                    command: function (test) {
+                        return 'node ' + mochaPath  + ' --timeout=15000 --ui=bdd --reporter=spec core/test/' + test;
+                    }
+                }
+            },
+
             // ### grunt-docker
             // Generate documentation from code
             docker: {
@@ -233,6 +243,9 @@ var _              = require('lodash'),
                 },
                 tmp: {
                     src: ['.tmp/**']
+                },
+                dependencies: {
+                    src: ['node_modules/**']
                 }
             },
 
@@ -366,6 +379,14 @@ var _              = require('lodash'),
         // `grunt lint` will run the linter and the code style checker so you can make sure your code is pretty
         grunt.registerTask('lint', 'Run the code style checks and linter', ['jshint', 'jscs']);
 
+
+        // ### test-setup *(utility)(
+        // `grunt test-setup` will run all the setup tasks required for running tests
+        grunt.registerTask('test-setup', 'Setup ready to run tests',
+            ['clean:test', 'setTestEnv', 'ensureConfig']
+        );
+
+
         // ### Unit Tests *(sub task)*
         // `grunt test-unit` will run just the unit tests
         //
@@ -384,7 +405,7 @@ var _              = require('lodash'),
         // Unit tests do **not** touch the database.
         // A coverage report can be generated for these tests using the `grunt test-coverage` task.
         grunt.registerTask('test-unit', 'Run unit tests (mocha)',
-            ['clean:test', 'setTestEnv', 'ensureConfig', 'mochacli:unit']);
+            ['test-setup', 'mochacli:unit']);
 
         // ### Integration tests *(sub task)*
         // `grunt test-integration` will run just the integration tests
@@ -413,7 +434,7 @@ var _              = require('lodash'),
         //
         // A coverage report can be generated for these tests using the `grunt test-coverage` task.
         grunt.registerTask('test-integration', 'Run integration tests (mocha + db access)',
-            ['clean:test', 'setTestEnv', 'ensureConfig', 'mochacli:integration']);
+            ['test-setup', 'mochacli:integration']);
 
         // ### Module tests *(sub task)*
         // `grunt test-module` will run just the module tests
@@ -421,7 +442,7 @@ var _              = require('lodash'),
         // The purpose of the module tests is to ensure that iCollege can be used as an npm module and exposes all
         // required methods to interact with it.
         grunt.registerTask('test-module', 'Run functional module tests (mocha)',
-            ['clean:test', 'setTestEnv', 'ensureConfig', 'mochacli:module']);
+            ['test-setup', 'mochacli:module']);
 
         // ### Route tests *(sub task)*
         // `grunt test-routes` will run just the route tests
@@ -442,7 +463,7 @@ var _              = require('lodash'),
         // are working as expected, including checking the headers and status codes received. It is very easy and
         // quick to test many permutations of routes / urls in the system.
         grunt.registerTask('test-routes', 'Run functional route tests (mocha)',
-            ['clean:test', 'setTestEnv', 'ensureConfig', 'mochacli:routes']);
+            ['test-setup', 'mochacli:routes']);
 
 
         // ### Coverage
@@ -456,7 +477,7 @@ var _              = require('lodash'),
         // Key areas for coverage are: helpers and theme elements, apps / GDK, the api and model layers.
 
         grunt.registerTask('coverage', 'Generate unit and integration (mocha) tests coverage report',
-            ['clean:test', 'setTestEnv', 'ensureConfig', 'mocha_istanbul:coverage']
+            ['test-setup', 'mocha_istanbul:coverage']
         );
 
 
