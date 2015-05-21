@@ -9,13 +9,13 @@ var supertest     = require('supertest'),
     should        = require('should'),
     testUtils     = require('../../../utils'),
 
-    ghost         = require('../../../../../core'),
+    icollege         = require('../../../../../core'),
     request;
 
 describe('Unauthorized', function () {
     before(function (done) {
-        ghost().then(function (ghostServer) {
-            request = supertest.agent(ghostServer.rootApp);
+        icollege().then(function (icollegeServer) {
+            request = supertest.agent(icollegeServer.rootApp);
 
             done();
         });
@@ -28,8 +28,8 @@ describe('Unauthorized', function () {
     });
 
     describe('Unauthorized API', function () {
-        it('can\'t retrieve posts', function (done) {
-            request.get(testUtils.API.getApiQuery('posts/'))
+        it('can\'t retrieve roles', function (done) {
+            request.get(testUtils.API.getApiQuery('roles/'))
                 .expect('Cache-Control', testUtils.cacheRules['private'])
                 .expect(401)
                 .end(function firstRequest(err, res) {

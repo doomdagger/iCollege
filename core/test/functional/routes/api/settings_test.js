@@ -4,7 +4,7 @@ var testUtils     = require('../../../utils'),
     should        = require('should'),
     supertest     = require('supertest'),
 
-    ghost         = require('../../../../../core'),
+    icollege         = require('../../../../../core'),
 
     request;
 
@@ -12,17 +12,17 @@ describe('Settings API', function () {
     var accesstoken = '';
 
     before(function (done) {
-        // starting ghost automatically populates the db
+        // starting icollege automatically populates the db
         // TODO: prevent db init, and manage bringing up the DB with fixtures ourselves
-        ghost().then(function (ghostServer) {
-            request = supertest.agent(ghostServer.rootApp);
+        icollege().then(function (icollegeServer) {
+            request = supertest.agent(icollegeServer.rootApp);
         }).then(function () {
             return testUtils.doAuth(request);
         }).then(function (token) {
             accesstoken = token;
             done();
         }).catch(function (e) {
-            console.log('Ghost Error: ', e);
+            console.log('iCollege Error: ', e);
             console.log(e.stack);
         });
     });
@@ -109,7 +109,7 @@ describe('Settings API', function () {
                 }
 
                 var jsonResponse = res.body,
-                    changedValue = 'Ghost changed',
+                    changedValue = 'iCollege changed',
                     settingToChange = {
                         settings: [
                             {key: 'title', value: changedValue}
@@ -151,7 +151,7 @@ describe('Settings API', function () {
                 }
 
                 var jsonResponse = res.body,
-                    changedValue = 'Ghost changed';
+                    changedValue = 'iCollege changed';
                 jsonResponse.should.exist;
                 jsonResponse.title = changedValue;
 

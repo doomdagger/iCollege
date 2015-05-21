@@ -135,9 +135,7 @@ locationHeader = function (req, result) {
  * @return {string}
  */
 contentDispositionHeader = function () {
-    return dataExport.fileName().then(function (filename) {
-        return 'Attachment; filename="' + filename + '"';
-    });
+    return Promise.resolve('Attachment; filename="' + dataExport.fileName() + '"');
 };
 
 /**

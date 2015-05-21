@@ -55,7 +55,7 @@ describe('Authentication API', function () {
 
     it('can\'t authenticate unknown user', function (done) {
         request.post(testUtils.API.getApiQuery('authentication/token'))
-            .send({grant_type: 'password', username: 'invalid@email.com', password: user.password, client_id: 'ghost-admin'})
+            .send({grant_type: 'password', username: 'invalid user', password: user.password, client_id: 'icollege-admin'})
             .expect('Content-Type', /json/)
             .expect('Cache-Control', testUtils.cacheRules['private'])
             .expect(404)
@@ -72,7 +72,7 @@ describe('Authentication API', function () {
 
     it('can\'t authenticate invalid password user', function (done) {
         request.post(testUtils.API.getApiQuery('authentication/token'))
-            .send({grant_type: 'password', username: user.email, password: 'invalid', client_id: 'icollege-admin'})
+            .send({grant_type: 'password', username: user.name, password: 'invalid', client_id: 'icollege-admin'})
             .expect('Content-Type', /json/)
             .expect('Cache-Control', testUtils.cacheRules['private'])
             .expect(401)
@@ -89,7 +89,7 @@ describe('Authentication API', function () {
 
     it('can request new access token', function (done) {
         request.post(testUtils.API.getApiQuery('authentication/token'))
-            .send({grant_type: 'password', username: user.email, password: user.password, client_id: 'icollege-admin'})
+            .send({grant_type: 'password', username: user.name, password: user.password, client_id: 'icollege-admin'})
             .expect('Content-Type', /json/)
             // TODO: make it possible to override oauth2orize's header so that this is consistent
             .expect('Cache-Control', 'no-store')

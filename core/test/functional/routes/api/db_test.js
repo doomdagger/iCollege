@@ -3,24 +3,24 @@
 var supertest     = require('supertest'),
     should        = require('should'),
     testUtils     = require('../../../utils'),
-    ghost         = require('../../../../../core'),
+    icollege         = require('../../../../../core'),
     request;
 
 describe('DB API', function () {
     var accesstoken = '';
 
     before(function (done) {
-        // starting ghost automatically populates the db
+        // starting icollege automatically populates the db
         // TODO: prevent db init, and manage bringing up the DB with fixtures ourselves
-        ghost().then(function (ghostServer) {
-            request = supertest.agent(ghostServer.rootApp);
+        icollege().then(function (icollegeServer) {
+            request = supertest.agent(icollegeServer.rootApp);
         }).then(function () {
             return testUtils.doAuth(request);
         }).then(function (token) {
             accesstoken = token;
             done();
         }).catch(function (e) {
-            console.log('Ghost Error: ', e);
+            console.log('iCollege Error: ', e);
             console.log(e.stack);
         });
     });

@@ -176,21 +176,24 @@ errors = {
         return this.rejectError(new this.InternalServerError(error));
     },
 
-    error404: function (req, res) {
+    // Do Not Remove **next** Param
+    error404: function (req, res, next) {
+        /*jshint unused:false*/
         var message = 'No iCollege Found';
 
         // do not cache 404 error
         res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
 
-        res.status(404).json({errors: message});
+        res.status(404).send(message);
     },
 
-    error500: function (err, req, res) {
+    // Do Not Remove **next** Param
+    error500: function (err, req, res, next) {
         // 500 errors should never be cached
         res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
 
         if (err.status === 404) {
-            return this.error404(req, res);
+            return this.error404(req, res, next);
         }
 
         var statusCode = 500,

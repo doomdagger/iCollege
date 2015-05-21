@@ -4,7 +4,7 @@ var testUtils     = require('../../../utils'),
     should        = require('should'),
     supertest     = require('supertest'),
 
-    ghost         = require('../../../../../core'),
+    icollege         = require('../../../../../core'),
 
     request;
 
@@ -12,17 +12,17 @@ describe('Slug API', function () {
     var accesstoken = '';
 
     before(function (done) {
-        // starting ghost automatically populates the db
+        // starting icollege automatically populates the db
         // TODO: prevent db init, and manage bringing up the DB with fixtures ourselves
-        ghost().then(function (ghostServer) {
-            request = supertest.agent(ghostServer.rootApp);
+        icollege().then(function (icollegeServer) {
+            request = supertest.agent(icollegeServer.rootApp);
         }).then(function () {
             return testUtils.doAuth(request);
         }).then(function (token) {
             accesstoken = token;
             done();
         }).catch(function (e) {
-            console.log('Ghost Error: ', e);
+            console.log('iCollege Error: ', e);
             console.log(e.stack);
         });
     });
@@ -51,29 +51,6 @@ describe('Slug API', function () {
                 jsonResponse.slugs.should.have.length(1);
                 testUtils.API.checkResponse(jsonResponse.slugs[0], 'slug');
                 jsonResponse.slugs[0].slug.should.equal('a-post-title');
-
-                done();
-            });
-    });
-
-    it('should be able to get a tag slug', function (done) {
-        request.get(testUtils.API.getApiQuery('slugs/post/atag/'))
-            .set('Authorization', 'Bearer ' + accesstoken)
-            .expect('Content-Type', /json/)
-            .expect('Cache-Control', testUtils.cacheRules['private'])
-            .expect(200)
-            .end(function (err, res) {
-                if (err) {
-                    return done(err);
-                }
-
-                should.not.exist(res.headers['x-cache-invalidate']);
-                var jsonResponse = res.body;
-                jsonResponse.should.exist;
-                jsonResponse.slugs.should.exist;
-                jsonResponse.slugs.should.have.length(1);
-                testUtils.API.checkResponse(jsonResponse.slugs[0], 'slug');
-                jsonResponse.slugs[0].slug.should.equal('atag');
 
                 done();
             });

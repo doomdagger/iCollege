@@ -17,8 +17,22 @@ apiRoutes = function (middleware) {
     router.get('/settings/:key', api.http(api.settings.read));
     router.put('/settings', api.http(api.settings.edit));
 
+    // ## Users
+    router.get('/users', api.http(api.users.browse));
+    router.get('/users/:id', api.http(api.users.read));
+    router.get('/users/slug/:slug', api.http(api.users.read));
+    router.get('/users/name/:name', api.http(api.users.read));
+    router.put('/users/password', api.http(api.users.changePassword));
+    //router.put('/users/owner', api.http(api.users.transferOwnership));
+    router.put('/users/:id', api.http(api.users.edit));
+    router.post('/users', api.http(api.users.add));
+    router.del('/users/:id', api.http(api.users.destroy));
+
     // ## Roles
     router.get('/roles/', api.http(api.roles.browse));
+
+    // ## Slugs
+    router.get('/slugs/:type/:name', api.http(api.slugs.generate));
 
     // ## DB
     router.get('/db', api.http(api.db.exportContent));
