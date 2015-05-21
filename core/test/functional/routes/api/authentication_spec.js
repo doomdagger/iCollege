@@ -9,7 +9,8 @@ var supertest     = require('supertest'),
 
 describe('Authentication API', function () {
     var accesstoken = '';
-
+    before(testUtils.wait);
+    before(testUtils.teardown);
     before(function (done) {
         // starting icollege automatically populates the db
         // TODO: prevent db init, and manage bringing up the DB with fixtures ourselves

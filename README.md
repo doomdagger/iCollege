@@ -1,10 +1,10 @@
 iCollege
 ========
-[![Tests](https://api.travis-ci.org/doomdagger/iCollege.svg?branch=master)](http://travis-ci.org/doomdagger/iCollege)
-[![Build status](https://ci.appveyor.com/api/projects/status/618ojys7fiwgg0ad?svg=true)](https://ci.appveyor.com/project/doomdagger/icollege)
-[![Dependency Status](https://david-dm.org/doomdagger/iCollege.svg)](https://david-dm.org/doomdagger/iCollege)
-[![Code Climate](https://codeclimate.com/github/doomdagger/iCollege/badges/gpa.svg)](https://codeclimate.com/github/doomdagger/iCollege)
-[![Coverage Status](https://coveralls.io/repos/doomdagger/iCollege/badge.svg)](https://coveralls.io/r/doomdagger/iCollege)
+[![Tests][travis-image]][travis-url]
+[![Build status][appveyor-image]][appveyor-url]
+[![Dependency Status][dependency-image]][dependency-url]
+[![Code Climate][codeclimate-image]][codeclimate-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
 
 ### What is iCollege
 
@@ -100,3 +100,15 @@ grunt dev
 ### Who are we ?
 
 * CodeHolic Team.
+
+
+[travis-image]: https://img.shields.io/travis/doomdagger/iCollege/master.svg?label=linux
+[travis-url]: https://travis-ci.org/doomdagger/iCollege
+[appveyor-image]: https://img.shields.io/appveyor/ci/doomdagger/iCollege/master.svg?label=windows
+[appveyor-url]: https://ci.appveyor.com/project/doomdagger/iCollege
+[coveralls-image]: https://img.shields.io/coveralls/doomdagger/iCollege/master.svg
+[coveralls-url]: https://coveralls.io/r/doomdagger/iCollege?branch=master
+[codeclimate-image]: https://codeclimate.com/github/doomdagger/iCollege/badges/gpa.svg
+[codeclimate-url]: https://codeclimate.com/github/doomdagger/iCollege
+[dependency-image]: http://img.shields.io/david/doomdagger/iCollege.svg?style=flat
+[dependency-url]: https://david-dm.org/doomdagger/iCollege
