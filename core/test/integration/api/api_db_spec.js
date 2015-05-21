@@ -17,6 +17,9 @@ describe('DB API', function () {
     before(testUtils.wait);
     before(testUtils.teardown);
     afterEach(testUtils.teardown);
+    afterEach(function () {
+        sandbox.restore();
+    });
     beforeEach(testUtils.DataGenerator.resetCounter);
     beforeEach(testUtils.setup('users:roles', 'posts', 'perms:db', 'perms:init', 'settings'));
 
