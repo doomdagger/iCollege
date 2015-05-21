@@ -4,6 +4,7 @@ iCollege
 [![Build status](https://ci.appveyor.com/api/projects/status/618ojys7fiwgg0ad?svg=true)](https://ci.appveyor.com/project/doomdagger/icollege)
 [![Dependency Status](https://david-dm.org/doomdagger/iCollege.svg)](https://david-dm.org/doomdagger/iCollege)
 [![Code Climate](https://codeclimate.com/github/doomdagger/iCollege/badges/gpa.svg)](https://codeclimate.com/github/doomdagger/iCollege)
+[![Coverage Status](https://coveralls.io/repos/doomdagger/iCollege/badge.svg)](https://coveralls.io/r/doomdagger/iCollege)
 
 ### What is iCollege
 

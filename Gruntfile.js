@@ -193,16 +193,19 @@ var _              = require('lodash'),
                 }
             },
 
-            // ### grunt-shell
-            // Command line tools where it's easier to run a command directly than configure a grunt plugin
-            shell: {
-                // #### Generate coverage report
-                // See the `grunt test-coverage` task in the section on [Testing](#testing) for more information.
+            // ### grunt-mocha-istanbul
+            // Configuration for the mocha test coverage generator
+            // `grunt coverage`.
+            mocha_istanbul: {
                 coverage: {
-                    command: path.resolve(cwd  + '/node_modules/mocha/bin/mocha  --timeout 15000 --reporter' +
-                    ' html-cov > coverage.html ./core/test/blanket_coverage.js'),
-                    execOptions: {
-                        env: 'NODE_ENV=' + process.env.NODE_ENV
+                    // TODO fix the timing/async & cleanup issues with the route and integration tests so that
+                    // they can also have coverage generated for them & the order doesn't matter
+                    src: ['core/test/integration', 'core/test/unit'],
+                    options: {
+                        mask: '**/*_spec.js',
+                        coverageFolder: 'core/test/coverage',
+                        mochaOptions: ['--timeout=15000'],
+                        excludes: ['core/shared/**']
                     }
                 }
             },
@@ -443,16 +446,18 @@ var _              = require('lodash'),
 
 
         // ### Coverage
-        // `grunt test-coverage` will generate a report for the Unit and Integration Tests.
+        // `grunt coverage` will generate a report for the Unit Tests.
         //
         // This is not currently done as part of CI or any build, but is a tool we have available to keep an eye on how
         // well the unit and integration tests are covering the code base.
-        // iCollege does not have a minimum coverage level - we're more interested in ensuring important and useful areas
+        // Ghost does not have a minimum coverage level - we're more interested in ensuring important and useful areas
         // of the codebase are covered, than that the whole codebase is covered to a particular level.
         //
         // Key areas for coverage are: helpers and theme elements, apps / GDK, the api and model layers.
-        grunt.registerTask('test-coverage', 'Generate unit and integration (mocha) tests coverage report',
-            ['clean:test', 'setTestEnv', 'ensureConfig', 'shell:coverage']);
+
+        grunt.registerTask('coverage', 'Generate unit and integration (mocha) tests coverage report',
+            ['clean:test', 'setTestEnv', 'ensureConfig', 'mocha_istanbul:coverage']
+        );
 
 
         // #### Master Warning *(Utility Task)*
