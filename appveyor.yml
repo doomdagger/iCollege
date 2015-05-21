@@ -16,10 +16,11 @@ install:
   - cmd: net start MongoDB
   - ps: Install-Product node $env:nodejs_version
   - npm install
+  - npm install -g grunt-cli
 build: off
 test_script:
   - node --version
   - npm --version
   - C:\mongodb\bin\mongo.exe --version
-  - node_modules/.bin/grunt validate --verbose
+  - grunt validate --verbose
 version: "{build}"
