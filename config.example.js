@@ -162,6 +162,10 @@ config = {
             host: '127.0.0.1',
             port: '1222'
         },
+        // api config, default version for the system
+        api: {
+            version: "0.1"
+        },
         logging: false
     }
 };

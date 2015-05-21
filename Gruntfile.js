@@ -188,7 +188,7 @@ var _              = require('lodash'),
                 // #### All Module tests
                 module: {
                     src: [
-                        'core/test/functional/module/**/*_test.js'
+                        'core/test/functional/module/**/*_spec.js'
                     ]
                 }
             },
