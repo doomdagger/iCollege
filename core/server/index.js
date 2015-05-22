@@ -2,6 +2,8 @@
 var express     = require('express'),
     compress    = require('compression'),
     methodOver  = require('method-override'),
+    uuid        = require('node-uuid'),
+    Promise     = require('bluebird'),
 
     api         = require('./api'),
     config      = require('./config'),
@@ -10,9 +12,29 @@ var express     = require('express'),
     migrations  = require('./data/migration'),
     models      = require('./models'),
     permissions = require('./permissions'),
-    Server      = require('./icollege-server');
+    Server      = require('./icollege-server'),
 
+// Variables
+    dbHash;
 
+function initDbHashAndFirstRun() {
+    return api.settings.read({key: 'dbHash', context: {internal: true}}).then(function (response) {
+        var initHash;
+
+        dbHash = response.settings[0].value;
+
+        if (dbHash === null) {
+            initHash = uuid.v4();
+            return api.settings.edit({settings: [{key: 'dbHash', value: initHash}]}, {context: {internal: true}})
+                .then(function (response) {
+                    dbHash = response.settings[0].value;
+                    return dbHash;
+                });
+        }
+
+        return dbHash;
+    });
+}
 
 // This is run after every initialization is done, right before starting server.
 // Its main purpose is to move adding notifications here, so none of the submodules
@@ -66,8 +88,12 @@ function init(options) {
         // NOTE: Must be done before initDbHashAndFirstRun calls
         return permissions.init();
     }).then(function () {
-        // Initialize mail
-        return mailer.init();
+        return Promise.join(
+            // Check for or initialise a dbHash.
+            initDbHashAndFirstRun(),
+            // Initialize mail
+            mailer.init()
+        );
     }).then(function () {
         // Output necessary notifications on init
         initNotifications();
