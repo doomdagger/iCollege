@@ -6,8 +6,7 @@ var should          = require('should'),
 
 // Stuff we are testing
     defaultSettings = require('../../server/data/default-settings'),
-    schema          = require('../../server/data/schema'),
-    permissions     = require('../../server/data/fixtures/fixtures').permissions;
+    schema          = require('../../server/data/schema');
 
 // To stop jshint complaining
 should.equal(true, true);
@@ -20,15 +19,13 @@ describe('Migrations', function () {
     describe('DB version integrity', function () {
         // Only these variables should need updating
         var currentDbVersion = '000',
-            currentSchemaHash = '47993db0be0c377b991bb0d21f210ad9',
-            currentPermissionsHash = '656f6a8606a9aa25e7f8816ad3ddd788';
+            currentSchemaHash = '47993db0be0c377b991bb0d21f210ad9';
 
         // If this test is failing, then it is likely a change has been made that requires a DB version bump,
         // and the values above will need updating as confirmation
         it('should not change without fixing this test', function () {
             var tablesNoValidation = _.cloneDeep(schema.collections),
-                schemaHash,
-                permissionsHash;
+                schemaHash;
 
             _.each(tablesNoValidation, function (table) {
                 return _.each(table, function (column, name) {
@@ -37,12 +34,10 @@ describe('Migrations', function () {
             });
 
             schemaHash = crypto.createHash('md5').update(JSON.stringify(tablesNoValidation)).digest('hex');
-            permissionsHash = crypto.createHash('md5').update(JSON.stringify(permissions)).digest('hex');
 
             // Test!
             defaultSettings.core.databaseVersion.defaultValue.should.eql(currentDbVersion);
             schemaHash.should.eql(currentSchemaHash);
-            permissionsHash.should.eql(currentPermissionsHash);
         });
     });
 });
