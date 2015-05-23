@@ -206,7 +206,7 @@ var _              = require('lodash'),
                         mask: '**/*_spec.js',
                         coverageFolder: 'core/test/coverage',
                         mochaOptions: ['--timeout=15000'],
-                        excludes: ['core/shared/**']
+                        excludes: ['core/shared/**', 'core/server/routes/**']
                     }
                 }
             },
