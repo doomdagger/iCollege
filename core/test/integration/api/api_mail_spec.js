@@ -79,24 +79,25 @@ describe('Mail API', function () {
             });
         });
 
-        it.skip('return correct failure message for domain doesn\'t exist', function (done) {
+        // This test doesn't work properly - it times out locally
+        it('return correct failure message for domain doesn\'t exist', function (done) {
             mailer.transport.transportType.should.eql('DIRECT');
             return MailAPI.send(mailDataNoDomain, testUtils.context.internal).then(function () {
                 done(new Error('Error message not shown.'));
             }, function (error) {
-                error.message.should.startWith('Email Error: Failed sending email');
+                error.message.should.startWith('Error: Sending failed');
                 error.type.should.eql('EmailError');
                 done();
             }).catch(done);
         });
 
         // This test doesn't work properly - it times out locally
-        it.skip('return correct failure message for no mail server at this address', function (done) {
+        it('return correct failure message for no mail server at this address', function (done) {
             mailer.transport.transportType.should.eql('DIRECT');
             MailAPI.send(mailDataNoServer, testUtils.context.internal).then(function () {
                 done(new Error('Error message not shown.'));
             }, function (error) {
-                error.message.should.eql('Email Error: Failed sending email.');
+                error.message.should.eql('Error: Sending failed');
                 error.type.should.eql('EmailError');
                 done();
             }).catch(done);
@@ -115,20 +116,20 @@ describe('Mail API', function () {
         });
     });
 
-    describe.skip('Mail API QQ', function () {
+    describe('Mail API Yahoo', function () {
         before(function (done) {
             config.set({
                 mail: {
                     transport: 'SMTP',
                     options: {
-                        service: 'QQ',
+                        service: 'Yahoo',
                         auth: {
-                            user: 'icollege.platform@qq.com', // QQ username
-                            pass: 'egelloci'            // QQ password
+                            user: 'icollege.platform@yahoo.com', // Yahoo username
+                            pass: 'mroftalpegelloci'            // Yahoo password
                         }
                     },
-                    mailfrom: 'icollege.platform@qq.com', // mail from address, QQ service demand this value to be same with auth.user
-                    mailto: 'icollege.platform@qq.com'  // test mail address, only for development
+                    mailfrom: 'icollege.platform@yahoo.com', // mail from address, Yahoo service demand this value to be same with auth.user
+                    mailto: 'icollege.platform@yahoo.com'  // test mail address, only for development
                 }
             });
 
@@ -137,7 +138,7 @@ describe('Mail API', function () {
             });
         });
 
-        it('return correct failure message for incomplete data', function (done) {
+        it('returns a success', function (done) {
             mailer.transport.transportType.should.eql('SMTP');
 
             MailAPI.sendTest(testUtils.context.internal).then(function () {
@@ -147,39 +148,5 @@ describe('Mail API', function () {
             }).catch(done);
         });
 
-    });
-
-    describe.skip('Stub', function () {
-        it('returns a success', function (done) {
-            config.set({mail: {transport: 'stub'}});
-
-            mailer.init().then(function () {
-                mailer.transport.transportType.should.eql('STUB');
-                return MailAPI.send(mailDataNoServer, testUtils.context.internal);
-            }).then(function (response) {
-                should.exist(response.mail);
-                should.exist(response.mail[0].message);
-                should.exist(response.mail[0].status);
-                response.mail[0].status.should.eql({message: 'Message Queued'});
-                response.mail[0].message.subject.should.eql('testemail');
-                done();
-            }).catch(done);
-        });
-
-        it('returns a boo boo', function (done) {
-            config.set({mail: {transport: 'stub', error: 'Stub made a boo boo :('}});
-
-            mailer.init().then(function () {
-                mailer.transport.transportType.should.eql('STUB');
-                return MailAPI.send(mailDataNoServer, testUtils.context.internal);
-            }).then(function (response) {
-                console.log('res', response.mail[0]);
-                done(new Error('Stub did not error'));
-            }, function (error) {
-                error.message.should.startWith('Email Error: Failed sending email: there is no mail server at this address');
-                error.type.should.eql('EmailError');
-                done();
-            }).catch(done);
-        });
     });
 });

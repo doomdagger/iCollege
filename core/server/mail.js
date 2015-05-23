@@ -23,14 +23,17 @@ Mailer.prototype.init = function () {
         return Promise.resolve();
     }
 
-    self.transport = nodemailer.createTransport('direct');
+    // using direct transport
+    self.transport = nodemailer.createTransport();
     self.state.usingDirect = true;
+    self.transport.transportType = "DIRECT";
 
     return Promise.resolve();
 };
 
 Mailer.prototype.createTransport = function () {
-    this.transport = nodemailer.createTransport(config.mail.transport, _.clone(config.mail.options) || {});
+    this.transport = nodemailer.createTransport(_.clone(config.mail.options) || {});
+    this.transport.transportType = config.mail.transport;
 };
 
 Mailer.prototype.from = function () {
@@ -80,7 +83,6 @@ Mailer.prototype.send = function (message) {
     message = _.extend(message, {
         from: self.from(),
         to: to,
-        generateTextFromHTML: true,
         encoding: 'base64'
     });
 
@@ -94,22 +96,23 @@ Mailer.prototype.send = function (message) {
                 return resolve(response);
             }
 
-            response.statusHandler.once('failed', function (data) {
-                var reason = 'Email Error: Failed sending email';
-                if (data.error.errno === 'ENOTFOUND') {
-                    reason += ': there is no mail server at this address: ' + data.domain;
-                }
-                reason += '.';
-                return reject(new Error(reason));
-            });
+            // **Email Status Handler Has Been Deprecated in nodemailer v1.*
+            //response.statusHandler.once('failed', function (data) {
+            //    var reason = 'Email Error: Failed sending email';
+            //    if (data.error.errno === 'ENOTFOUND') {
+            //        reason += ': there is no mail server at this address: ' + data.domain;
+            //    }
+            //    reason += '.';
+            //    return reject(new Error(reason));
+            //});
 
-            response.statusHandler.once('requeue', function (data) {
-                return reject(new Error('Email Error: message was not sent, requeued. Probably will not be sent. :( \nMore info: ' + data.error.message));
-            });
+            //response.statusHandler.once('requeue', function (data) {
+            //    return reject(new Error('Email Error: message was not sent, requeued. Probably will not be sent. :( \nMore info: ' + data.error.message));
+            //});
 
-            response.statusHandler.once('sent', function () {
-                return resolve('Message was accepted by the mail server. Make sure to check inbox and spam folders. :)');
-            });
+            //response.statusHandler.once('sent', function () {
+            //    return resolve('Message was accepted by the mail server. Make sure to check inbox and spam folders. :)');
+            //});
         });
     });
 };

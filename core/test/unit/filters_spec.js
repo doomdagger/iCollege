@@ -21,7 +21,7 @@ describe('Filters', function () {
         sandbox.restore();
     });
 
-    it('can register filters with specific priority', function () {
+    it('can register filters with specific priority, then can deregister', function () {
         var filterName = 'test',
             filterPriority = 9,
             testFilterHandler = sandbox.spy();
@@ -32,9 +32,16 @@ describe('Filters', function () {
         should.exist(filters.filterCallbacks[filterName][filterPriority]);
 
         filters.filterCallbacks[filterName][filterPriority].should.containEql(testFilterHandler);
+
+        filters.deregisterFilter(filterName, filterPriority, testFilterHandler);
+
+        should.exist(filters.filterCallbacks[filterName]);
+        should.exist(filters.filterCallbacks[filterName][filterPriority]);
+
+        filters.filterCallbacks[filterName][filterPriority].should.not.containEql(testFilterHandler);
     });
 
-    it('can register filters with default priority', function () {
+    it('can register filters with default priority, then can deregister', function () {
         var filterName = 'test',
             defaultPriority = 5,
             testFilterHandler = sandbox.spy();
@@ -45,6 +52,13 @@ describe('Filters', function () {
         should.exist(filters.filterCallbacks[filterName][defaultPriority]);
 
         filters.filterCallbacks[filterName][defaultPriority].should.containEql(testFilterHandler);
+
+        filters.deregisterFilter(filterName, testFilterHandler);
+
+        should.exist(filters.filterCallbacks[filterName]);
+        should.exist(filters.filterCallbacks[filterName][defaultPriority]);
+
+        filters.filterCallbacks[filterName][defaultPriority].should.not.containEql(testFilterHandler);
     });
 
     it('can register filters with priority null with default priority', function () {

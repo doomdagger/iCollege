@@ -78,6 +78,10 @@ describe('Mail', function () {
     });
 
     it('should fall back to [blog.title] <icollege@[blog.url]> as from address', function () {
+        // with no title given
+        config.set({url: 'http://default.com/', mail: {mailfrom: null}, theme: {}});
+        mailer.from().should.equal('iCollege at default.com <icollege@default.com>');
+
         // Standard domain
         config.set({url: 'http://default.com', mail: {mailfrom: null}, theme: {title: 'Test'}});
         mailer.from().should.equal('Test <icollege@default.com>');
