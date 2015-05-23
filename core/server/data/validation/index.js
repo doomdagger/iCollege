@@ -32,7 +32,7 @@ validateSchema = {
 // settings are checked against the validation objects
 // form default-settings.json
 validateSettings = function (defaultSettings, model) {
-    var values = model.toJSON(),
+    var values = model.jsonify(),
         validationErrors = [],
         matchingDefault = defaultSettings[values.key];
 

@@ -75,7 +75,7 @@ SettingSchema = icollegeShelf.schema('settings', {
 
         return Promise.map(data, function (item) {
             // Accept an array of models as input
-            if (item.toJSON) { item = item.toJSON(); }
+            if (item.jsonify) { item = item.jsonify(); }
             if (!(_.isString(item.key) && item.key.length > 0)) {
                 return Promise.reject(new errors.ValidationError('Value in [settings.key] cannot be blank.'));
             }

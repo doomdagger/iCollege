@@ -56,7 +56,7 @@ cacheInvalidationHeader = function (req, result) {
         endpoint = parsedUrl[0],
         id = parsedUrl[1],
         cacheInvalidate,
-        jsonResult = result.toJSON ? result.toJSON() : result,
+        jsonResult = result.jsonify ? result.jsonify() : result,
         post,
         hasStatusChanged,
         wasDeleted,
