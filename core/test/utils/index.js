@@ -152,6 +152,10 @@ fixtures = {
         return path.resolve(__dirname + '/fixtures/export/' + filename + '.json');
     },
 
+    getPackageFilePath: function (filename) {
+        return path.resolve(__dirname + '/fixtures/' + filename + '.json');
+    },
+
     loadExportFixture: function loadExportFixture(filename) {
         var filePath = this.getExportFixturePath(filename),
             readFile = Promise.promisify(fs.readFile);

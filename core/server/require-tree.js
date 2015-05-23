@@ -38,15 +38,15 @@ var _        = require('lodash'),
                         messages.errors.push({
                             message: '"name" or "version" is missing from theme package.json file.',
                             context: path,
-                            help: 'This will be required in future. Please see http://docs.ghost.org/themes/'
+                            help: 'This will be required in future.'
                         });
                         resolve(false);
                     }
                 } catch (e) {
                     messages.errors.push({
-                        message: 'Theme package.json file is malformed',
+                        message: 'The package.json file is malformed',
                         context: path,
-                        help: 'This will be required in future. Please see http://docs.ghost.org/themes/'
+                        help: 'This will be required in future.'
                     });
                     resolve(false);
                 }
@@ -112,19 +112,6 @@ var _        = require('lodash'),
         };
 
         return readDir(dir, options, depth, messages).then(function (paths) {
-            // for all contents of the dir, I'm interested in the ones that are directories and within /theme/
-            if (typeof paths === 'object' && dir.indexOf('theme') !== -1) {
-                _.each(paths, function (path, index) {
-                    if (typeof path === 'object' && !path.hasOwnProperty('package.json') && index.indexOf('.') !== 0) {
-                        messages.warns.push({
-                            message: 'Found a theme with no package.json file',
-                            context: 'Theme name: ' + index,
-                            help: 'This will be required in future. Please see http://docs.ghost.org/themes/'
-                        });
-                    }
-                });
-            }
-
             paths._messages = messages;
 
             return paths;
