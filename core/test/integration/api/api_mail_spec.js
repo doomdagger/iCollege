@@ -138,7 +138,8 @@ describe('Mail API', function () {
             });
         });
 
-        it('returns a success', function (done) {
+        // can cause some service block the mail account, test it locally
+        it.skip('returns a success', function (done) {
             mailer.transport.transportType.should.eql('SMTP');
 
             MailAPI.sendTest(testUtils.context.internal).then(function () {
