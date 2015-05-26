@@ -218,6 +218,10 @@ var _              = require('lodash'),
                     command: function (test) {
                         return 'node ' + mochaPath  + ' --timeout=15000 --ui=bdd --reporter=spec core/test/' + test;
                     }
+                },
+
+                npmInstall: {
+                    command: 'npm install'
                 }
             },
 
@@ -509,6 +513,10 @@ var _              = require('lodash'),
         // Note that the current implementation of watch only works with casper, not other themes.
         grunt.registerTask('dev', 'Dev Mode; watch files and restart server on changes',
             ['express:dev', 'watch']);
+
+        // easy update
+        grunt.registerTask('update', "pull commits from git server & install newly added dependencies",
+            ['shell:npmInstall']);
     };
 
 // Export the configuration
